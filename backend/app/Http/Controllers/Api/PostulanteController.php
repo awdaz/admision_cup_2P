@@ -1,0 +1,171 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\PostulanteStoreRequest;
+use App\Http\Requests\PostulanteUpdateRequest;
+use App\Models\Carrera;
+use App\Models\Persona;
+use App\Models\Postulante;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
+class PostulanteController extends Controller
+{
+    public function index(Request $request): JsonResponse
+    {
+        $query = Postulante::select('postulante.*')
+            ->with('persona', 'postulacions.carreraRel')
+            ->join('persona', 'postulante.persona_id', '=', 'persona.id')
+            ->orderBy('persona.ci');
+
+        if ($search = $request->get('search')) {
+            $query->whereHas('persona', function ($q) use ($search) {
+                $q->where('ci', 'ilike', "%{$search}%")
+                  ->orWhere('nombre', 'ilike', "%{$search}%")
+                  ->orWhere('apellido', 'ilike', "%{$search}%");
+            });
+        }
+
+        $postulantes = $query->paginate(15);
+
+        $postulantes->getCollection()->transform(function ($p) {
+            $post = $p->postulacions->first();
+            $p->unsetRelation('postulacions');
+            if ($post) {
+                $post->load('carreraRel');
+                $p->setRelation('postulacion', $post);
+            }
+            return $p;
+        });
+
+        return response()->json($postulantes);
+    }
+
+    public function store(PostulanteStoreRequest $request): JsonResponse
+    {
+        try {
+            DB::beginTransaction();
+
+            $persona = Persona::create($request->only([
+                'ci',
+                'nombre',
+                'apellido',
+                'fecha_nac',
+                'sexo',
+                'email',
+                'telefono',
+                'direccion',
+                'ciudad',
+            ]));
+
+            $postulante = Postulante::create([
+                'persona_id' => $persona->id,
+                'codigo' => 'POST-' . str_pad($persona->id, 5, '0', STR_PAD_LEFT),
+                'colegio_procedencia' => $request->colegio_procedencia,
+                'requisitos_verificado' => false,
+            ]);
+
+            DB::commit();
+
+            $postulante->load('persona');
+
+            return response()->json($postulante, 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Error al crear postulante.', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function show($id): JsonResponse
+    {
+        $postulante = Postulante::with(['persona', 'postulacions'])->find($id);
+
+        if (!$postulante) {
+            return response()->json(['message' => 'Postulante no encontrado.'], 404);
+        }
+
+        return response()->json($postulante);
+    }
+
+    public function update(PostulanteUpdateRequest $request, $id): JsonResponse
+    {
+        $postulante = Postulante::with('persona')->find($id);
+
+        if (!$postulante) {
+            return response()->json(['message' => 'Postulante no encontrado.'], 404);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $postulante->persona->update($request->only([
+                'ci',
+                'nombre',
+                'apellido',
+                'fecha_nac',
+                'sexo',
+                'email',
+                'telefono',
+                'direccion',
+                'ciudad',
+            ]));
+
+            $postulante->update($request->only([
+                'colegio_procedencia',
+            ]));
+
+            DB::commit();
+
+            $postulante->load('persona');
+
+            return response()->json($postulante);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Error al actualizar postulante.', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function destroy($id): JsonResponse
+    {
+        $postulante = Postulante::find($id);
+
+        if (!$postulante) {
+            return response()->json(['message' => 'Postulante no encontrado.'], 404);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $personaId = $postulante->persona_id;
+            $postulante->delete();
+            Persona::find($personaId)?->delete();
+
+            DB::commit();
+
+            return response()->json(['message' => 'Postulante eliminado correctamente.']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Error al eliminar postulante.', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function search($ci): JsonResponse
+    {
+        $persona = Persona::where('ci', $ci)->first();
+
+        if (!$persona) {
+            return response()->json(['message' => 'Postulante no encontrado con ese CI.'], 404);
+        }
+
+        $postulante = Postulante::with('persona')->where('persona_id', $persona->id)->first();
+
+        if (!$postulante) {
+            return response()->json(['message' => 'No existe un postulante registrado con ese CI.'], 404);
+        }
+
+        return response()->json($postulante);
+    }
+}
