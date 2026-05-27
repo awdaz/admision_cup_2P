@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:18
+    container_name: cup_uagrm_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: admin_test
+      POSTGRES_PASSWORD: cup_pass_2026
+      POSTGRES_DB: cup_uagrm
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+      - ./cup_uagrm.sql:/docker-entrypoint-initdb.d/01-esquema.sql
+      - ./cup_uagrm_datos.sql:/docker-entrypoint-initdb.d/02-datos.sql
+      # - ./cup_uagrm_consultas.sql:/docker-entrypoint-initdb.d/03-consultas.sql
+
+volumes:
+  postgres_data:

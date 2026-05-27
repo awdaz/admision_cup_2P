@@ -1,0 +1,109 @@
+@startuml
+!define TABLE(x) class x << (T,#FFAAAA) >>
+!define PK(x) <b><u><color:red>x</color></u></b>
+!define FK(x) <color:blue>x</color>
+!define NOT_NULL(x) <b>x</b>
+
+title "CUP UAGRM - Modelo Entidad-Relación"
+hide circle
+skinparam linetype ortho
+skinparam class {
+    BackgroundColor #FEFEFE
+    BorderColor #666666
+    ArrowColor #333333
+}
+
+TABLE(persona) {
+    PK(id) SERIAL
+    ci VARCHAR(20) NOT_NULL UNIQUE
+    nombre VARCHAR(100) NOT_NULL
+    apellido VARCHAR(100) NOT_NULL
+    fecha_nac DATE NOT_NULL
+    sexo VARCHAR(10)
+    email VARCHAR(200) NOT_NULL UNIQUE
+    telefono VARCHAR(20)
+    direccion VARCHAR(300)
+    ciudad VARCHAR(100)
+}
+
+TABLE(postulante) { PK(id) SERIAL; FK(persona_id) INTEGER NOT_NULL UNIQUE; codigo VARCHAR(50) NOT_NULL UNIQUE; colegio_procedencia VARCHAR(200); requisitos_verificado BOOLEAN NOT_NULL }
+postulante -[#red]down-|> persona
+
+TABLE(docente) { PK(id) SERIAL; FK(persona_id) INTEGER NOT_NULL UNIQUE; cod_docente VARCHAR(50) NOT_NULL UNIQUE; es_profesional_area BOOLEAN NOT_NULL; tiene_maestria BOOLEAN NOT_NULL; tiene_diplomado_edu_sup BOOLEAN NOT_NULL; contratado BOOLEAN NOT_NULL }
+docente -[#red]down-|> persona
+
+TABLE(usuario) { PK(id) SERIAL; email VARCHAR(200) NOT_NULL UNIQUE; password_hash VARCHAR(300) NOT_NULL; tipo VARCHAR(20) NOT_NULL; activo BOOLEAN NOT_NULL; FK(persona_id) INTEGER NOT_NULL UNIQUE }
+usuario -[#blue]down-> persona
+
+TABLE(turno) { PK(id) SERIAL; nombre VARCHAR(50) NOT_NULL UNIQUE; modalidad VARCHAR(20) NOT_NULL }
+
+TABLE(carrera) { PK(id) SERIAL; codigo VARCHAR(20) NOT_NULL UNIQUE; nombre VARCHAR(200) NOT_NULL; cupo INTEGER NOT_NULL }
+
+TABLE(semestre) { PK(id) SERIAL; semestre VARCHAR(10) NOT_NULL; anio INTEGER NOT_NULL }
+
+TABLE(admision) { PK(id) SERIAL; nro VARCHAR(20) NOT_NULL UNIQUE; estado VARCHAR(20) NOT_NULL; fecha_inicio DATE NOT_NULL; fecha_fin DATE; gestion INTEGER NOT_NULL; descripcion VARCHAR(500) }
+
+TABLE(materia) { PK(id) SERIAL; codigo VARCHAR(20) NOT_NULL UNIQUE; nombre VARCHAR(200) NOT_NULL; peso DECIMAL(4,2) NOT_NULL; descripcion VARCHAR(500) }
+
+TABLE(requisito) { PK(id) SERIAL; nombre VARCHAR(100) NOT_NULL UNIQUE; descripcion VARCHAR(500) }
+
+TABLE(postulante_requisito) { PK(id) SERIAL; FK(postulante_id) INTEGER NOT_NULL; FK(requisito_id) INTEGER NOT_NULL; cumplido BOOLEAN NOT_NULL; fecha_verificacion TIMESTAMP }
+postulante_requisito -[#blue]down-> postulante
+postulante_requisito -[#blue]down-> requisito
+
+TABLE(aula) { PK(id) SERIAL; nro VARCHAR(20) NOT_NULL; piso INTEGER NOT_NULL; capacidad INTEGER NOT_NULL }
+
+TABLE(grupo) {
+    PK(id) SERIAL; codigo VARCHAR(20) NOT_NULL UNIQUE; nombre VARCHAR(200) NOT_NULL
+    cupo INTEGER NOT_NULL (max 70)
+    FK(materia_id) INTEGER NOT_NULL; FK(docente_id) INTEGER NOT_NULL; FK(turno_id) INTEGER NOT_NULL
+}
+grupo -[#blue]down-> materia
+grupo -[#blue]down-> docente
+grupo -[#blue]down-> turno
+
+TABLE(examen) { PK(id) SERIAL; nro VARCHAR(20) NOT_NULL; descripcion VARCHAR(500); fecha DATE NOT_NULL; porcentaje DECIMAL(5,2); FK(grupo_id) INTEGER NOT_NULL }
+examen -[#blue]down-> grupo
+
+TABLE(horario) { PK(id) SERIAL; dia VARCHAR(15) NOT_NULL; hora_inicio TIME NOT_NULL; hora_fin TIME NOT_NULL; FK(grupo_id) INTEGER NOT_NULL; FK(aula_id) INTEGER }
+horario -[#blue]down-> grupo
+horario -[#blue]down-> aula
+
+TABLE(postulacion) {
+    PK(id) SERIAL
+    estado VARCHAR(20) NOT_NULL; fecha DATE NOT_NULL; hora TIME NOT_NULL
+    FK(postulante_id) INTEGER NOT_NULL
+    FK(carrera_id) INTEGER NOT_NULL; FK(primera_opcion_id) INTEGER NOT_NULL; FK(segunda_opcion_id) INTEGER
+    FK(turno_id) INTEGER NOT_NULL
+    FK(semestre_id) INTEGER NOT_NULL; FK(admision_id) INTEGER
+    promedio_matematicas DECIMAL(4,2); promedio_fisica DECIMAL(4,2)
+    promedio_computacion DECIMAL(4,2); promedio_ingles DECIMAL(4,2)
+    promedio_general DECIMAL(4,2); aprobado BOOLEAN
+    FK(carrera_asignada_id) INTEGER
+}
+postulacion -[#blue]down-> postulante
+postulacion -[#blue]down-> turno
+postulacion -[#blue]down-> semestre
+postulacion -[#blue]down-> admision
+postulacion -[#blue]down-> carrera : carrera_id
+postulacion -[#blue].> carrera : primera_opcion_id
+postulacion -[#blue].> carrera : segunda_opcion_id
+postulacion -[#blue].> carrera : carrera_asignada_id
+
+TABLE(postulacion_grupo) {
+    PK(id) SERIAL
+    FK(postulacion_id) INTEGER NOT_NULL; FK(grupo_id) INTEGER NOT_NULL; FK(materia_id) INTEGER NOT_NULL
+}
+postulacion_grupo -[#blue]down-> postulacion
+postulacion_grupo -[#blue]down-> grupo
+postulacion_grupo -[#blue]down-> materia
+
+TABLE(pago) { PK(id) SERIAL; numero_recibo VARCHAR(50) NOT_NULL UNIQUE; monto DECIMAL(10,2) NOT_NULL; metodo_pago VARCHAR(30) NOT_NULL; estado VARCHAR(20) NOT_NULL; transaccion_id VARCHAR(100); gateway VARCHAR(50); respuesta_gateway TEXT; FK(postulacion_id) INTEGER NOT_NULL; FK(postulante_id) INTEGER NOT_NULL }
+pago -[#blue]down-> postulacion
+pago -[#blue]down-> postulante
+
+TABLE(rinde) { PK(id) SERIAL; FK(postulacion_id) INTEGER NOT_NULL; FK(examen_id) INTEGER NOT_NULL; nota DECIMAL(4,2) NOT_NULL }
+rinde -[#blue]down-> postulacion
+rinde -[#blue]down-> examen
+
+@enduml
