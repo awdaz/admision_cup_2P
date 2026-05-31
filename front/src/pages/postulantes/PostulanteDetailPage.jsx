@@ -80,6 +80,9 @@ export default function PostulanteDetailPage() {
           <button className="btn btn-outline-info" onClick={() => navigate(`/postulantes/${id}/requisitos`)}>
             <i className="bi bi-check-square me-1"></i>Gestionar Requisitos
           </button>
+          <button className="btn btn-outline-warning" onClick={() => navigate(`/postulaciones/nueva?postulante_id=${id}`)}>
+            <i className="bi bi-file-earmark-plus me-1"></i>Postular
+          </button>
           <button className="btn btn-outline-success" onClick={() => navigate(`/pagos/nuevo?postulante_id=${id}`)}>
             <i className="bi bi-credit-card me-1"></i>Registrar Pago
           </button>
@@ -95,8 +98,8 @@ export default function PostulanteDetailPage() {
                 <tbody>
                   <tr><td className="text-muted" style={{ width: '140px' }}>CI</td><td>{postulante.ci}</td></tr>
                   <tr><td className="text-muted">Nombre</td><td>{postulante.nombre} {postulante.apellido}</td></tr>
-                  <tr><td className="text-muted">Fecha Nac.</td><td>{postulante.fecha_nacimiento || '-'}</td></tr>
-                  <tr><td className="text-muted">Sexo</td><td>{postulante.sexo === 'M' ? 'Masculino' : postulante.sexo === 'F' ? 'Femenino' : '-'}</td></tr>
+                  <tr><td className="text-muted">Fecha Nac.</td><td>{postulante.fecha_nac || '-'}</td></tr>
+                  <tr><td className="text-muted">Sexo</td><td>{postulante.sexo === 'Masculino' ? 'Masculino' : postulante.sexo === 'Femenino' ? 'Femenino' : postulante.sexo === 'M' ? 'Masculino' : postulante.sexo === 'F' ? 'Femenino' : postulante.sexo || '-'}</td></tr>
                   <tr><td className="text-muted">Email</td><td>{postulante.email}</td></tr>
                   <tr><td className="text-muted">Teléfono</td><td>{postulante.telefono || '-'}</td></tr>
                   <tr><td className="text-muted">Dirección</td><td>{postulante.direccion || '-'}</td></tr>
@@ -119,7 +122,7 @@ export default function PostulanteDetailPage() {
                     <tr><td className="text-muted">Turno</td><td>{postulante.postulacion.turno_nombre || '-'}</td></tr>
                     <tr><td className="text-muted">Semestre</td><td>{postulante.postulacion.semestre_nombre || '-'}</td></tr>
                     <tr><td className="text-muted">Estado</td><td><span className="badge bg-info">{postulante.postulacion.estado || '-'}</span></td></tr>
-                    <tr><td className="text-muted">Fecha</td><td>{postulante.postulacion.fecha_registro || postulante.postulacion.created_at || '-'}</td></tr>
+                    <tr><td className="text-muted">Fecha</td><td>{postulante.postulacion.fecha || postulante.postulacion.created_at || '-'}</td></tr>
                   </tbody>
                 </table>
               ) : (
@@ -159,7 +162,7 @@ export default function PostulanteDetailPage() {
                     <li key={idx} className="list-group-item d-flex justify-content-between align-items-center">
                       <div>
                         <strong>Bs. {pago.monto}</strong>
-                        <small className="d-block text-muted">{pago.metodo_pago} - {pago.fecha_pago || pago.created_at}</small>
+                        <small className="d-block text-muted">{pago.metodo_pago} - {pago.fecha || pago.created_at}</small>
                       </div>
                       <span className={`badge bg-${pago.estado === 'confirmado' ? 'success' : 'warning'}`}>
                         {pago.estado}

@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import cliente from '../../api/cliente';
+import { toast } from 'sonner';
 import Loader from '../../components/ui/Loader';
-import Alert from '../../components/ui/Alert';
 
 export default function RequisitosPage() {
   const { id } = useParams();
@@ -10,8 +10,6 @@ export default function RequisitosPage() {
   const [requisitos, setRequisitos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
 
   useEffect(() => {
     (async () => {
@@ -20,7 +18,7 @@ export default function RequisitosPage() {
         const list = Array.isArray(data) ? data : data.data || data.requisitos || [];
         setRequisitos(list);
       } catch (err) {
-        setError(err.message);
+        toast.error(err.message);
       } finally {
         setLoading(false);
       }
@@ -35,13 +33,11 @@ export default function RequisitosPage() {
 
   const handleSave = async () => {
     setSaving(true);
-    setError('');
-    setSuccess('');
     try {
       await cliente.put(`/postulantes/${id}/requisitos`, { requisitos });
-      setSuccess('Requisitos actualizados correctamente');
+      toast.success('Requisitos actualizados correctamente');
     } catch (err) {
-      setError(err.message);
+      toast.error(err.message);
     } finally {
       setSaving(false);
     }
@@ -58,9 +54,6 @@ export default function RequisitosPage() {
             <i className="bi bi-arrow-left me-1"></i>Volver
           </button>
         </div>
-
-        <Alert type="danger" message={error} onClose={() => setError('')} />
-        <Alert type="success" message={success} onClose={() => setSuccess('')} />
 
         <div className="card shadow-sm">
           <div className="card-header">

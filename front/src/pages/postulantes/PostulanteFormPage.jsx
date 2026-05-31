@@ -1,14 +1,13 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'sonner';
 import usePostulantes from '../../hooks/usePostulantes';
-import Alert from '../../components/ui/Alert';
 import Loader from '../../components/ui/Loader';
 
 export default function PostulanteFormPage() {
   const { id } = useParams();
   const isEdit = Boolean(id);
   const navigate = useNavigate();
-  const location = useLocation();
   const { getPostulante, createPostulante, updatePostulante, loading } = usePostulantes();
 
   const [form, setForm] = useState({
@@ -24,7 +23,6 @@ export default function PostulanteFormPage() {
     colegio_procedencia: '',
   });
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState('');
   const [pageLoading, setPageLoading] = useState(isEdit);
 
   useEffect(() => {
@@ -48,7 +46,7 @@ export default function PostulanteFormPage() {
             });
           }
         } catch (err) {
-          setError(err.message);
+          toast.error(err.message);
         } finally {
           setPageLoading(false);
         }
@@ -62,7 +60,6 @@ export default function PostulanteFormPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
     setSubmitting(true);
     try {
       if (isEdit) {
@@ -71,9 +68,10 @@ export default function PostulanteFormPage() {
         await createPostulante(form);
       }
       const msg = isEdit ? 'Postulante actualizado correctamente' : 'Postulante creado correctamente';
-      navigate('/postulantes', { state: { success: msg } });
+      toast.success(msg);
+      navigate('/postulantes');
     } catch (err) {
-      setError(err.message);
+      toast.error(err.message);
     } finally {
       setSubmitting(false);
     }
@@ -85,8 +83,6 @@ export default function PostulanteFormPage() {
     <div className="row justify-content-center">
       <div className="col-lg-8">
         <h4 className="mb-4">{isEdit ? 'Editar Postulante' : 'Nuevo Postulante'}</h4>
-
-        <Alert type="danger" message={error} onClose={() => setError('')} />
 
         <div className="card shadow-sm">
           <div className="card-body">

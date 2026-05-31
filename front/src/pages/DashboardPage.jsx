@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import cliente from '../api/cliente';
 import Loader from '../components/ui/Loader';
 
 export default function DashboardPage() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
 
   useEffect(() => {
     const loadStats = async () => {
@@ -13,7 +13,7 @@ export default function DashboardPage() {
         const data = await cliente.get('/dashboard/stats');
         setStats(data);
       } catch (err) {
-        setError(err.message);
+        toast.error(err.message);
       } finally {
         setLoading(false);
       }
@@ -22,12 +22,6 @@ export default function DashboardPage() {
   }, []);
 
   if (loading) return <Loader />;
-
-  if (error) {
-    return (
-      <div className="alert alert-danger">{error}</div>
-    );
-  }
 
   const cards = [
     { label: 'Total Postulantes', value: stats?.total_postulantes || 0, icon: 'bi-people', color: 'primary' },

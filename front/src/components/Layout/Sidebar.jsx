@@ -1,12 +1,51 @@
 import { NavLink } from 'react-router-dom';
+import useAuthStore from '../../store/authStore';
 
-const links = [
+const adminLinks = [
   { to: '/dashboard', label: 'Dashboard', icon: 'bi-speedometer2' },
   { to: '/postulantes', label: 'Postulantes', icon: 'bi-people' },
+  { to: '/docentes', label: 'Docentes', icon: 'bi-mortarboard' },
+  { to: '/grupos', label: 'Grupos', icon: 'bi-layers' },
+  { to: '/examenes', label: 'Exámenes', icon: 'bi-file-text' },
+  { to: '/horarios', label: 'Horarios', icon: 'bi-calendar-week' },
+  { to: '/notas', label: 'Notas', icon: 'bi-clipboard-data' },
+  { to: '/postulaciones/nueva', label: 'Nueva Postulación', icon: 'bi-file-earmark-plus' },
   { to: '/pagos', label: 'Pagos', icon: 'bi-credit-card' },
+  { to: '/reportes', label: 'Reportes', icon: 'bi-bar-chart' },
+  { to: '/usuarios', label: 'Usuarios', icon: 'bi-shield-lock' },
 ];
 
+const postulanteLinks = [
+  { to: '/dashboard', label: 'Dashboard', icon: 'bi-speedometer2' },
+  { to: '/postulantes', label: 'Mis Datos', icon: 'bi-person' },
+  { to: '/postulaciones/nueva', label: 'Nueva Postulación', icon: 'bi-file-earmark-plus' },
+  { to: '/notas', label: 'Mis Notas', icon: 'bi-clipboard-data' },
+  { to: '/pagos', label: 'Mis Pagos', icon: 'bi-credit-card' },
+  { to: '/reportes', label: 'Mis Reportes', icon: 'bi-bar-chart' },
+];
+
+const docenteLinks = [
+  { to: '/dashboard', label: 'Dashboard', icon: 'bi-speedometer2' },
+  { to: '/docentes', label: 'Mis Grupos', icon: 'bi-mortarboard' },
+  { to: '/examenes', label: 'Exámenes', icon: 'bi-file-text' },
+  { to: '/horarios', label: 'Horarios', icon: 'bi-calendar-week' },
+  { to: '/notas', label: 'Registrar Notas', icon: 'bi-clipboard-data' },
+  { to: '/postulantes', label: 'Postulantes', icon: 'bi-people' },
+  { to: '/postulaciones/nueva', label: 'Nueva Postulación', icon: 'bi-file-earmark-plus' },
+  { to: '/reportes', label: 'Reportes', icon: 'bi-bar-chart' },
+];
+
+const roleLinks = {
+  admin: adminLinks,
+  postulante: postulanteLinks,
+  docente: docenteLinks,
+};
+
 export default function Sidebar({ offcanvasId, onLinkClick }) {
+  const user = useAuthStore((s) => s.user);
+  const tipo = user?.tipo;
+  const links = tipo ? roleLinks[tipo] || adminLinks : [];
+
   const content = (
     <ul className="nav nav-pills flex-column">
       {links.map((link) => (

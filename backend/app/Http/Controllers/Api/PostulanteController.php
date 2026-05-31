@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PostulanteStoreRequest;
 use App\Http\Requests\PostulanteUpdateRequest;
-use App\Models\Carrera;
 use App\Models\Persona;
 use App\Models\Postulante;
 use Illuminate\Http\JsonResponse;
@@ -16,10 +15,20 @@ class PostulanteController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
+        $user = $request->user();
+
         $query = Postulante::select('postulante.*')
             ->with('persona', 'postulacions.carreraRel')
             ->join('persona', 'postulante.persona_id', '=', 'persona.id')
             ->orderBy('persona.ci');
+
+        if ($user->tipo === 'postulante') {
+            $postulante = Postulante::where('persona_id', $user->persona_id)->first();
+            if (!$postulante) {
+                return response()->json(['data' => [], 'message' => 'No tienes un perfil de postulante.']);
+            }
+            $query->where('postulante.id', $postulante->id);
+        }
 
         if ($search = $request->get('search')) {
             $query->whereHas('persona', function ($q) use ($search) {
@@ -50,15 +59,8 @@ class PostulanteController extends Controller
             DB::beginTransaction();
 
             $persona = Persona::create($request->only([
-                'ci',
-                'nombre',
-                'apellido',
-                'fecha_nac',
-                'sexo',
-                'email',
-                'telefono',
-                'direccion',
-                'ciudad',
+                'ci', 'nombre', 'apellido', 'fecha_nac',
+                'sexo', 'email', 'telefono', 'direccion', 'ciudad',
             ]));
 
             $postulante = Postulante::create([
@@ -79,12 +81,20 @@ class PostulanteController extends Controller
         }
     }
 
-    public function show($id): JsonResponse
+    public function show($id, Request $request): JsonResponse
     {
+        $user = $request->user();
         $postulante = Postulante::with(['persona', 'postulacions'])->find($id);
 
         if (!$postulante) {
             return response()->json(['message' => 'Postulante no encontrado.'], 404);
+        }
+
+        if ($user->tipo === 'postulante') {
+            $miPostulante = Postulante::where('persona_id', $user->persona_id)->first();
+            if (!$miPostulante || $miPostulante->id !== (int) $id) {
+                return response()->json(['message' => 'No autorizado para ver este postulante.'], 403);
+            }
         }
 
         return response()->json($postulante);
@@ -102,15 +112,8 @@ class PostulanteController extends Controller
             DB::beginTransaction();
 
             $postulante->persona->update($request->only([
-                'ci',
-                'nombre',
-                'apellido',
-                'fecha_nac',
-                'sexo',
-                'email',
-                'telefono',
-                'direccion',
-                'ciudad',
+                'ci', 'nombre', 'apellido', 'fecha_nac',
+                'sexo', 'email', 'telefono', 'direccion', 'ciudad',
             ]));
 
             $postulante->update($request->only([

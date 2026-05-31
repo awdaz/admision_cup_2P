@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { toast } from 'sonner';
 import usePagos from '../../hooks/usePagos';
 import usePostulantes from '../../hooks/usePostulantes';
-import Alert from '../../components/ui/Alert';
 import Loader from '../../components/ui/Loader';
 
 export default function PagoFormPage() {
@@ -21,8 +21,6 @@ export default function PagoFormPage() {
     metodo_pago: 'efectivo',
   });
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const [pageLoading, setPageLoading] = useState(true);
 
   useEffect(() => {
@@ -36,7 +34,7 @@ export default function PagoFormPage() {
           if (found) setSelectedPostulante(found);
         }
       } catch (err) {
-        setError(err.message);
+        toast.error(err.message);
       } finally {
         setPageLoading(false);
       }
@@ -52,10 +50,10 @@ export default function PagoFormPage() {
         setSelectedPostulante(p);
         setForm((prev) => ({ ...prev, postulante_id: p.id }));
       } else {
-        setError('Postulante no encontrado');
+        toast.error('Postulante no encontrado');
       }
     } catch (err) {
-      setError(err.message);
+      toast.error(err.message);
     }
   };
 
@@ -72,15 +70,13 @@ export default function PagoFormPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
     setSubmitting(true);
     try {
       await createPago(form);
-      setSuccess('Pago registrado correctamente');
-      setTimeout(() => navigate('/pagos'), 1500);
+      toast.success('Pago registrado correctamente');
+      navigate('/pagos');
     } catch (err) {
-      setError(err.message);
+      toast.error(err.message);
     } finally {
       setSubmitting(false);
     }
@@ -92,9 +88,6 @@ export default function PagoFormPage() {
     <div className="row justify-content-center">
       <div className="col-lg-8">
         <h4 className="mb-4">Nuevo Pago</h4>
-
-        <Alert type="danger" message={error} onClose={() => setError('')} />
-        <Alert type="success" message={success} onClose={() => setSuccess('')} />
 
         <div className="card shadow-sm mb-4">
           <div className="card-header"><strong>Seleccionar Postulante</strong></div>

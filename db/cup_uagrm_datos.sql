@@ -40,6 +40,17 @@ VALUES ('ADM-001-2026', 'activa', '2026-01-15', '2026-03-15', 2026,
         'Admisión ordinaria gestión 2026');
 
 -- ============================================================
+-- ADMINISTRADOR
+-- ============================================================
+
+INSERT INTO persona (ci, nombre, apellido, fecha_nac, sexo, email, telefono, direccion, ciudad)
+VALUES ('1234567', 'Admin', 'Principal', '1990-01-01', 'Masculino', 'admin@cup.uagrm.edu.bo',
+        '70000000', 'Oficina Central', 'Santa Cruz');
+
+INSERT INTO usuario (username, email, password_hash, tipo, persona_id)
+VALUES ('admin', 'admin@cup.uagrm.edu.bo', '$2y$10$0TcHweH8OatRchjoj5VRnuLQA98z8aGnnzJ8o5mcacNI38Ik/mjA2', 'admin', 1);
+
+-- ============================================================
 -- AULAS
 -- ============================================================
 
@@ -135,7 +146,7 @@ BEGIN
             (v_datos[v_idx][5]::BOOLEAN AND v_datos[v_idx][6]::BOOLEAN AND v_datos[v_idx][7]::BOOLEAN));
 
         INSERT INTO usuario (username, email, password_hash, tipo, persona_id)
-        VALUES (v_datos[v_idx][3], v_datos[v_idx][3] || '@uagrm.edu.bo', '$2a$10$...hash...', 'docente', v_persona_id);
+        VALUES (v_datos[v_idx][3], v_datos[v_idx][3] || '@uagrm.edu.bo', '$2y$10$ThmB1LDPv6Rbc4kzwM2j2Obu0.v2p9WS/3ostoCVQ4cRv4WezKt/K', 'docente', v_persona_id);
     END LOOP;
 END $$;
 
@@ -356,7 +367,7 @@ BEGIN
         SELECT v_postulante_id, id, TRUE, CURRENT_TIMESTAMP FROM requisito;
 
         INSERT INTO usuario (username, email, password_hash, tipo, persona_id)
-        VALUES (LOWER(v_nombre || '.' || v_apellido || v_i), v_email, '$2a$10$...hash...', 'postulante', v_persona_id);
+        VALUES (LOWER(v_nombre || '.' || v_apellido || v_i), v_email, '$2y$10$8o6ixN6NrgpPD2m/oU9xbOv8SP4UGpueZrdPuGmc3BhxuYJog2L62', 'postulante', v_persona_id);
 
         -- Preferencias de carrera (SIS e INF más demandadas)
         v_random := RANDOM();

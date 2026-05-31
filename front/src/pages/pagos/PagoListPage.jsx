@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import usePagos from '../../hooks/usePagos';
 import DataTable from '../../components/ui/DataTable';
-import Alert from '../../components/ui/Alert';
 
 export default function PagoListPage() {
   const navigate = useNavigate();
@@ -10,8 +10,6 @@ export default function PagoListPage() {
   const [pagos, setPagos] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [page, setPage] = useState(1);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
 
   const load = useCallback(async () => {
     try {
@@ -21,7 +19,7 @@ export default function PagoListPage() {
         setPagination(data.pagination || data.meta || null);
       }
     } catch (err) {
-      setError(err.message);
+      toast.error(err.message);
     }
   }, [getPagos, page]);
 
@@ -33,15 +31,15 @@ export default function PagoListPage() {
     if (!window.confirm(`¿Confirmar pago de Bs. ${row.monto}?`)) return;
     try {
       await confirmarPago(row.id);
-      setSuccess('Pago confirmado correctamente');
+      toast.success('Pago confirmado correctamente');
       load();
     } catch (err) {
-      setError(err.message);
+      toast.error(err.message);
     }
   };
 
   const columns = [
-    { key: 'nro_recibo', label: 'Recibo', render: (row) => row.nro_recibo || row.id || '-' },
+    { key: 'numero_recibo', label: 'Recibo', render: (row) => row.numero_recibo || row.id || '-' },
     {
       key: 'postulante', label: 'Postulante',
       render: (row) => {
@@ -76,7 +74,7 @@ export default function PagoListPage() {
     },
     {
       key: 'fecha', label: 'Fecha',
-      render: (row) => row.fecha_pago || row.created_at || '-',
+      render: (row) => row.fecha || row.created_at || '-',
     },
   ];
 
@@ -88,9 +86,6 @@ export default function PagoListPage() {
           <i className="bi bi-plus-lg me-1"></i>Nuevo Pago
         </button>
       </div>
-
-      <Alert type="danger" message={error} onClose={() => setError('')} />
-      <Alert type="success" message={success} onClose={() => setSuccess('')} />
 
       <div className="card shadow-sm">
         <div className="card-body p-0">

@@ -1,27 +1,17 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import usePostulantes from '../../hooks/usePostulantes';
 import DataTable from '../../components/ui/DataTable';
-import Alert from '../../components/ui/Alert';
 
 export default function PostulanteListPage() {
   const navigate = useNavigate();
-  const location = useLocation();
   const { getPostulantes, deletePostulante, loading } = usePostulantes();
   const [postulantes, setPostulantes] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [page, setPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchInput, setSearchInput] = useState('');
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState(location.state?.success || '');
-
-  useEffect(() => {
-    if (location.state?.success) {
-      setSuccess(location.state.success);
-      window.history.replaceState({}, document.title);
-    }
-  }, [location.state]);
 
   const load = useCallback(async (p, s) => {
     try {
@@ -31,7 +21,7 @@ export default function PostulanteListPage() {
         setPagination(data.pagination || data.meta || data);
       }
     } catch (err) {
-      setError(err.message);
+      toast.error(err.message);
     }
   }, [getPostulantes]);
 
@@ -65,7 +55,7 @@ export default function PostulanteListPage() {
       await deletePostulante(row.id);
       load(page, searchQuery);
     } catch (err) {
-      setError(err.message);
+      toast.error(err.message);
     }
   };
 
@@ -128,9 +118,6 @@ export default function PostulanteListPage() {
           <i className="bi bi-plus-lg me-1"></i>Nuevo Postulante
         </button>
       </div>
-
-      <Alert type="danger" message={error} onClose={() => setError('')} />
-      <Alert type="success" message={success} onClose={() => setSuccess('')} />
 
       <form onSubmit={handleSearch} className="mb-3">
         <div className="input-group">

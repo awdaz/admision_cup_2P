@@ -1,25 +1,31 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { toast } from 'sonner';
 import useAuthStore from '../store/authStore';
-import Alert from '../components/ui/Alert';
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const login = useAuthStore((s) => s.login);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (location.state?.success) {
+      toast.success(location.state.success);
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
     setLoading(true);
     try {
       await login(username, password);
       navigate('/dashboard');
     } catch (err) {
-      setError(err.message);
+      toast.error(err.message);
     } finally {
       setLoading(false);
     }
@@ -34,8 +40,6 @@ export default function LoginPage() {
             <h3 className="mt-2">CUP - FICCT</h3>
             <p className="text-muted">Sistema de Admisión</p>
           </div>
-
-          <Alert type="danger" message={error} />
 
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
@@ -78,6 +82,18 @@ export default function LoginPage() {
               )}
             </button>
           </form>
+
+          <div className="text-center mt-3 d-flex flex-column gap-1">
+            <Link to="/recuperar-password" className="text-decoration-none small">
+              <i className="bi bi-question-circle me-1"></i>¿Olvidaste tu contraseña?
+            </Link>
+            <Link to="/registro" className="text-decoration-none small">
+              <i className="bi bi-person-plus me-1"></i>¿No tienes cuenta? Regístrate
+            </Link>
+            <Link to="/" className="text-decoration-none small text-muted">
+              <i className="bi bi-house me-1"></i>Volver al inicio
+            </Link>
+          </div>
         </div>
       </div>
     </div>

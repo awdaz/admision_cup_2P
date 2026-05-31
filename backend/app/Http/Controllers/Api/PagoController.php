@@ -15,12 +15,23 @@ class PagoController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
+        $user = $request->user();
+
         $pagos = Pago::with([
             'postulante.persona',
             'postulacion.carreraRel',
-        ])->paginate(15);
+        ]);
 
-        return response()->json($pagos);
+        if ($user->tipo === 'postulante') {
+            $postulante = Postulante::where('persona_id', $user->persona_id)->first();
+            if ($postulante) {
+                $pagos->where('postulante_id', $postulante->id);
+            } else {
+                return response()->json(['data' => []]);
+            }
+        }
+
+        return response()->json($pagos->paginate(15));
     }
 
     public function store(PagoStoreRequest $request): JsonResponse
@@ -31,7 +42,6 @@ class PagoController extends Controller
             return response()->json(['message' => 'Postulante no encontrado.'], 404);
         }
 
-        // Verificar que todos los requisitos estén cumplidos
         $requisitosPendientes = DB::table('postulante_requisito')
             ->where('postulante_id', $postulante->id)
             ->where('cumplido', false)
@@ -46,7 +56,6 @@ class PagoController extends Controller
         try {
             DB::beginTransaction();
 
-            // Generar número de recibo
             $ultimoRecibo = Pago::max('id') ?? 0;
             $numeroRecibo = 'REC-' . str_pad($ultimoRecibo + 1, 6, '0', STR_PAD_LEFT);
 
@@ -70,8 +79,10 @@ class PagoController extends Controller
         }
     }
 
-    public function show($id): JsonResponse
+    public function show($id, Request $request): JsonResponse
     {
+        $user = $request->user();
+
         $pago = Pago::with([
             'postulante.persona',
             'postulacion.carreraRel',
@@ -79,6 +90,13 @@ class PagoController extends Controller
 
         if (!$pago) {
             return response()->json(['message' => 'Pago no encontrado.'], 404);
+        }
+
+        if ($user->tipo === 'postulante') {
+            $postulante = Postulante::where('persona_id', $user->persona_id)->first();
+            if (!$postulante || $pago->postulante_id !== $postulante->id) {
+                return response()->json(['message' => 'No autorizado.'], 403);
+            }
         }
 
         return response()->json($pago);

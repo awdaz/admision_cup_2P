@@ -17,22 +17,22 @@ class AdminUserSeeder extends Seeder
         }
 
         $persona = Persona::firstOrCreate(
-            ['ci' => 'admin'],
+            ['ci' => '1234567'],
             [
                 'nombre' => 'Admin',
-                'apellido' => 'Sistema',
-                'fecha_nac' => '2024-01-01',
-                'sexo' => 'Otro',
-                'email' => 'admin@cup.ficct',
-                'telefono' => '000000000',
-                'direccion' => 'Oficina FICCT',
+                'apellido' => 'Principal',
+                'fecha_nac' => '1990-01-01',
+                'sexo' => 'Masculino',
+                'email' => 'admin@cup.uagrm.edu.bo',
+                'telefono' => '70000000',
+                'direccion' => 'Oficina Central',
                 'ciudad' => 'Santa Cruz',
             ]
         );
 
         User::create([
             'username' => 'admin',
-            'email' => 'admin@cup.ficct',
+            'email' => 'admin@cup.uagrm.edu.bo',
             'password_hash' => Hash::make('admin123'),
             'tipo' => 'admin',
             'activo' => true,
