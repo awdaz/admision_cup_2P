@@ -1,13 +1,43 @@
+:root {
+  --primary-dark: #0A0340;
+  --primary: #152B7A;
+  --secondary: #5A003C;
+  --accent: #C70012;
+  --accent-light: #E53935;
+  --bg-dark: #23002D;
+  --bg-light: #F5F5F7;
+  --text-primary: #FFFFFF;
+  --text-secondary: #868686;
+
+  --bs-primary: var(--primary);
+  --bs-primary-rgb: 21, 43, 122;
+  --bs-secondary: var(--secondary);
+  --bs-secondary-rgb: 90, 0, 60;
+  --bs-danger: var(--accent);
+  --bs-danger-rgb: 199, 0, 18;
+  --bs-light: var(--bg-light);
+  --bs-light-rgb: 245, 245, 247;
+  --bs-dark: var(--bg-dark);
+  --bs-dark-rgb: 35, 0, 45;
+  --bs-body-bg: var(--bg-light);
+  --bs-body-color: #212529;
+  --bs-link-color: var(--primary);
+  --bs-link-hover-color: var(--primary-dark);
+}
+
 body {
-  background-color: #f8f9fa;
+  background-color: var(--bg-light);
 }
 
 .login-bg {
-  background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);
+  background:
+    linear-gradient(rgba(10, 3, 64, 0.6), rgba(35, 0, 45, 0.6)),
+    url('/fondo.png');
+  background-size: cover;
 }
 
 .sidebar-sticky .nav-link {
-  color: #333;
+  color: var(--text-secondary);
   border-radius: 0.375rem;
   margin-bottom: 0.25rem;
   padding: 0.6rem 1rem;
@@ -15,12 +45,13 @@ body {
 }
 
 .sidebar-sticky .nav-link:hover {
-  background-color: rgba(13, 110, 253, 0.08);
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--primary);
 }
 
 .sidebar-sticky .nav-link.active {
-  background-color: #0d6efd;
-  color: white;
+  background-color: var(--primary);
+  color: var(--text-primary);
 }
 
 .card {
@@ -29,4 +60,84 @@ body {
 
 .card:hover {
   box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
+}
+
+.btn-outline-secondary {
+  --bs-btn-color: var(--secondary);
+  --bs-btn-border-color: var(--secondary);
+  --bs-btn-hover-bg: var(--secondary);
+  --bs-btn-hover-border-color: var(--secondary);
+  --bs-btn-active-bg: var(--secondary);
+  --bs-btn-active-border-color: var(--secondary);
+}
+
+.bg-primary, .text-bg-primary {
+  background-color: var(--primary) !important;
+}
+
+.text-primary {
+  color: var(--primary) !important;
+}
+
+.border-primary {
+  border-color: var(--primary) !important;
+}
+
+.navbar {
+  background-color: var(--primary-dark) !important;
+}
+
+.btn-primary {
+  --bs-btn-bg: var(--primary);
+  --bs-btn-border-color: var(--primary);
+  --bs-btn-hover-bg: var(--primary-dark);
+  --bs-btn-hover-border-color: var(--primary-dark);
+  --bs-btn-active-bg: var(--primary-dark);
+  --bs-btn-active-border-color: var(--primary-dark);
+}
+
+.btn-outline-primary {
+  --bs-btn-color: var(--primary);
+  --bs-btn-border-color: var(--primary);
+  --bs-btn-hover-bg: var(--primary);
+  --bs-btn-hover-border-color: var(--primary);
+  --bs-btn-active-bg: var(--primary);
+  --bs-btn-active-border-color: var(--primary);
+}
+
+.btn-danger {
+  --bs-btn-bg: var(--accent);
+  --bs-btn-border-color: var(--accent);
+  --bs-btn-hover-bg: #a3000e;
+  --bs-btn-hover-border-color: #a3000e;
+  --bs-btn-active-bg: #a3000e;
+  --bs-btn-active-border-color: #a3000e;
+}
+
+.btn-outline-danger {
+  --bs-btn-color: var(--accent);
+  --bs-btn-border-color: var(--accent);
+  --bs-btn-hover-bg: var(--accent);
+  --bs-btn-hover-border-color: var(--accent);
+  --bs-btn-active-bg: var(--accent);
+  --bs-btn-active-border-color: var(--accent);
+}
+
+.btn-outline-light {
+  --bs-btn-color: var(--text-primary);
+  --bs-btn-border-color: var(--text-primary);
+  --bs-btn-hover-color: var(--text-primary);
+  --bs-btn-hover-bg: rgba(255, 255, 255, 0.15);
+  --bs-btn-hover-border-color: var(--text-primary);
+  --bs-btn-active-color: var(--text-primary);
+  --bs-btn-active-bg: rgba(255, 255, 255, 0.25);
+  --bs-btn-active-border-color: var(--text-primary);
+}
+
+.badge.bg-primary {
+  background-color: var(--primary) !important;
+}
+
+.spinner-border.text-primary {
+  color: var(--primary) !important;
 }

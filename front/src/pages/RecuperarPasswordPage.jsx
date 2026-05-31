@@ -32,7 +32,7 @@ export default function RecuperarPasswordPage() {
       <div className="card shadow" style={{ maxWidth: '420px', width: '100%' }}>
         <div className="card-body p-5">
           <div className="text-center mb-4">
-            <i className="bi bi-shield-lock" style={{ fontSize: '3rem', color: '#0d6efd' }}></i>
+            <i className="bi bi-shield-lock" style={{ fontSize: '3rem', color: 'var(--primary)' }}></i>
             <h3 className="mt-2">Recuperar Contraseña</h3>
             <p className="text-muted">Ingrese su correo electrónico registrado</p>
           </div>
