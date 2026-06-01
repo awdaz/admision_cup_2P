@@ -5,21 +5,26 @@ import useGrupos from '../../hooks/useGrupos';
 import useCatalogos from '../../hooks/useCatalogos';
 import DataTable from '../../components/ui/DataTable';
 
+// Página de listado de grupos con filtros por materia y turno
+// Ruta: /grupos
+// Acceso: Administradores y docentes
 export default function GrupoListPage() {
   const navigate = useNavigate();
   const { getGrupos, deleteGrupo, loading } = useGrupos();
   const { getMaterias, getTurnos, materias, turnos } = useCatalogos();
-  const [grupos, setGrupos] = useState([]);
-  const [pagination, setPagination] = useState(null);
-  const [page, setPage] = useState(1);
-  const [filtroMateria, setFiltroMateria] = useState('');
-  const [filtroTurno, setFiltroTurno] = useState('');
+  const [grupos, setGrupos] = useState([]);            // Lista de grupos desde la API
+  const [pagination, setPagination] = useState(null);   // Datos de paginación
+  const [page, setPage] = useState(1);                  // Página actual
+  const [filtroMateria, setFiltroMateria] = useState(''); // Filtro por materia
+  const [filtroTurno, setFiltroTurno] = useState('');   // Filtro por turno
 
+  // Carga catálogos de materias y turnos al montar el componente
   useEffect(() => {
     getMaterias();
     getTurnos();
   }, [getMaterias, getTurnos]);
 
+  // Carga los grupos con filtros opcionales de materia y turno
   const load = useCallback(async (p, matId, turnId) => {
     try {
       const params = {};
@@ -35,6 +40,7 @@ export default function GrupoListPage() {
     }
   }, [getGrupos]);
 
+  // Recarga al cambiar página o filtros
   useEffect(() => {
     load(page, filtroMateria, filtroTurno);
   }, [page, filtroMateria, filtroTurno, load]);
@@ -58,6 +64,7 @@ export default function GrupoListPage() {
     return { start, end, pages };
   }, [page, totalPages]);
 
+  // Elimina un grupo previa confirmación y recarga la lista
   const handleDelete = async (row) => {
     if (!window.confirm(`¿Eliminar grupo ${row.codigo}?`)) return;
     try {
@@ -68,15 +75,18 @@ export default function GrupoListPage() {
     }
   };
 
+  // Al aplicar filtros, reinicia a la primera página
   const handleFiltrar = (e) => {
     e.preventDefault();
     setPage(1);
   };
 
+  // Configuración de columnas de la tabla de grupos
   const columns = [
     { key: 'codigo', label: 'Código' },
     {
       key: 'nombre', label: 'Nombre',
+      // El nombre del grupo es clickeable y redirige a la vista detalle
       render: (row) => (
         <span
           className="text-primary text-decoration-none"
@@ -105,6 +115,7 @@ export default function GrupoListPage() {
         </button>
       </div>
 
+      {/* Filtros: selección de materia y turno para acotar la búsqueda */}
       <form onSubmit={handleFiltrar} className="mb-3">
         <div className="row g-2">
           <div className="col-md-4">
@@ -143,6 +154,7 @@ export default function GrupoListPage() {
         </div>
       </div>
 
+      {/* Paginación: navegación completa con primera, anterior, páginas visibles, siguiente y última */}
       {pagination && totalPages > 1 && (
         <nav className="mt-3" aria-label="Navegación de páginas">
           <ul className="pagination justify-content-center flex-wrap mb-0">
@@ -155,6 +167,7 @@ export default function GrupoListPage() {
               <button className="page-link" onClick={() => setPage((p) => Math.max(1, p - 1))}>Anterior</button>
             </li>
 
+            {/* Páginas iniciales con ellipsis si es necesario */}
             {visiblePages.start > 1 && (
               <>
                 <li className="page-item">
@@ -168,12 +181,14 @@ export default function GrupoListPage() {
               </>
             )}
 
+            {/* Rango de páginas visibles alrededor de la página actual */}
             {visiblePages.pages.map((i) => (
               <li key={i} className={`page-item ${page === i ? 'active' : ''}`}>
                 <button className="page-link" onClick={() => setPage(i)}>{i}</button>
               </li>
             ))}
 
+            {/* Páginas finales con ellipsis si es necesario */}
             {visiblePages.end < totalPages && (
               <>
                 {visiblePages.end < totalPages - 1 && (

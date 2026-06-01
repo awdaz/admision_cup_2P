@@ -3,12 +3,20 @@ import { Link } from 'react-router-dom';
 import cliente from '../api/cliente';
 import Alert from '../components/ui/Alert';
 
+// Página para solicitar recuperación de contraseña
+// Ruta: "/recuperar-password" — Acceso: Público (sin autenticación)
+// Envía un correo electrónico con instrucciones o muestra un token en modo prueba
 export default function RecuperarPasswordPage() {
+  // Correo electrónico ingresado por el usuario
   const [email, setEmail] = useState('');
+  // Estado de carga mientras se envía la solicitud
   const [loading, setLoading] = useState(false);
+  // Mensaje de éxito para mostrar al usuario
   const [message, setMessage] = useState('');
+  // Mensaje de error si la solicitud falla
   const [error, setError] = useState('');
 
+  // Envía el email al backend para solicitar el token de recuperación
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');

@@ -5,24 +5,30 @@ import usePagos from '../../hooks/usePagos';
 import usePostulantes from '../../hooks/usePostulantes';
 import Loader from '../../components/ui/Loader';
 
+// Página de formulario para registrar un nuevo pago
+// Ruta: /pagos/nuevo (con ?postulante_id opcional)
+// Acceso: Administradores y personal de cobros
 export default function PagoFormPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const preselectedId = searchParams.get('postulante_id');
+  const preselectedId = searchParams.get('postulante_id'); // ID de postulante preseleccionado vía query param
 
   const { createPago, loading: pagoLoading } = usePagos();
   const { getPostulantes, buscarPostulante } = usePostulantes();
-  const [postulantes, setPostulantes] = useState([]);
-  const [selectedPostulante, setSelectedPostulante] = useState(null);
-  const [searchCi, setSearchCi] = useState('');
+  const [postulantes, setPostulantes] = useState([]);         // Lista completa de postulantes
+  const [selectedPostulante, setSelectedPostulante] = useState(null); // Postulante seleccionado actualmente
+  const [searchCi, setSearchCi] = useState('');               // Texto ingresado para búsqueda por CI
+  // Datos del formulario de pago
   const [form, setForm] = useState({
     postulante_id: preselectedId || '',
     monto: '',
     metodo_pago: 'efectivo',
   });
-  const [submitting, setSubmitting] = useState(false);
-  const [pageLoading, setPageLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);  // Estado de envío del formulario
+  const [pageLoading, setPageLoading] = useState(true);  // Estado de carga inicial
 
+  // Carga la lista de postulantes al montar el componente
+  // Si se proporcionó postulante_id en la URL, lo selecciona automáticamente
   useEffect(() => {
     (async () => {
       try {
@@ -41,6 +47,7 @@ export default function PagoFormPage() {
     })();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Busca un postulante por CI en la API y lo selecciona automáticamente
   const handleBuscarCi = async () => {
     if (!searchCi.trim()) return;
     try {
@@ -57,6 +64,7 @@ export default function PagoFormPage() {
     }
   };
 
+  // Selecciona un postulante desde el dropdown de la lista
   const handleSelectPostulante = (e) => {
     const id = e.target.value;
     setForm((prev) => ({ ...prev, postulante_id: id }));
@@ -64,10 +72,12 @@ export default function PagoFormPage() {
     setSelectedPostulante(found || null);
   };
 
+  // Maneja cambios genéricos en los campos del formulario
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  // Envía el formulario: crea el pago y redirige al listado
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
@@ -89,10 +99,12 @@ export default function PagoFormPage() {
       <div className="col-lg-8">
         <h4 className="mb-4">Nuevo Pago</h4>
 
+        {/* Sección de selección de postulante: búsqueda por CI o selección desde lista */}
         <div className="card shadow-sm mb-4">
           <div className="card-header"><strong>Seleccionar Postulante</strong></div>
           <div className="card-body">
             <div className="row g-3 align-items-end">
+              {/* Búsqueda rápida por número de CI */}
               <div className="col-md-5">
                 <label className="form-label">Buscar por CI</label>
                 <div className="input-group">
@@ -111,6 +123,7 @@ export default function PagoFormPage() {
               <div className="col-md-1 text-center">
                 <span className="text-muted">o</span>
               </div>
+              {/* Selección desde el listado completo de postulantes */}
               <div className="col-md-6">
                 <label className="form-label">Seleccionar de la lista</label>
                 <select className="form-select" value={form.postulante_id} onChange={handleSelectPostulante}>
@@ -124,6 +137,7 @@ export default function PagoFormPage() {
               </div>
             </div>
 
+            {/* Información resumen del postulante seleccionado */}
             {selectedPostulante && (
               <div className="mt-3 p-3 bg-light rounded">
                 <strong>Postulante: </strong>
@@ -141,6 +155,7 @@ export default function PagoFormPage() {
           </div>
         </div>
 
+        {/* Formulario de datos del pago: monto y método de pago */}
         <div className="card shadow-sm">
           <div className="card-header"><strong>Datos del Pago</strong></div>
           <div className="card-body">

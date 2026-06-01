@@ -16,66 +16,70 @@ use App\Http\Controllers\Api\RindeController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
 
-// Public routes
+// ============================================================
+// Rutas públicas — no requieren autenticación
+// ============================================================
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
-// Protected routes (any authenticated user)
+// ============================================================
+// Rutas protegidas — cualquier usuario autenticado via Sanctum
+// ============================================================
 Route::middleware('auth:sanctum')->group(function () {
-    // Auth
+    // --- Autenticación ---
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);
 
-    // Dashboard
+    // --- Dashboard (estadísticas generales) ---
     Route::get('/dashboard/stats', [DashboardController::class, 'stats']);
 
-    // Postulantes (read: admin + postulante suyo; write: admin only)
+    // --- Postulantes (lectura: admin y postulante propio; escritura: solo admin) ---
     Route::get('/postulantes', [PostulanteController::class, 'index']);
     Route::get('/postulantes/{postulante}', [PostulanteController::class, 'show']);
 
-    // Requisitos (read: admin + postulante suyo)
+    // --- Requisitos (lectura: admin y postulante propio) ---
     Route::get('/postulantes/{postulante}/requisitos', [RequisitoController::class, 'index']);
 
-    // Postulaciones (postulante puede crear su propia, admin todo)
+    // --- Postulaciones (postulante crea la suya, admin gestiona todas) ---
     Route::get('/postulaciones', [PostulacionController::class, 'index']);
     Route::post('/postulaciones', [PostulacionController::class, 'store']);
     Route::get('/postulaciones/{postulacion}', [PostulacionController::class, 'show']);
     Route::put('/postulaciones/{postulacion}/cancelar', [PostulacionController::class, 'cancelar']);
 
-    // Pagos (read: admin + postulante suyo)
+    // --- Pagos (lectura: admin y postulante propio) ---
     Route::get('/pagos', [PagoController::class, 'index']);
     Route::get('/pagos/{pago}', [PagoController::class, 'show']);
 
-    // Docentes (read: all authenticated)
+    // --- Docentes (lectura: todos los autenticados) ---
     Route::get('/docentes', [DocenteController::class, 'index']);
     Route::get('/docentes/{docente}', [DocenteController::class, 'show']);
 
-    // Grupos (read: all authenticated; docente sees own)
+    // --- Grupos (lectura: todos los autenticados; docente ve los suyos) ---
     Route::get('/grupos', [GrupoController::class, 'index']);
     Route::get('/grupos/{grupo}', [GrupoController::class, 'show']);
 
-    // Exámenes (read: all authenticated)
+    // --- Exámenes (lectura: todos los autenticados) ---
     Route::get('/examenes', [ExamenController::class, 'index']);
     Route::get('/examenes/{examen}', [ExamenController::class, 'show']);
 
-    // Horarios (read)
+    // --- Horarios (lectura: todos los autenticados) ---
     Route::get('/horarios', [HorarioController::class, 'index']);
     Route::get('/horarios/{horario}', [HorarioController::class, 'show']);
 
-    // Rindes / notas (read: postulante sus notas, admin todas)
+    // --- Rindes / Notas (postulante ve las suyas, admin ve todas; docente registra) ---
     Route::get('/rindes', [RindeController::class, 'index']);
     Route::get('/rindes/{rinde}', [RindeController::class, 'show']);
     Route::get('/rindes/postulacion/{postulacion}', [RindeController::class, 'postulacion']);
     Route::post('/rindes', [RindeController::class, 'store']); // admin + docente (validado en controller)
 
-    // Reportes
+    // --- Reportes (según el rol del usuario) ---
     Route::get('/reportes/admision', [ReporteController::class, 'admision']);
     Route::get('/reportes/docente/mis-grupos', [ReporteController::class, 'docenteMisGrupos']);
     Route::get('/reportes/postulante/mis-notas', [ReporteController::class, 'postulanteMisNotas']);
 
-    // Catálogos (todos los roles)
+    // --- Catálogos / Maestras (accesible por todos los roles) ---
     Route::get('/carreras', [CatalogoController::class, 'carreras']);
     Route::get('/turnos', [CatalogoController::class, 'turnos']);
     Route::get('/semestres', [CatalogoController::class, 'semestres']);
@@ -84,47 +88,50 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/admisiones', [CatalogoController::class, 'admisiones']);
 });
 
-// Admin only routes
+// ============================================================
+// Rutas exclusivas para administradores
+// Middleware: auth:sanctum + role:admin
+// ============================================================
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
-    // Postulantes (write)
+    // --- Postulantes (escritura: CRUD completo) ---
     Route::post('/postulantes', [PostulanteController::class, 'store']);
     Route::put('/postulantes/{postulante}', [PostulanteController::class, 'update']);
     Route::delete('/postulantes/{postulante}', [PostulanteController::class, 'destroy']);
     Route::get('/postulantes/buscar/{ci}', [PostulanteController::class, 'search']);
 
-    // Requisitos (write)
+    // --- Requisitos (escritura) ---
     Route::put('/postulantes/{postulante}/requisitos', [RequisitoController::class, 'update']);
 
-    // Pagos (write)
+    // --- Pagos (escritura: registrar y confirmar) ---
     Route::post('/pagos', [PagoController::class, 'store']);
     Route::put('/pagos/{pago}/confirmar', [PagoController::class, 'confirmar']);
 
-    // Docentes (write)
+    // --- Docentes (escritura: CRUD + contratar) ---
     Route::post('/docentes', [DocenteController::class, 'store']);
     Route::put('/docentes/{docente}', [DocenteController::class, 'update']);
     Route::delete('/docentes/{docente}', [DocenteController::class, 'destroy']);
     Route::put('/docentes/{docente}/contratar', [DocenteController::class, 'contratar']);
 
-    // Grupos (write)
+    // --- Grupos (escritura: CRUD) ---
     Route::post('/grupos', [GrupoController::class, 'store']);
     Route::put('/grupos/{grupo}', [GrupoController::class, 'update']);
     Route::delete('/grupos/{grupo}', [GrupoController::class, 'destroy']);
 
-    // Exámenes (write)
+    // --- Exámenes (escritura: CRUD + consulta de rindes) ---
     Route::post('/examenes', [ExamenController::class, 'store']);
     Route::put('/examenes/{examen}', [ExamenController::class, 'update']);
     Route::delete('/examenes/{examen}', [ExamenController::class, 'destroy']);
     Route::get('/examenes/{examen}/rindes', [ExamenController::class, 'rindes']);
 
-    // Horarios (write)
+    // --- Horarios (escritura: CRUD) ---
     Route::post('/horarios', [HorarioController::class, 'store']);
     Route::put('/horarios/{horario}', [HorarioController::class, 'update']);
     Route::delete('/horarios/{horario}', [HorarioController::class, 'destroy']);
 
-    // Rindes / notas (write)
+    // --- Rindes / Notas (escritura: eliminar registro) ---
     Route::delete('/rindes/{rinde}', [RindeController::class, 'destroy']);
 
-    // Usuarios
+    // --- Usuarios (gestión completa de usuarios del sistema) ---
     Route::apiResource('users', UserController::class);
     Route::put('/users/{user}/toggle-active', [UserController::class, 'toggleActive']);
     Route::put('/users/{user}/change-password', [UserController::class, 'changePassword']);

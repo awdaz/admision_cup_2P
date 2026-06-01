@@ -1,5 +1,19 @@
 <?php
 
+// =============================================================================
+// Modelo: Requisito
+// Tabla: requisito
+// Propósito: Catalogo de requisitos documentales que los postulantes deben
+//            presentar (ej. certificado de nacimiento, título, etc.).
+//
+// Relaciones:
+//   - hasMany(PostulanteRequisito) → Relación con los requisitos que cada
+//                                     postulante ha presentado/verificado.
+//
+// Notas:
+//   - No usa timestamps automáticos.
+// =============================================================================
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;

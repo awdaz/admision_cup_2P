@@ -11,8 +11,13 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+// Controlador CRUD de postulantes — administra los perfiles de postulante
+// con sus datos personales y postulaciones asociadas.
 class PostulanteController extends Controller
 {
+    // Lista postulantes paginados (15 por página) con filtro opcional de búsqueda por CI/nombre/apellido.
+    // Autorización: si el usuario es tipo 'postulante', solo ve su propio perfil.
+    // Retorna: JSON con datos paginados; transforma la relación postulacions para incluir solo la primera.
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -53,6 +58,11 @@ class PostulanteController extends Controller
         return response()->json($postulantes);
     }
 
+    // Crea un nuevo postulante con sus datos personales en una transacción.
+    // Parámetros: datos de persona (ci, nombre, apellido, etc.) y colegio_procedencia.
+    // Genera automáticamente el código de postulante (POST-XXXXX).
+    // Retorna: JSON del postulante creado con su relación persona (código 201).
+    // En caso de error, revierte la transacción y retorna error 500.
     public function store(PostulanteStoreRequest $request): JsonResponse
     {
         try {
@@ -81,6 +91,10 @@ class PostulanteController extends Controller
         }
     }
 
+    // Muestra un postulante específico con sus relaciones (persona, postulacions).
+    // Parámetros: id del postulante.
+    // Autorización: si el usuario es 'postulante', solo puede ver su propio perfil.
+    // Retorna: JSON con datos del postulante o error 404/403.
     public function show($id, Request $request): JsonResponse
     {
         $user = $request->user();
@@ -100,6 +114,9 @@ class PostulanteController extends Controller
         return response()->json($postulante);
     }
 
+    // Actualiza los datos de un postulante y su persona asociada en una transacción.
+    // Parámetros: id del postulante + datos editables de persona y colegio_procedencia.
+    // Retorna: JSON del postulante actualizado con relación persona, o error 404/500.
     public function update(PostulanteUpdateRequest $request, $id): JsonResponse
     {
         $postulante = Postulante::with('persona')->find($id);
@@ -131,6 +148,10 @@ class PostulanteController extends Controller
         }
     }
 
+    // Elimina un postulante y su persona asociada en una transacción.
+    // Parámetros: id del postulante.
+    // Retorna: mensaje de confirmación o error 404/500.
+    // Primero elimina el postulante, luego la persona si existe.
     public function destroy($id): JsonResponse
     {
         $postulante = Postulante::find($id);
@@ -155,6 +176,9 @@ class PostulanteController extends Controller
         }
     }
 
+    // Busca un postulante por número de CI (cédula de identidad).
+    // Parámetros: ci (string).
+    // Retorna: JSON del postulante con relación persona, o error 404 si no existe.
     public function search($ci): JsonResponse
     {
         $persona = Persona::where('ci', $ci)->first();

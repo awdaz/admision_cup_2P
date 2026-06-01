@@ -1,5 +1,19 @@
 <?php
 
+// =============================================================================
+// Modelo: Semestre
+// Tabla: semestre
+// Propósito: Representa los períodos académicos (semestre + año) en los que
+//            se organizan las postulaciones y la cursada.
+//
+// Relaciones:
+//   - hasMany(Postulacion) → Postulaciones registradas en este semestre.
+//
+// Notas:
+//   - No usa timestamps automáticos.
+//   - 'anio' se castea a entero.
+// =============================================================================
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;

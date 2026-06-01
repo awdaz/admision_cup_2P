@@ -5,16 +5,20 @@ import useExamenes from '../../hooks/useExamenes';
 import useGrupos from '../../hooks/useGrupos';
 import DataTable from '../../components/ui/DataTable';
 
+// Página de listado de exámenes con filtro por grupo
+// Ruta: /examenes
+// Acceso: Administradores y docentes
 export default function ExamenListPage() {
   const navigate = useNavigate();
   const { getExamenes, deleteExamen, loading } = useExamenes();
   const { getGrupos } = useGrupos();
-  const [examenes, setExamenes] = useState([]);
-  const [grupos, setGrupos] = useState([]);
-  const [pagination, setPagination] = useState(null);
-  const [page, setPage] = useState(1);
-  const [filtroGrupo, setFiltroGrupo] = useState('');
+  const [examenes, setExamenes] = useState([]);        // Lista de exámenes desde la API
+  const [grupos, setGrupos] = useState([]);            // Lista de grupos para el filtro
+  const [pagination, setPagination] = useState(null);   // Datos de paginación
+  const [page, setPage] = useState(1);                  // Página actual
+  const [filtroGrupo, setFiltroGrupo] = useState('');   // Filtro por grupo
 
+  // Carga la lista de grupos para el selector de filtro al montar
   useEffect(() => {
     (async () => {
       const d = await getGrupos(1);
@@ -22,6 +26,7 @@ export default function ExamenListPage() {
     })();
   }, [getGrupos]);
 
+  // Carga los exámenes con filtro opcional por grupo
   const load = useCallback(async (p, gId) => {
     try {
       const data = await getExamenes(p, gId);
@@ -34,6 +39,7 @@ export default function ExamenListPage() {
     }
   }, [getExamenes]);
 
+  // Recarga al cambiar página o filtro de grupo
   useEffect(() => {
     load(page, filtroGrupo);
   }, [page, filtroGrupo, load]);
@@ -57,6 +63,7 @@ export default function ExamenListPage() {
     return { start, end, pages };
   }, [page, totalPages]);
 
+  // Elimina un examen previa confirmación y recarga la lista
   const handleDelete = async (row) => {
     if (!window.confirm(`¿Eliminar examen ${row.nro}?`)) return;
     try {
@@ -67,6 +74,7 @@ export default function ExamenListPage() {
     }
   };
 
+  // Configuración de columnas de la tabla de exámenes
   const columns = [
     { key: 'nro', label: 'Nro' },
     { key: 'descripcion', label: 'Descripción', render: (row) => row.descripcion || '-' },
@@ -85,6 +93,7 @@ export default function ExamenListPage() {
         </button>
       </div>
 
+      {/* Filtro por grupo: al cambiar, reinicia a página 1 */}
       <div className="mb-3">
         <select className="form-select w-auto" value={filtroGrupo} onChange={(e) => { setPage(1); setFiltroGrupo(e.target.value); }}>
           <option value="">Todos los grupos</option>
@@ -106,6 +115,7 @@ export default function ExamenListPage() {
         </div>
       </div>
 
+      {/* Paginación con navegación completa */}
       {pagination && totalPages > 1 && (
         <nav className="mt-3" aria-label="Navegación de páginas">
           <ul className="pagination justify-content-center flex-wrap mb-0">
@@ -115,15 +125,18 @@ export default function ExamenListPage() {
             <li className={`page-item ${page <= 1 ? 'disabled' : ''}`}>
               <button className="page-link" onClick={() => setPage((p) => Math.max(1, p - 1))}>Anterior</button>
             </li>
+            {/* Páginas iniciales con ellipsis */}
             {visiblePages.start > 1 && (
               <><li className="page-item"><button className="page-link" onClick={() => setPage(1)}>1</button></li>
                 {visiblePages.start > 2 && <li className="page-item disabled"><span className="page-link">...</span></li>}</>
             )}
+            {/* Rango de páginas visibles */}
             {visiblePages.pages.map((i) => (
               <li key={i} className={`page-item ${page === i ? 'active' : ''}`}>
                 <button className="page-link" onClick={() => setPage(i)}>{i}</button>
               </li>
             ))}
+            {/* Páginas finales con ellipsis */}
             {visiblePages.end < totalPages && (
               <>{visiblePages.end < totalPages - 1 && <li className="page-item disabled"><span className="page-link">...</span></li>}
                 <li className="page-item"><button className="page-link" onClick={() => setPage(totalPages)}>{totalPages}</button></li></>

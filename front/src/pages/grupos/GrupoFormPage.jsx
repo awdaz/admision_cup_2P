@@ -6,15 +6,19 @@ import useDocentes from '../../hooks/useDocentes';
 import useCatalogos from '../../hooks/useCatalogos';
 import Loader from '../../components/ui/Loader';
 
+// Página de formulario para crear o editar un grupo
+// Ruta: /grupos/nuevo | /grupos/:id/editar
+// Acceso: Administradores
 export default function GrupoFormPage() {
   const { id } = useParams();
-  const isEdit = Boolean(id);
+  const isEdit = Boolean(id); // true si estamos editando, false si es creación
   const navigate = useNavigate();
   const { getGrupo, createGrupo, updateGrupo, loading } = useGrupos();
   const { getDocentes, loading: loadingDocentes } = useDocentes();
   const { getMaterias, getTurnos, materias, turnos, loading: loadingCat } = useCatalogos();
 
-  const [docentes, setDocentes] = useState([]);
+  const [docentes, setDocentes] = useState([]); // Lista de docentes para el selector
+  // Datos del formulario del grupo
   const [form, setForm] = useState({
     codigo: '',
     nombre: '',
@@ -23,9 +27,10 @@ export default function GrupoFormPage() {
     docente_id: '',
     turno_id: '',
   });
-  const [submitting, setSubmitting] = useState(false);
-  const [pageLoading, setPageLoading] = useState(isEdit);
+  const [submitting, setSubmitting] = useState(false);  // Estado de envío
+  const [pageLoading, setPageLoading] = useState(isEdit); // Carga inicial solo en edición
 
+  // Carga catálogos (materias, turnos, docentes) al montar el componente
   useEffect(() => {
     const loadCatalogos = async () => {
       await Promise.all([getMaterias(), getTurnos()]);
@@ -37,6 +42,7 @@ export default function GrupoFormPage() {
     loadCatalogos();
   }, [getMaterias, getTurnos, getDocentes]);
 
+  // Si es edición, carga los datos del grupo existente
   useEffect(() => {
     if (isEdit) {
       (async () => {
@@ -61,11 +67,13 @@ export default function GrupoFormPage() {
     }
   }, [id, isEdit, getGrupo]);
 
+  // Maneja cambios en los campos, convirtiendo "cupo" a número
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: name === 'cupo' ? Number(value) : value });
   };
 
+  // Envía el formulario: crea o actualiza según isEdit, luego redirige al listado
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);

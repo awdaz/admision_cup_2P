@@ -1,5 +1,22 @@
 <?php
 
+// =============================================================================
+// Modelo: Persona
+// Tabla: persona
+// Propósito: Almacena los datos personales de cualquier individuo del sistema
+//            (postulantes, docentes, usuarios). Es la tabla base de la cual
+//            dependen las demás entidades de persona.
+//
+// Relaciones:
+//   - hasOne(Postulante)  → Un persona puede ser un postulante.
+//   - hasOne(Docente)     → Un persona puede ser un docente.
+//   - hasOne(User)        → Un persona puede tener un usuario de sistema.
+//
+// Notas:
+//   - No usa timestamps automáticos (false).
+//   - 'fecha_nac' se castea a tipo date.
+// =============================================================================
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;

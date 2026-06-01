@@ -13,8 +13,14 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
+// Controlador de autenticación — gestiona el inicio/cierre de sesión,
+// registro de postulantes y recuperación de contraseñas del sistema CUP-FICCT.
 class AuthController extends Controller
 {
+    // Autentica al usuario con username y password, devuelve token Sanctum.
+    // Parámetros: username (string), password (string).
+    // Retorna: JSON con token de acceso y datos del usuario (con persona).
+    // Lanza ValidationException si credenciales son incorrectas o cuenta está desactivada.
     public function login(Request $request): JsonResponse
     {
         $request->validate([
@@ -46,6 +52,8 @@ class AuthController extends Controller
         ]);
     }
 
+    // Cierra la sesión eliminando el token de acceso actual del usuario autenticado.
+    // Retorna: mensaje de confirmación.
     public function logout(Request $request): JsonResponse
     {
         $request->user()->currentAccessToken()->delete();
@@ -53,11 +61,17 @@ class AuthController extends Controller
         return response()->json(['message' => 'Sesión cerrada correctamente.']);
     }
 
+    // Devuelve los datos del usuario autenticado junto con su relación 'persona'.
+    // Retorna: objeto JSON con usuario y sus datos personales.
     public function user(Request $request): JsonResponse
     {
         return response()->json($request->user()->load('persona'));
     }
 
+    // Registra un nuevo postulante en el sistema: crea Persona, Postulante y User en una transacción.
+    // Parámetros: ci, nombre, apellido, fecha_nac, sexo, email, username, password, etc.
+    // Retorna: JSON con token, datos del usuario y mensaje de bienvenida (código 201).
+    // Si algo falla, revierte la transacción y devuelve error 500.
     public function register(Request $request): JsonResponse
     {
         $request->validate([
@@ -115,6 +129,9 @@ class AuthController extends Controller
         }
     }
 
+    // Genera un token para restablecer contraseña y lo almacena en la tabla password_reset_tokens.
+    // Parámetros: email (string, debe existir en 'usuario').
+    // Retorna: mensaje informativo y el token generado (modo simulación, sin envío de correo).
     public function forgotPassword(Request $request): JsonResponse
     {
         $request->validate([
@@ -135,6 +152,10 @@ class AuthController extends Controller
         ]);
     }
 
+    // Restablece la contraseña validando el token almacenado en password_reset_tokens.
+    // Parámetros: email, token (string), password (string, min:6).
+    // Retorna: mensaje de éxito o error 400 si el token es inválido/expirado.
+    // Tras restablecer, elimina el registro del token usado.
     public function resetPassword(Request $request): JsonResponse
     {
         $request->validate([

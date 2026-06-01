@@ -9,12 +9,18 @@ use App\Models\Postulante;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+// Controlador para el dashboard con estadísticas generales.
+// Muestra métricas de postulantes, pagos y postulaciones según el rol del usuario.
 class DashboardController extends Controller
 {
+    // Devuelve estadísticas del dashboard.
+    // Si el usuario es 'postulante', retorna solo sus datos personales.
+    // Si es admin/docente, retorna totales globales del sistema.
     public function stats(Request $request): JsonResponse
     {
         $user = $request->user();
 
+        // Vista personalizada para postulantes: solo sus propias métricas
         if ($user->tipo === 'postulante') {
             $postulante = Postulante::where('persona_id', $user->persona_id)->first();
 
@@ -28,6 +34,7 @@ class DashboardController extends Controller
                 ]);
             }
 
+            // Métricas individuales del postulante
             $requisitosVerificados = $postulante->requisitos_verificado;
             $pagosPendientes = Pago::where('postulante_id', $postulante->id)
                 ->where('estado', 'pendiente')->count();
@@ -46,6 +53,7 @@ class DashboardController extends Controller
             ]);
         }
 
+        // Vista global para roles administrativos (admin, docente)
         $totalPostulantes = Postulante::count();
         $postulantesVerificados = Postulante::where('requisitos_verificado', true)->count();
         $pagosPendientes = Pago::where('estado', 'pendiente')->count();

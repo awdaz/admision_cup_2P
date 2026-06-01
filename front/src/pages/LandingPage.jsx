@@ -1,5 +1,8 @@
 import { Link } from 'react-router-dom';
 
+// Página de aterrizaje (Landing Page)
+// Ruta: "/" — Acceso: Público (sin autenticación)
+// Muestra la pantalla de bienvenida del sistema CUP - FICCT con enlaces a login y registro
 export default function LandingPage() {
   return (
     <div className="min-vh-100 d-flex flex-column">
@@ -14,6 +17,7 @@ export default function LandingPage() {
         </div>
       </nav>
 
+      {/* Hero principal: encabezado con gradiente, título y botones de acción */}
       <header className="flex-grow-1 d-flex align-items-center" style={{
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
       }}>
@@ -41,6 +45,7 @@ export default function LandingPage() {
         </div>
       </header>
 
+      {/* Pie de página con año dinámico */}
       <footer className="bg-white py-3 text-center text-muted small">
         &copy; {new Date().getFullYear()} CUP - FICCT. Todos los derechos reservados.
       </footer>

@@ -5,14 +5,18 @@ import useExamenes from '../../hooks/useExamenes';
 import useGrupos from '../../hooks/useGrupos';
 import Loader from '../../components/ui/Loader';
 
+// Página de formulario para crear o editar un examen
+// Ruta: /examenes/nuevo | /examenes/:id/editar
+// Acceso: Administradores y docentes
 export default function ExamenFormPage() {
   const { id } = useParams();
-  const isEdit = Boolean(id);
+  const isEdit = Boolean(id); // true si estamos editando, false si es creación
   const navigate = useNavigate();
   const { getExamen, createExamen, updateExamen, loading } = useExamenes();
   const { getGrupos } = useGrupos();
 
-  const [grupos, setGrupos] = useState([]);
+  const [grupos, setGrupos] = useState([]); // Lista de grupos para el selector
+  // Datos del formulario del examen
   const [form, setForm] = useState({
     nro: '',
     descripcion: '',
@@ -20,9 +24,10 @@ export default function ExamenFormPage() {
     grupo_id: '',
     porcentaje: '',
   });
-  const [submitting, setSubmitting] = useState(false);
-  const [pageLoading, setPageLoading] = useState(isEdit);
+  const [submitting, setSubmitting] = useState(false);  // Estado de envío
+  const [pageLoading, setPageLoading] = useState(isEdit); // Carga inicial solo en edición
 
+  // Carga la lista de grupos para el selector al montar
   useEffect(() => {
     (async () => {
       const d = await getGrupos(1);
@@ -30,6 +35,7 @@ export default function ExamenFormPage() {
     })();
   }, [getGrupos]);
 
+  // Si es edición, carga los datos del examen existente
   useEffect(() => {
     if (isEdit) {
       (async () => {
@@ -53,10 +59,12 @@ export default function ExamenFormPage() {
     }
   }, [id, isEdit, getExamen]);
 
+  // Maneja cambios genéricos en los campos del formulario
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  // Envía el formulario: crea o actualiza según isEdit, luego redirige al listado
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);

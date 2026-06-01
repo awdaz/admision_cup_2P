@@ -1,3 +1,4 @@
+// Configuración central de React Router con todas las rutas de la aplicación
 import { Routes, Route } from 'react-router-dom';
 import ProtectedRoute from '../components/ProtectedRoute';
 import MainLayout from '../components/Layout/MainLayout';
@@ -27,6 +28,7 @@ import PagoFormPage from '../pages/pagos/PagoFormPage';
 import UserListPage from '../pages/usuarios/UserListPage';
 import UserFormPage from '../pages/usuarios/UserFormPage';
 
+// Componente interno para la página 404
 function NotFoundPage() {
   return (
     <div className="text-center py-5">
@@ -40,16 +42,19 @@ function NotFoundPage() {
 export default function AppRouter() {
   return (
     <Routes>
+      {/* Rutas públicas — no requieren autenticación */}
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/registro" element={<RegistroPage />} />
       <Route path="/recuperar-password" element={<RecuperarPasswordPage />} />
       <Route path="/restablecer-password" element={<RestablecerPasswordPage />} />
 
+      {/* Rutas protegidas — envueltas en ProtectedRoute y MainLayout */}
       <Route element={<ProtectedRoute />}>
         <Route element={<MainLayout />}>
           <Route path="/dashboard" element={<DashboardPage />} />
 
+          {/* CRUD de postulantes */}
           <Route path="/postulantes" element={<PostulanteListPage />} />
           <Route path="/postulantes/nuevo" element={<PostulanteFormPage />} />
           <Route path="/postulantes/:id" element={<PostulanteDetailPage />} />
@@ -58,36 +63,42 @@ export default function AppRouter() {
 
           <Route path="/postulaciones/nueva" element={<PostulacionFormPage />} />
 
+          {/* CRUD de docentes */}
           <Route path="/docentes" element={<DocenteListPage />} />
           <Route path="/docentes/nuevo" element={<DocenteFormPage />} />
           <Route path="/docentes/:id/editar" element={<DocenteFormPage />} />
 
+          {/* CRUD de grupos */}
           <Route path="/grupos" element={<GrupoListPage />} />
           <Route path="/grupos/nuevo" element={<GrupoFormPage />} />
           <Route path="/grupos/:id" element={<GrupoFormPage />} />
           <Route path="/grupos/:id/editar" element={<GrupoFormPage />} />
 
+          {/* CRUD de exámenes */}
           <Route path="/examenes" element={<ExamenListPage />} />
           <Route path="/examenes/nuevo" element={<ExamenFormPage />} />
           <Route path="/examenes/:id/editar" element={<ExamenFormPage />} />
 
+          {/* CRUD de horarios */}
           <Route path="/horarios" element={<HorarioListPage />} />
           <Route path="/horarios/nuevo" element={<HorarioFormPage />} />
           <Route path="/horarios/:id/editar" element={<HorarioFormPage />} />
 
           <Route path="/notas" element={<NotasPage />} />
-
           <Route path="/reportes" element={<ReportesPage />} />
 
+          {/* CRUD de pagos */}
           <Route path="/pagos" element={<PagoListPage />} />
           <Route path="/pagos/nuevo" element={<PagoFormPage />} />
 
+          {/* CRUD de usuarios del sistema */}
           <Route path="/usuarios" element={<UserListPage />} />
           <Route path="/usuarios/nuevo" element={<UserFormPage />} />
           <Route path="/usuarios/:id/editar" element={<UserFormPage />} />
         </Route>
       </Route>
 
+      {/* Ruta comodín para páginas no existentes */}
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );

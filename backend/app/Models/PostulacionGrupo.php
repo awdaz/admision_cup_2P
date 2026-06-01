@@ -1,5 +1,21 @@
 <?php
 
+// =============================================================================
+// Modelo: PostulacionGrupo (Pivote)
+// Tabla: postulacion_grupo
+// Propósito: Tabla pivote que asigna una postulación a un grupo y materia
+//            específicos. Permite saber en qué grupo y materia quedó
+//            inscrito cada postulante.
+//
+// Relaciones:
+//   - belongsTo(Postulacion) → Postulación asociada.
+//   - belongsTo(Grupo)       → Grupo asignado.
+//   - belongsTo(Materia)     → Materia dentro del grupo.
+//
+// Notas:
+//   - No usa timestamps automáticos.
+// =============================================================================
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;

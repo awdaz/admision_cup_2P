@@ -4,17 +4,19 @@ import { toast } from 'sonner';
 import useHorarios from '../../hooks/useHorarios';
 import useGrupos from '../../hooks/useGrupos';
 
+// Días de la semana disponibles para horarios
 const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
 
 export default function HorarioListPage() {
   const navigate = useNavigate();
   const { getHorarios, deleteHorario, loading } = useHorarios();
   const { getGrupos } = useGrupos();
-  const [horarios, setHorarios] = useState([]);
-  const [grupos, setGrupos] = useState([]);
-  const [filtroGrupo, setFiltroGrupo] = useState('');
-  const [filtroDia, setFiltroDia] = useState('');
+  const [horarios, setHorarios] = useState([]);          // Lista de horarios desde la API
+  const [grupos, setGrupos] = useState([]);              // Lista de grupos para el filtro
+  const [filtroGrupo, setFiltroGrupo] = useState('');     // Filtro por grupo
+  const [filtroDia, setFiltroDia] = useState('');         // Filtro por día de la semana
 
+  // Carga la lista de grupos para el selector de filtro al montar
   useEffect(() => {
     (async () => {
       const d = await getGrupos(1);
@@ -22,6 +24,7 @@ export default function HorarioListPage() {
     })();
   }, [getGrupos]);
 
+  // Carga los horarios aplicando los filtros seleccionados
   const load = useCallback(async () => {
     try {
       const params = {};
@@ -36,10 +39,12 @@ export default function HorarioListPage() {
     }
   }, [getHorarios, filtroGrupo, filtroDia]);
 
+  // Recarga al cambiar filtros
   useEffect(() => {
     load();
   }, [load]);
 
+  // Elimina un horario previa confirmación y recarga la lista
   const handleDelete = async (row) => {
     if (!window.confirm(`¿Eliminar horario de ${row.dia} ${row.hora_inicio}-${row.hora_fin}?`)) return;
     try {
@@ -59,6 +64,7 @@ export default function HorarioListPage() {
         </button>
       </div>
 
+      {/* Filtros de búsqueda: grupo y día de la semana */}
       <div className="row g-2 mb-3">
         <div className="col-auto">
           <select className="form-select" value={filtroGrupo} onChange={(e) => setFiltroGrupo(e.target.value)}>
@@ -79,6 +85,7 @@ export default function HorarioListPage() {
         </div>
       </div>
 
+      {/* Tabla de horarios con indicador de carga y estado vacío */}
       {loading ? (
         <div className="text-center py-5">
           <div className="spinner-border text-primary"></div>
@@ -109,6 +116,7 @@ export default function HorarioListPage() {
                   <td>{h.grupo?.materia?.nombre || '-'}</td>
                   <td>{h.aula?.nombre || '-'}</td>
                   <td>
+                    {/* Botones de acción: editar y eliminar */}
                     <button className="btn btn-sm btn-outline-primary me-1" onClick={() => navigate(`/horarios/${h.id}/editar`)}>
                       <i className="bi bi-pencil"></i>
                     </button>

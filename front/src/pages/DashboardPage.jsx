@@ -3,10 +3,16 @@ import { toast } from 'sonner';
 import cliente from '../api/cliente';
 import Loader from '../components/ui/Loader';
 
+// Página principal del dashboard (panel de control)
+// Ruta: "/dashboard" — Acceso: Usuarios autenticados
+// Muestra tarjetas con estadísticas resumidas (postulantes, pagos, etc.)
 export default function DashboardPage() {
+  // Estadísticas obtenidas del backend (total postulantes, verificados, pagos, etc.)
   const [stats, setStats] = useState(null);
+  // Indica si los datos están siendo cargados
   const [loading, setLoading] = useState(true);
 
+  // Al montar el componente, carga las estadísticas desde GET /dashboard/stats
   useEffect(() => {
     const loadStats = async () => {
       try {
@@ -23,6 +29,7 @@ export default function DashboardPage() {
 
   if (loading) return <Loader />;
 
+  // Configuración de las tarjetas de estadísticas con icono y color por tipo
   const cards = [
     { label: 'Total Postulantes', value: stats?.total_postulantes || 0, icon: 'bi-people', color: 'primary' },
     { label: 'Postulantes Verificados', value: stats?.postulantes_verificados || 0, icon: 'bi-check-circle', color: 'success' },

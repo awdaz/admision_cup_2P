@@ -5,16 +5,25 @@ import cliente from '../../api/cliente';
 import Loader from '../../components/ui/Loader';
 import Alert from '../../components/ui/Alert';
 
+// Página de detalle de un postulante
+// Ruta: "/postulantes/:id" — Acceso: Usuarios autenticados
+// Muestra información personal, postulación, requisitos y pagos del postulante
 export default function PostulanteDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { getPostulante, deletePostulante } = usePostulantes();
+  // Datos completos del postulante (incluyendo postulacion)
   const [postulante, setPostulante] = useState(null);
+  // Lista de requisitos asociados al postulante
   const [requisitos, setRequisitos] = useState([]);
+  // Lista de pagos realizados por el postulante
   const [pagos, setPagos] = useState([]);
+  // Indica si los datos están cargando
   const [loading, setLoading] = useState(true);
+  // Mensaje de error si la carga falla
   const [error, setError] = useState('');
 
+  // Al montar, carga los datos del postulante desde el backend
   useEffect(() => {
     (async () => {
       try {
@@ -28,28 +37,31 @@ export default function PostulanteDetailPage() {
     })();
   }, [id, getPostulante]);
 
+  // Carga la lista de requisitos del postulante
   useEffect(() => {
     (async () => {
       try {
         const reqs = await cliente.get(`/postulantes/${id}/requisitos`);
         setRequisitos(Array.isArray(reqs) ? reqs : reqs.data || reqs.requisitos || []);
       } catch {
-        // requisitos may not be available
+        // Si falla, los requisitos simplemente no se muestran
       }
     })();
   }, [id]);
 
+  // Carga los pagos asociados al postulante
   useEffect(() => {
     (async () => {
       try {
         const pags = await cliente.get(`/pagos?postulante_id=${id}`);
         setPagos(Array.isArray(pags) ? pags : pags.data || pags.pagos || []);
       } catch {
-        // pagos may not be available
+        // Si falla, los pagos simplemente no se muestran
       }
     })();
   }, [id]);
 
+  // Confirma y elimina el postulante, luego redirige al listado
   const handleDelete = async () => {
     if (!window.confirm('¿Eliminar postulante?')) return;
     try {
@@ -68,9 +80,10 @@ export default function PostulanteDetailPage() {
 
   return (
     <div>
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h4 className="mb-0">Detalle del Postulante</h4>
-        <div className="d-flex gap-2">
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <h4 className="mb-0">Detalle del Postulante</h4>
+          {/* Botones de acción: editar, eliminar, gestionar requisitos, postular, registrar pago */}
+          <div className="d-flex gap-2">
           <button className="btn btn-outline-primary" onClick={() => navigate(`/postulantes/${id}/editar`)}>
             <i className="bi bi-pencil me-1"></i>Editar
           </button>
@@ -90,6 +103,7 @@ export default function PostulanteDetailPage() {
       </div>
 
       <div className="row g-4">
+        {/* Tarjeta de información personal del postulante */}
         <div className="col-md-6">
           <div className="card shadow-sm h-100">
             <div className="card-header"><strong>Información Personal</strong></div>
@@ -111,6 +125,7 @@ export default function PostulanteDetailPage() {
           </div>
         </div>
 
+        {/* Tarjeta de postulación: carrera, turno, semestre, estado y fecha */}
         <div className="col-md-6">
           <div className="card shadow-sm h-100">
             <div className="card-header"><strong>Postulación</strong></div>
@@ -132,6 +147,7 @@ export default function PostulanteDetailPage() {
           </div>
         </div>
 
+        {/* Tarjeta de requisitos: lista con indicador de cumplido/no cumplido */}
         <div className="col-md-6">
           <div className="card shadow-sm">
             <div className="card-header"><strong>Requisitos</strong></div>
@@ -152,6 +168,7 @@ export default function PostulanteDetailPage() {
           </div>
         </div>
 
+        {/* Tarjeta de pagos: monto, método, fecha y estado de cada pago */}
         <div className="col-md-6">
           <div className="card shadow-sm">
             <div className="card-header"><strong>Pagos</strong></div>

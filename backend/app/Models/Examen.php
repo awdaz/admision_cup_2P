@@ -1,5 +1,21 @@
 <?php
 
+// =============================================================================
+// Modelo: Examen
+// Tabla: examen
+// Propósito: Almacena los exámenes programados para cada grupo. Cada examen
+//            tiene un número, descripción, fecha y porcentaje de ponderación
+//            sobre la nota final.
+//
+// Relaciones:
+//   - belongsTo(Grupo)   → Grupo al que pertenece el examen.
+//   - hasMany(Rinde)     → Notas de postulantes que rindieron este examen.
+//
+// Notas:
+//   - No usa timestamps automáticos.
+//   - 'fecha' se castea a date; 'porcentaje' es decimal(2).
+// =============================================================================
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;

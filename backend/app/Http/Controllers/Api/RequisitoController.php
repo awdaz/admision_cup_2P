@@ -9,8 +9,14 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+// Controlador de requisitos — gestiona la verificación de requisitos
+// de cada postulante en el sistema CUP-FICCT.
 class RequisitoController extends Controller
 {
+    // Lista los requisitos de un postulante específico con su estado de cumplimiento.
+    // Parámetros: postulanteId (ID del postulante).
+    // Retorna: JSON con array de requisitos (id, nombre, descripción, cumplido, fecha_verificación).
+    // Si el postulante no existe, retorna error 404.
     public function index($postulanteId): JsonResponse
     {
         $postulante = Postulante::find($postulanteId);
@@ -36,6 +42,11 @@ class RequisitoController extends Controller
         return response()->json($requisitos);
     }
 
+    // Actualiza el estado de cumplimiento de los requisitos de un postulante.
+    // Parámetros: postulanteId (ID del postulante) + array 'requisitos' con {requisito_id, cumplido}.
+    // Para cada requisito, crea o actualiza el registro en postulante_requisito.
+    // Si todos los requisitos están cumplidos, marca requisitos_verificado = true en el postulante.
+    // Retorna: mensaje de confirmación o error 404/500.
     public function update(Request $request, $postulanteId): JsonResponse
     {
         $request->validate([

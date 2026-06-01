@@ -4,15 +4,24 @@ import { toast } from 'sonner';
 import usePostulantes from '../../hooks/usePostulantes';
 import DataTable from '../../components/ui/DataTable';
 
+// Página de listado de postulantes con búsqueda y paginación
+// Ruta: "/postulantes" — Acceso: Usuarios autenticados
+// Muestra una tabla con todos los postulantes, permite buscar, editar, eliminar y navegar a detalle
 export default function PostulanteListPage() {
   const navigate = useNavigate();
   const { getPostulantes, deletePostulante, loading } = usePostulantes();
+  // Lista de postulantes obtenida del backend
   const [postulantes, setPostulantes] = useState([]);
+  // Objeto con datos de paginación (total, per_page, etc.)
   const [pagination, setPagination] = useState(null);
+  // Página actual de la paginación
   const [page, setPage] = useState(1);
+  // Término de búsqueda confirmado (se usa al hacer submit)
   const [searchQuery, setSearchQuery] = useState('');
+  // Valor actual del input de búsqueda (antes de submit)
   const [searchInput, setSearchInput] = useState('');
 
+  // Carga la lista de postulantes según página y búsqueda
   const load = useCallback(async (p, s) => {
     try {
       const data = await getPostulantes(p, s);
@@ -25,15 +34,18 @@ export default function PostulanteListPage() {
     }
   }, [getPostulantes]);
 
+  // Recarga cada vez que cambia la página o el término de búsqueda
   useEffect(() => {
     load(page, searchQuery);
   }, [page, searchQuery, load]);
 
+  // Calcula el total de páginas basado en total de registros y registros por página
   const totalPages = useMemo(() =>
     Math.ceil((pagination?.total || 1) / (pagination?.per_page || 15)),
     [pagination]
   );
 
+  // Calcula qué páginas mostrar en el paginador (ventana deslizante de 5 páginas)
   const visiblePages = useMemo(() => {
     const pages = [];
     const maxVisible = 5;
@@ -48,6 +60,7 @@ export default function PostulanteListPage() {
     return { start, end, pages };
   }, [page, totalPages]);
 
+  // Confirma y elimina un postulante, luego recarga la lista
   const handleDelete = async (row) => {
     const ci = row.persona?.ci || row.ci || '';
     if (!window.confirm(`¿Eliminar postulante ${ci}?`)) return;
@@ -59,12 +72,14 @@ export default function PostulanteListPage() {
     }
   };
 
+  // Al hacer submit de búsqueda, reinicia a página 1 y aplica el filtro
   const handleSearch = (e) => {
     e.preventDefault();
     setPage(1);
     setSearchQuery(searchInput);
   };
 
+  // Configuración de columnas de la tabla con render personalizado
   const columns = [
     { key: 'ci', label: 'CI', render: (row) => row.persona?.ci || row.ci || '-' },
     {
@@ -119,6 +134,7 @@ export default function PostulanteListPage() {
         </button>
       </div>
 
+      {/* Barra de búsqueda por CI o nombre */}
       <form onSubmit={handleSearch} className="mb-3">
         <div className="input-group">
           <input
@@ -146,6 +162,7 @@ export default function PostulanteListPage() {
         </div>
       </div>
 
+      {/* Paginación con ventana deslizante, botones de primera/última y elipsis */}
       {pagination && totalPages > 1 && (
         <nav className="mt-3" aria-label="Navegación de páginas">
           <ul className="pagination justify-content-center flex-wrap mb-0">

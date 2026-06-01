@@ -1,8 +1,10 @@
+// Página de Reportes — renderiza el reporte adecuado según el rol del usuario
 import { useState, useEffect } from 'react';
 import useAuthStore from '../../store/authStore';
 import { toast } from 'sonner';
 import useReportes from '../../hooks/useReportes';
 
+// Componente raíz que selecciona el reporte según user.tipo
 export default function ReportesPage() {
   const user = useAuthStore((s) => s.user);
   const tipo = user?.tipo;
@@ -12,10 +14,12 @@ export default function ReportesPage() {
   return <ReportePostulante />;
 }
 
+// Reporte global de admisión (solo administradores) con resumen y desglose por carrera
 function ReporteAdmision() {
   const { getReporteAdmision, loading } = useReportes();
-  const [data, setData] = useState(null);
+  const [data, setData] = useState(null); // Datos del reporte desde el servidor
 
+  // Obtiene el reporte de admisión al montar el componente
   useEffect(() => {
     (async () => {
       try {
@@ -103,10 +107,12 @@ function ReporteAdmision() {
   );
 }
 
+// Reporte del docente: resumen de sus grupos, estudiantes y exámenes
 function ReporteDocente() {
   const { getReporteDocenteMisGrupos, loading } = useReportes();
-  const [data, setData] = useState(null);
+  const [data, setData] = useState(null); // Datos del reporte del docente
 
+  // Obtiene los grupos asignados al docente y sus estadísticas
   useEffect(() => {
     (async () => {
       try {
@@ -190,10 +196,12 @@ function ReporteDocente() {
   );
 }
 
+// Reporte del postulante: muestra sus postulaciones, notas y pagos
 function ReportePostulante() {
   const { getReportePostulanteMisNotas, loading } = useReportes();
-  const [data, setData] = useState(null);
+  const [data, setData] = useState(null); // Datos del reporte del postulante
 
+  // Obtiene las postulaciones y notas del postulante logueado
   useEffect(() => {
     (async () => {
       try {

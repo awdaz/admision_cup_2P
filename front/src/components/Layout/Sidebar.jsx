@@ -1,6 +1,8 @@
+// Sidebar de navegación con enlaces según el rol del usuario
 import { NavLink } from 'react-router-dom';
 import useAuthStore from '../../store/authStore';
 
+// Enlaces del menú para administradores
 const adminLinks = [
   { to: '/dashboard', label: 'Dashboard', icon: 'bi-speedometer2' },
   { to: '/postulantes', label: 'Postulantes', icon: 'bi-people' },
@@ -15,6 +17,7 @@ const adminLinks = [
   { to: '/usuarios', label: 'Usuarios', icon: 'bi-shield-lock' },
 ];
 
+// Enlaces del menú para postulantes
 const postulanteLinks = [
   { to: '/dashboard', label: 'Dashboard', icon: 'bi-speedometer2' },
   { to: '/postulantes', label: 'Mis Datos', icon: 'bi-person' },
@@ -24,6 +27,7 @@ const postulanteLinks = [
   { to: '/reportes', label: 'Mis Reportes', icon: 'bi-bar-chart' },
 ];
 
+// Enlaces del menú para docentes
 const docenteLinks = [
   { to: '/dashboard', label: 'Dashboard', icon: 'bi-speedometer2' },
   { to: '/docentes', label: 'Mis Grupos', icon: 'bi-mortarboard' },
@@ -35,6 +39,7 @@ const docenteLinks = [
   { to: '/reportes', label: 'Reportes', icon: 'bi-bar-chart' },
 ];
 
+// Mapa de roles a sus respectivos conjuntos de enlaces
 const roleLinks = {
   admin: adminLinks,
   postulante: postulanteLinks,
@@ -43,8 +48,8 @@ const roleLinks = {
 
 export default function Sidebar({ offcanvasId, onLinkClick }) {
   const user = useAuthStore((s) => s.user);
-  const tipo = user?.tipo;
-  const links = tipo ? roleLinks[tipo] || adminLinks : [];
+  const tipo = user?.tipo;  // Rol del usuario autenticado
+  const links = tipo ? roleLinks[tipo] || adminLinks : []; // Enlaces según el rol
 
   const content = (
     <ul className="nav nav-pills flex-column">

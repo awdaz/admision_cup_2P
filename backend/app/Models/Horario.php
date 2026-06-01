@@ -1,5 +1,19 @@
 <?php
 
+// =============================================================================
+// Modelo: Horario
+// Tabla: horario
+// Propósito: Define el día, hora de inicio y hora de fin en que un grupo
+//            se reúne en un aula determinada.
+//
+// Relaciones:
+//   - belongsTo(Grupo) → Grupo al que pertenece el horario.
+//   - belongsTo(Aula)  → Aula donde se imparte la clase.
+//
+// Notas:
+//   - No usa timestamps automáticos.
+// =============================================================================
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;

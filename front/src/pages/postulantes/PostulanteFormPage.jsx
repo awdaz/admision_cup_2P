@@ -4,12 +4,17 @@ import { toast } from 'sonner';
 import usePostulantes from '../../hooks/usePostulantes';
 import Loader from '../../components/ui/Loader';
 
+// Página de formulario para crear o editar un postulante
+// Rutas: "/postulantes/nuevo" (crear) y "/postulantes/:id/editar" (editar)
+// Acceso: Usuarios autenticados
 export default function PostulanteFormPage() {
   const { id } = useParams();
+  // Si hay id en la URL, estamos en modo edición
   const isEdit = Boolean(id);
   const navigate = useNavigate();
   const { getPostulante, createPostulante, updatePostulante, loading } = usePostulantes();
 
+  // Objeto que agrupa todos los campos editables del postulante
   const [form, setForm] = useState({
     ci: '',
     nombre: '',
@@ -22,9 +27,12 @@ export default function PostulanteFormPage() {
     ciudad: '',
     colegio_procedencia: '',
   });
+  // Indica si el formulario se está guardando
   const [submitting, setSubmitting] = useState(false);
+  // Indica si los datos iniciales están cargando (solo en modo edición)
   const [pageLoading, setPageLoading] = useState(isEdit);
 
+  // En modo edición, carga los datos del postulante existente al montar el componente
   useEffect(() => {
     if (isEdit) {
       (async () => {
@@ -54,10 +62,12 @@ export default function PostulanteFormPage() {
     }
   }, [id, isEdit, getPostulante]);
 
+  // Actualiza el campo correspondiente en el estado del formulario
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  // Envía el formulario: crea o actualiza según el modo, luego redirige al listado
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);

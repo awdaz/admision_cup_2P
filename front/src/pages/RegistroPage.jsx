@@ -3,8 +3,12 @@ import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import cliente from '../api/cliente';
 
+// Página de registro de nuevo postulante
+// Ruta: "/registro" — Acceso: Público (cualquier persona)
+// Formulario completo con datos personales y de acceso; al enviar llama a POST /register
 export default function RegistroPage() {
   const navigate = useNavigate();
+  // Objeto que agrupa todos los campos del formulario de registro
   const [form, setForm] = useState({
     ci: '',
     nombre: '',
@@ -20,12 +24,15 @@ export default function RegistroPage() {
     password: '',
     password_confirmation: '',
   });
+  // Indica si el formulario se está enviando al servidor
   const [submitting, setSubmitting] = useState(false);
 
+  // Actualiza el campo correspondiente del formulario según el name del input
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  // Envía los datos del formulario al endpoint /register; valida que las contraseñas coincidan
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -81,6 +88,7 @@ export default function RegistroPage() {
                 </div>
 
                 <form onSubmit={handleSubmit}>
+                  {/* Sección de datos personales: CI, nombre, apellido, fecha nac., sexo, email, teléfono, ciudad, colegio, dirección */}
                   <h6 className="text-muted mb-3">Datos Personales</h6>
                   <div className="row g-3">
                     <div className="col-md-4">
@@ -130,6 +138,7 @@ export default function RegistroPage() {
                     </div>
                   </div>
 
+                  {/* Sección de datos de acceso: username, contraseña y confirmación */}
                   <hr className="my-4" />
                   <h6 className="text-muted mb-3">Datos de Acceso</h6>
                   <div className="row g-3">

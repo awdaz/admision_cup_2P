@@ -14,16 +14,22 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+// Controlador de reportes y estadísticas del sistema.
+// Proporciona datos agregados de admisiones, grupos del docente y notas del postulante.
 class ReporteController extends Controller
 {
+    // Reporte general de admisión: estadísticas globales y desglose por carrera.
+    // Incluye total de postulantes, postulaciones, inscritos, admitidos, pendientes y pagos.
     public function admision(Request $request): JsonResponse
     {
+        // Conteo de postulaciones por carrera usando withCount
         $carreras = Carrera::withCount([
             'postulacions as total_postulaciones',
             'postulacions as inscritos' => fn($q) => $q->where('estado', 'inscrito'),
             'postulacions as admitidos' => fn($q) => $q->where('estado', 'admitido'),
         ])->get();
 
+        // Resumen global del proceso de admisión
         $resumen = [
             'total_postulantes' => Postulante::count(),
             'total_postulaciones' => Postulacion::count(),
@@ -40,6 +46,9 @@ class ReporteController extends Controller
         ]);
     }
 
+    // Reporte de grupos del docente autenticado.
+    // Incluye datos del docente, sus grupos con estudiantes y exámenes.
+    // Retorna estadísticas: total de grupos, estudiantes y exámenes.
     public function docenteMisGrupos(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -56,6 +65,7 @@ class ReporteController extends Controller
             'examenes.rindes',
         ])->where('docente_id', $docente->id)->get();
 
+        // Cálculo de métricas del docente
         $stats = [
             'total_grupos' => $grupos->count(),
             'total_estudiantes' => $grupos->sum(fn($g) => $g->postulacionGrupos->count()),
@@ -69,6 +79,8 @@ class ReporteController extends Controller
         ]);
     }
 
+    // Reporte de notas del postulante autenticado.
+    // Retorna sus postulaciones con calificaciones (rindes), exámenes y pagos.
     public function postulanteMisNotas(Request $request): JsonResponse
     {
         $user = $request->user();

@@ -7,23 +7,28 @@ import { toast } from 'sonner';
 import usePostulantes from '../../hooks/usePostulantes';
 import Loader from '../../components/ui/Loader';
 
+// Página de formulario para crear una nueva postulación
+// Ruta: /postulaciones/nuevo (con ?postulante_id opcional para preseleccionar)
+// Acceso: Administradores y personal de registro
 export default function PostulacionFormPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const preselectedId = searchParams.get('postulante_id');
+  const preselectedId = searchParams.get('postulante_id'); // ID de postulante preseleccionado vía query param
 
   const { createPostulacion } = usePostulaciones();
   const { getCarreras, getTurnos, getSemestres } = useCatalogos();
   const { getPostulante, getPostulantes } = usePostulantes();
 
-  const [carreras, setCarreras] = useState([]);
-  const [turnos, setTurnos] = useState([]);
-  const [semestres, setSemestres] = useState([]);
-  const [admisiones, setAdmisiones] = useState([]);
-  const [postulantes, setPostulantes] = useState([]);
-  const [postulante, setPostulante] = useState(null);
-  const [loadingPage, setLoadingPage] = useState(true);
+  // Catálogos cargados desde la API
+  const [carreras, setCarreras] = useState([]);      // Lista de carreras disponibles
+  const [turnos, setTurnos] = useState([]);          // Lista de turnos (mañana/tarde/noche)
+  const [semestres, setSemestres] = useState([]);    // Lista de semestres académicos
+  const [admisiones, setAdmisiones] = useState([]);  // Lista de admisiones activas
+  const [postulantes, setPostulantes] = useState([]); // Lista de postulantes (para selector)
+  const [postulante, setPostulante] = useState(null); // Postulante preseleccionado (datos completos)
+  const [loadingPage, setLoadingPage] = useState(true); // Estado de carga inicial de datos
 
+  // Datos del formulario de postulación
   const [form, setForm] = useState({
     postulante_id: preselectedId || '',
     primera_opcion_id: '',
@@ -33,8 +38,10 @@ export default function PostulacionFormPage() {
     admision_id: '',
   });
 
-  const [submitting, setSubmitting] = useState(false);
+  const [submitting, setSubmitting] = useState(false); // Estado de envío del formulario
 
+  // Carga inicial: catálogos (carreras, turnos, semestres), postulantes y admisiones activas
+  // Si viene un postulante_id en la URL, también carga sus datos completos
   useEffect(() => {
     (async () => {
       try {
@@ -67,10 +74,12 @@ export default function PostulacionFormPage() {
     })();
   }, []);
 
+  // Maneja cambios en los campos del formulario actualizando el estado
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  // Envía el formulario: llama a createPostulacion y redirige al postulante
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
@@ -92,6 +101,7 @@ export default function PostulacionFormPage() {
       <div className="col-lg-8">
         <h4 className="mb-4">Nueva Postulación</h4>
 
+        {/* Tarjeta informativa del postulante preseleccionado (se muestra cuando se pasa postulante_id en la URL) */}
         {postulante && (
           <div className="card shadow-sm mb-4">
             <div className="card-header"><strong>Postulante</strong></div>
@@ -111,6 +121,7 @@ export default function PostulacionFormPage() {
           <div className="card-body">
             <form onSubmit={handleSubmit}>
               <div className="row g-3">
+                {/* Selector de postulante: solo visible cuando no viene preseleccionado por URL */}
                 {!preselectedId && (
                   <div className="col-12">
                     <label className="form-label">Postulante</label>
@@ -125,6 +136,7 @@ export default function PostulacionFormPage() {
                   </div>
                 )}
 
+                {/* Primera opción de carrera (obligatorio) */}
                 <div className="col-md-6">
                   <label className="form-label">Primera Opción</label>
                   <select name="primera_opcion_id" className="form-select" value={form.primera_opcion_id} onChange={handleChange} required>
@@ -135,6 +147,7 @@ export default function PostulacionFormPage() {
                   </select>
                 </div>
 
+                {/* Segunda opción de carrera (opcional), excluye la carrera seleccionada en primera opción */}
                 <div className="col-md-6">
                   <label className="form-label">Segunda Opción (opcional)</label>
                   <select name="segunda_opcion_id" className="form-select" value={form.segunda_opcion_id} onChange={handleChange}>
@@ -145,6 +158,7 @@ export default function PostulacionFormPage() {
                   </select>
                 </div>
 
+                {/* Turno al que postula (mañana, tarde, noche) */}
                 <div className="col-md-4">
                   <label className="form-label">Turno</label>
                   <select name="turno_id" className="form-select" value={form.turno_id} onChange={handleChange} required>
@@ -155,6 +169,7 @@ export default function PostulacionFormPage() {
                   </select>
                 </div>
 
+                {/* Semestre académico en el que se postula */}
                 <div className="col-md-4">
                   <label className="form-label">Semestre</label>
                   <select name="semestre_id" className="form-select" value={form.semestre_id} onChange={handleChange} required>
@@ -165,6 +180,7 @@ export default function PostulacionFormPage() {
                   </select>
                 </div>
 
+                {/* Admisión activa a la que se asocia la postulación (opcional) */}
                 <div className="col-md-4">
                   <label className="form-label">Admisión (opcional)</label>
                   <select name="admision_id" className="form-select" value={form.admision_id} onChange={handleChange}>

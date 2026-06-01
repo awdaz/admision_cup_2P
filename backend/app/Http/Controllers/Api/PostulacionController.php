@@ -10,8 +10,13 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+// Controlador de postulaciones — gestiona las solicitudes de inscripción
+// de postulantes a carreras en el sistema CUP-FICCT.
 class PostulacionController extends Controller
 {
+    // Lista postulaciones paginadas (15 por página) con filtros opcionales (estado, admision_id, postulante_id).
+    // Autorización: si el usuario es 'postulante', solo ve sus propias postulaciones.
+    // Retorna: JSON con datos paginados y relaciones (postulante, opciones, turno, semestre, admisión).
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -49,6 +54,13 @@ class PostulacionController extends Controller
         return response()->json($query->paginate(15));
     }
 
+    // Crea una nueva postulación para un postulante.
+    // Parámetros: postulante_id, admision_id, primera_opcion_id, segunda_opcion_id, turno_id, semestre_id.
+    // Autorización: si el usuario es 'postulante', fuerza su propio postulante_id.
+    // Reglas de negocio:
+    //   - El postulante debe tener requisitos verificados.
+    //   - No puede tener otra postulación activa en la misma admisión.
+    // Retorna: JSON con la postulación creada (código 201) o error 403/404/422/500.
     public function store(PostulacionStoreRequest $request): JsonResponse
     {
         $user = request()->user();
@@ -119,6 +131,10 @@ class PostulacionController extends Controller
         }
     }
 
+    // Muestra una postulación específica con todas sus relaciones.
+    // Parámetros: id de la postulación.
+    // Autorización: si el usuario es 'postulante', solo ve su propia postulación.
+    // Retorna: JSON con postulación y relaciones (pagos, grupos, rindes) o error 404/403.
     public function show($id, Request $request): JsonResponse
     {
         $user = $request->user();
@@ -149,6 +165,13 @@ class PostulacionController extends Controller
         return response()->json($postulacion);
     }
 
+    // Cancela una postulación cambiando su estado a 'cancelado'.
+    // Parámetros: id de la postulación.
+    // Autorización: si el usuario es 'postulante', solo puede cancelar su propia postulación.
+    // Reglas de negocio:
+    //   - No se puede cancelar si ya está cancelada.
+    //   - No se puede cancelar si está en estado 'inscrito' o 'admitido'.
+    // Retorna: JSON con mensaje y postulación actualizada, o error 404/403/422.
     public function cancelar($id, Request $request): JsonResponse
     {
         $user = $request->user();

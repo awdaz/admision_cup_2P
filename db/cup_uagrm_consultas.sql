@@ -1,8 +1,12 @@
 -- ============================================================
 -- CONSULTAS ÚTILES - CUP UAGRM
+-- Propósito: Contiene consultas de ejemplo para analizar los
+--            resultados del proceso de admisión del sistema CUP.
 -- ============================================================
 
 -- 1. Estadísticas generales
+-- Muestra total de postulantes, aprobados, reprobados, promedio
+-- general, nota mínima y máxima de la admisión 1.
 SELECT
     COUNT(*) AS total_postulantes,
     SUM(CASE WHEN aprobado THEN 1 ELSE 0 END) AS aprobados,
@@ -13,6 +17,8 @@ SELECT
 FROM postulacion WHERE admision_id = 1;
 
 -- 2. Distribución por turno
+-- Cuenta cuántos postulantes hay en cada turno (Mañana, Tarde, Noche)
+-- ordenados de mayor a menor demanda.
 SELECT
     t.nombre AS turno,
     t.modalidad,
@@ -24,6 +30,8 @@ GROUP BY t.nombre, t.modalidad
 ORDER BY postulantes DESC;
 
 -- 3. Preferencias (primera opción)
+-- Muestra cuántos postulantes eligieron cada carrera como primera
+-- opción y su porcentaje sobre el total.
 SELECT
     c.nombre AS carrera,
     COUNT(p.id) AS postulantes,
@@ -35,9 +43,13 @@ GROUP BY c.nombre
 ORDER BY postulantes DESC;
 
 -- 4. Reporte de admisión
+-- Utiliza la función fn_reporte_admision para obtener un resumen
+-- por carrera: cupo, asignados, vacantes, promedios min y max.
 SELECT * FROM fn_reporte_admision(1);
 
 -- 5. Top 10 mejores promedios
+-- Lista los 10 postulantes aprobados con mayor promedio general,
+-- mostrando sus preferencias de carrera, turno y promedios por materia.
 SELECT
     per.nombre || ' ' || per.apellido AS postulante,
     c1.nombre AS primera_opcion,
@@ -59,6 +71,8 @@ ORDER BY p.promedio_general DESC
 LIMIT 10;
 
 -- 6. Notas de un postulante
+-- Muestra todas las notas de un postulante específico (POST-0001):
+-- materia, examen, descripción, nota y resultado (APROBADO/REPROBADO).
 SELECT
     m.nombre AS materia,
     e.nro AS examen,
@@ -75,6 +89,8 @@ WHERE pos.codigo = 'POST-0001'
 ORDER BY m.id, e.id;
 
 -- 7. Admitidos por carrera
+-- Muestra cuántos postulantes fueron admitidos en cada carrera,
+-- el cupo disponible y las vacantes restantes.
 SELECT
     ca.nombre AS carrera_asignada,
     COUNT(*) AS admitidos,
@@ -87,6 +103,8 @@ GROUP BY ca.id, ca.nombre, ca.cupo
 ORDER BY ca.id;
 
 -- 8. Rechazados por falta de cupo
+-- Lista los postulantes rechazados ordenados por promedio descendente,
+-- mostrando sus opciones de carrera y promedio general.
 SELECT
     per.nombre || ' ' || per.apellido AS postulante,
     c1.nombre AS primera_opcion,
@@ -101,6 +119,8 @@ WHERE p.admision_id = 1 AND p.estado = 'rechazado'
 ORDER BY p.promedio_general DESC;
 
 -- 9. Nota de corte por carrera
+-- Calcula el promedio de ingreso, la nota de corte (promedio mínimo
+-- del último admitido) y la nota máxima de cada carrera.
 SELECT
     c.nombre AS carrera,
     ROUND(AVG(p.promedio_general), 2) AS promedio_ingreso,
@@ -113,6 +133,8 @@ GROUP BY c.nombre
 ORDER BY promedio_ingreso DESC;
 
 -- 10. Reprobaron alguna materia
+-- Lista los 20 postulantes que no aprobaron todas las materias
+-- (aprobado = FALSE), ordenados por promedio general descendente.
 SELECT
     per.nombre || ' ' || per.apellido AS postulante,
     p.promedio_matematicas,
@@ -128,9 +150,12 @@ ORDER BY p.promedio_general DESC
 LIMIT 20;
 
 -- 11. Resultados completos
+-- Vista general con todos los resultados de admisión ordenados por promedio.
 -- SELECT * FROM vw_resultados_admision ORDER BY promedio_general DESC;
 
 -- 12. Notas con ponderación por porcentaje
+-- Muestra las notas de un postulante con el cálculo de nota ponderada
+-- (nota * porcentaje_del_examen / 100) para cada examen.
 SELECT
     per.nombre || ' ' || per.apellido AS postulante,
     m.nombre AS materia,
@@ -149,6 +174,9 @@ WHERE pos.codigo = 'POST-0001'
 ORDER BY m.id, e.id;
 
 -- 13. Materia con más reprobación
+-- Analiza qué materia tiene el mayor porcentaje de reprobación,
+-- mostrando total de exámenes, promedio general, cantidad y
+-- porcentaje de reprobados.
 SELECT
     m.nombre AS materia,
     COUNT(*) AS total_examenes,
@@ -165,12 +193,15 @@ GROUP BY m.nombre
 ORDER BY pct_reprobacion DESC;
 
 -- 14. Docentes contratados y su asignación de grupos
+-- Vista de docentes con cantidad de grupos asignados y disponibles.
 SELECT * FROM vw_docentes_asignacion ORDER BY grupos_asignados DESC;
 
 -- 15. Requisitos de postulantes
+-- Muestra los requisitos de un postulante específico.
 SELECT * FROM vw_requisitos_postulante WHERE codigo_postulante = 'POST-0001';
 
 -- 16. Postulantes que NO cumplen requisitos
+-- Lista los postulantes que tienen al menos un requisito pendiente (cumplido = FALSE).
 SELECT
     per.nombre || ' ' || per.apellido AS postulante,
     pos.codigo,
@@ -182,6 +213,8 @@ JOIN requisito r ON r.id = pr.requisito_id
 ORDER BY pos.codigo;
 
 -- 17. Pagos realizados por pasarela
+-- Muestra los pagos procesados a través de pasarela de pago (PagoFacil),
+-- incluyendo recibo, monto, gateway, transacción y estado.
 SELECT
     p.numero_recibo,
     p.monto,
@@ -196,6 +229,8 @@ WHERE p.metodo_pago = 'pasarela'
 ORDER BY p.id;
 
 -- 18. Grupos disponibles por materia y turno
+-- Muestra la ocupación de cada grupo: cupo total, inscritos actuales
+-- y vacantes disponibles, ordenado por materia y turno.
 SELECT
     m.nombre AS materia,
     t.nombre AS turno,

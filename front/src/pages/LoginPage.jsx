@@ -3,14 +3,21 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import useAuthStore from '../store/authStore';
 
+// Página de inicio de sesión
+// Ruta: "/login" — Acceso: Público (usuarios no autenticados)
+// Permite al usuario ingresar con username y contraseña, redirige al dashboard
 export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const login = useAuthStore((s) => s.login);
+  // Almacena el nombre de usuario ingresado
   const [username, setUsername] = useState('');
+  // Almacena la contraseña ingresada
   const [password, setPassword] = useState('');
+  // Indica si la solicitud de login está en curso
   const [loading, setLoading] = useState(false);
 
+  // Muestra un toast si se navegó aquí con un mensaje de éxito (ej. registro exitoso)
   useEffect(() => {
     if (location.state?.success) {
       toast.success(location.state.success);
@@ -18,6 +25,7 @@ export default function LoginPage() {
     }
   }, [location.state]);
 
+  // Se ejecuta al enviar el formulario: llama al store de autenticación y redirige
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -41,6 +49,7 @@ export default function LoginPage() {
             <p className="text-muted">Sistema de Admisión</p>
           </div>
 
+          {/* Formulario de login con campos de usuario y contraseña */}
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
               <label className="form-label">Usuario</label>
@@ -83,6 +92,7 @@ export default function LoginPage() {
             </button>
           </form>
 
+          {/* Enlaces de ayuda: recuperar contraseña, registro, volver al inicio */}
           <div className="text-center mt-3 d-flex flex-column gap-1">
             <Link to="/recuperar-password" className="text-decoration-none small">
               <i className="bi bi-question-circle me-1"></i>¿Olvidaste tu contraseña?

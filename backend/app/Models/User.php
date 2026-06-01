@@ -1,5 +1,22 @@
 <?php
 
+// =============================================================================
+// Modelo: User
+// Tabla: usuario
+// Propósito: Gestiona la autenticación y autorización de los usuarios del
+//            sistema. Extiende Authenticatable de Laravel con soporte para
+//            Sanctum (API tokens) y notificaciones.
+//
+// Relaciones:
+//   - belongsTo(Persona) → Datos personales del usuario.
+//
+// Notas:
+//   - No usa timestamps automáticos.
+//   - 'activo' es booleano (indica si la cuenta está habilitada).
+//   - 'tipo' define el rol (ej. admin, postulante, etc.).
+//   - La contraseña se almacena como 'password_hash'.
+// =============================================================================
+
 namespace App\Models;
 
 use Database\Factories\UserFactory;

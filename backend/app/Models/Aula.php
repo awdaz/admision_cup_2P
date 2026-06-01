@@ -1,5 +1,19 @@
 <?php
 
+// =============================================================================
+// Modelo: Aula
+// Tabla: aula
+// Propósito: Registra los salones físicos disponibles, identificados por
+//            número, piso y capacidad de estudiantes.
+//
+// Relaciones:
+//   - hasMany(Horario) → Horarios asignados a esta aula.
+//
+// Notas:
+//   - No usa timestamps automáticos.
+//   - 'piso' y 'capacidad' son enteros.
+// =============================================================================
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;

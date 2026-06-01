@@ -11,8 +11,13 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+// Controlador de docentes — gestiona el CRUD de docentes y su contratación
+// en el sistema CUP-FICCT.
 class DocenteController extends Controller
 {
+    // Lista docentes paginados (15 por página) con filtro opcional de búsqueda y estado contratado.
+    // Parámetros opcionales: search (CI/nombre/apellido), contratado (boolean).
+    // Retorna: JSON con datos paginados y relaciones persona y grupos.
     public function index(Request $request): JsonResponse
     {
         $query = Docente::with('persona', 'grupos.materia')
@@ -33,6 +38,10 @@ class DocenteController extends Controller
         return response()->json($query->paginate(15));
     }
 
+    // Crea un nuevo docente con sus datos personales en una transacción.
+    // Parámetros: datos de persona + cod_docente, es_profesional_area, tiene_maestria, tiene_diplomado_edu_sup.
+    // Regla de negocio: contratado se calcula automáticamente como true si las tres condiciones son true.
+    // Retorna: JSON del docente creado (código 201) o error 500.
     public function store(DocenteStoreRequest $request): JsonResponse
     {
         try {
@@ -65,6 +74,9 @@ class DocenteController extends Controller
         }
     }
 
+    // Muestra un docente específico con sus relaciones (persona, grupos con materia y turno).
+    // Parámetros: id del docente.
+    // Retorna: JSON con datos del docente o error 404.
     public function show($id): JsonResponse
     {
         $docente = Docente::with(['persona', 'grupos.materia', 'grupos.turno'])->find($id);
@@ -76,6 +88,10 @@ class DocenteController extends Controller
         return response()->json($docente);
     }
 
+    // Actualiza los datos de un docente y su persona asociada en una transacción.
+    // Parámetros: id del docente + datos editables.
+    // Si se envía 'contratado' explícitamente, usa ese valor; si no, lo recalcula automáticamente.
+    // Retorna: JSON del docente actualizado o error 404/500.
     public function update(DocenteUpdateRequest $request, $id): JsonResponse
     {
         $docente = Docente::with('persona')->find($id);
@@ -118,6 +134,10 @@ class DocenteController extends Controller
         }
     }
 
+    // Elimina un docente y su persona asociada en una transacción.
+    // Parámetros: id del docente.
+    // Regla de negocio: no se puede eliminar si tiene grupos asignados.
+    // Retorna: mensaje de confirmación o error 404/422/500.
     public function destroy($id): JsonResponse
     {
         $docente = Docente::find($id);
@@ -144,6 +164,9 @@ class DocenteController extends Controller
         }
     }
 
+    // Cambia el estado de un docente a contratado manualmente.
+    // Parámetros: id del docente.
+    // Retorna: JSON con mensaje y datos del docente actualizado, o error 404.
     public function contratar($id): JsonResponse
     {
         $docente = Docente::find($id);

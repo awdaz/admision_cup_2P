@@ -1,5 +1,21 @@
 <?php
 
+// =============================================================================
+// Modelo: Rinde
+// Tabla: rinde
+// Propósito: Almacena las notas obtenidas por un postulante en cada examen
+//            que rinde. Es la relación directa entre postulación y examen
+//            con su respectiva calificación.
+//
+// Relaciones:
+//   - belongsTo(Postulacion) → Postulación del estudiante.
+//   - belongsTo(Examen)      → Examen que fue rendido.
+//
+// Notas:
+//   - No usa timestamps automáticos.
+//   - 'nota' es decimal(2).
+// =============================================================================
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;

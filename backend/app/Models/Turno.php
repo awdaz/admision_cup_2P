@@ -1,5 +1,19 @@
 <?php
 
+// =============================================================================
+// Modelo: Turno
+// Tabla: turno
+// Propósito: Define los turnos disponibles (mañana, tarde, noche) y su
+//            modalidad (presencial, semipresencial, virtual).
+//
+// Relaciones:
+//   - hasMany(Grupo)         → Grupos que pertenecen a este turno.
+//   - hasMany(Postulacion)   → Postulaciones que eligieron este turno.
+//
+// Notas:
+//   - No usa timestamps automáticos.
+// =============================================================================
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;

@@ -3,6 +3,10 @@
 -- Facultad de Ingeniería en Ciencias de la Computación y Telecomunicaciones
 -- Carreras: Ing. Sistemas, Ing. Informática, Ing. Redes y Telecom., Ing. Robótica
 -- Motor: PostgreSQL 15+
+-- Propósito: Esquema principal del sistema de Control Único de Postulaciones (CUP)
+--            de la Universidad Autónoma Gabriel René Moreno (UAGRM).
+--            Gestiona postulantes, docentes, carreras, materias, exámenes,
+--            admisiones, pagos y la asignación de cupos por carrera.
 -- ============================================================
 
 -- CREATE DATABASE cup_uagrm; -- DB creada por Docker via POSTGRES_DB
@@ -10,7 +14,16 @@
 -- ============================================================
 -- TABLAS BASE
 -- ============================================================
+-- Estas tablas representan las entidades fundamentales del sistema:
+-- persona, postulante, docente y usuario. persona es la tabla raíz
+-- de la que heredan postulante y docente (relación 1:1).
 
+-- Tabla: persona
+-- Almacena los datos personales de todos los individuos del sistema
+-- (postulantes, docentes, administradores).
+-- PK: id (SERIAL)
+-- UQ: ci, email
+-- Notas: sexo está restringido a 'Masculino', 'Femenino' u 'Otro'.
 CREATE TABLE persona (
     id          SERIAL          PRIMARY KEY,
     ci          VARCHAR(20)     NOT NULL UNIQUE,
@@ -24,6 +37,12 @@ CREATE TABLE persona (
     ciudad      VARCHAR(100)
 );
 
+-- Tabla: postulante
+-- Almacena a cada persona que se postula a una carrera.
+-- PK: id (SERIAL)
+-- FK: persona_id -> persona(id) (1:1, CASCADE)
+-- UQ: codigo (código único de postulante, ej: POST-0001)
+-- requisitos_verificado indica si ya se validaron sus documentos.
 CREATE TABLE postulante (
     id          SERIAL          PRIMARY KEY,
     persona_id  INTEGER         NOT NULL UNIQUE,
@@ -33,6 +52,13 @@ CREATE TABLE postulante (
     FOREIGN KEY (persona_id) REFERENCES persona(id) ON DELETE CASCADE
 );
 
+-- Tabla: docente
+-- Almacena a los docentes que dictan las materias del curso de admisión.
+-- PK: id (SERIAL)
+-- FK: persona_id -> persona(id) (1:1, CASCADE)
+-- UQ: cod_docente (código único del docente, ej: DOC-MAT-01)
+-- Los campos es_profesional_area, tiene_maestria, tiene_diplomado_edu_sup
+-- son requisitos obligatorios para ser contratado.
 CREATE TABLE docente (
     id                      SERIAL          PRIMARY KEY,
     persona_id              INTEGER         NOT NULL UNIQUE,
@@ -44,6 +70,13 @@ CREATE TABLE docente (
     FOREIGN KEY (persona_id) REFERENCES persona(id) ON DELETE CASCADE
 );
 
+-- Tabla: usuario
+-- Almacena las credenciales de acceso al sistema para cada persona.
+-- PK: id (SERIAL)
+-- FK: persona_id -> persona(id) (1:1, CASCADE)
+-- UQ: username, email
+-- tipo define el rol: 'postulante', 'docente' o 'admin'.
+-- password_hash guarda el hash bcrypt de la contraseña.
 CREATE TABLE usuario (
     id              SERIAL          PRIMARY KEY,
     username        VARCHAR(50)     NOT NULL UNIQUE,
@@ -58,7 +91,14 @@ CREATE TABLE usuario (
 -- ============================================================
 -- CARRERAS
 -- ============================================================
+-- Catálogo de carreras ofrecidas en la facultad.
 
+-- Tabla: carrera
+-- Define cada carrera universitaria disponible para postulación.
+-- PK: id (SERIAL)
+-- UQ: codigo (ej: ING-SIS, ING-INF)
+-- cupo: cantidad máxima de estudiantes admitidos por carrera.
+-- nota_corte: promedio mínimo del último admitido (se actualiza al procesar admisión).
 CREATE TABLE carrera (
     id          SERIAL          PRIMARY KEY,
     codigo      VARCHAR(20)     NOT NULL UNIQUE,
@@ -71,6 +111,11 @@ CREATE TABLE carrera (
 -- TURNOS: Mañana (presencial), Tarde (presencial), Noche (virtual)
 -- ============================================================
 
+-- Tabla: turno
+-- Catálogo de turnos disponibles para cursar las materias.
+-- PK: id (SERIAL)
+-- UQ: nombre ('Mañana', 'Tarde', 'Noche')
+-- modalidad: 'presencial' (Mañana/Tarde) o 'virtual' (Noche).
 CREATE TABLE turno (
     id          SERIAL          PRIMARY KEY,
     nombre      VARCHAR(50)     NOT NULL UNIQUE,
@@ -81,6 +126,10 @@ CREATE TABLE turno (
 -- SEMESTRE Y ADMISION
 -- ============================================================
 
+-- Tabla: semestre
+-- Define los períodos académicos (ej: 1-2026).
+-- PK: id (SERIAL)
+-- UQ: (semestre, anio) — no pueden existir dos registros con el mismo semestre y año.
 CREATE TABLE semestre (
     id          SERIAL          PRIMARY KEY,
     semestre    VARCHAR(10)     NOT NULL,
@@ -88,6 +137,12 @@ CREATE TABLE semestre (
     UNIQUE (semestre, anio)
 );
 
+-- Tabla: admision
+-- Cada proceso de admisión (convocatoria) que agrupa postulaciones.
+-- PK: id (SERIAL)
+-- UQ: nro (número de admisión, ej: ADM-001-2026)
+-- estado: 'activa' (en curso), 'cerrada' (ya no se reciben postulaciones),
+--         'finalizada' (asignación de cupos completada).
 CREATE TABLE admision (
     id              SERIAL          PRIMARY KEY,
     nro             VARCHAR(20)     NOT NULL UNIQUE,
@@ -103,6 +158,12 @@ CREATE TABLE admision (
 -- MATERIAS: Matemáticas, Física, Computación, Inglés
 -- ============================================================
 
+-- Tabla: materia
+-- Catálogo de materias que conforman el curso de admisión.
+-- PK: id (SERIAL)
+-- UQ: codigo (MAT, FIS, COM, ING)
+-- peso: porcentaje que aporta cada materia al promedio general
+--       (Mat 30%, Fis 30%, Com 30%, Ing 10%).
 CREATE TABLE materia (
     id          SERIAL          PRIMARY KEY,
     codigo      VARCHAR(20)     NOT NULL UNIQUE,
@@ -122,6 +183,10 @@ INSERT INTO materia (codigo, nombre, peso, descripcion) VALUES
 -- AULAS
 -- ============================================================
 
+-- Tabla: aula
+-- Define los espacios físicos/virtuales donde se dictan las materias.
+-- PK: id (SERIAL)
+-- UQ: (nro, piso) — no pueden existir dos aulas con el mismo número en el mismo piso.
 CREATE TABLE aula (
     id          SERIAL      PRIMARY KEY,
     nro         VARCHAR(20) NOT NULL,
@@ -134,6 +199,10 @@ CREATE TABLE aula (
 -- REQUISITOS DE POSTULACIÓN (Título Bachiller, etc.)
 -- ============================================================
 
+-- Tabla: requisito
+-- Catálogo de documentos obligatorios que debe presentar cada postulante.
+-- PK: id (SERIAL)
+-- UQ: nombre (Título Bachiller, Cédula de Identidad, etc.)
 CREATE TABLE requisito (
     id          SERIAL          PRIMARY KEY,
     nombre      VARCHAR(100)    NOT NULL UNIQUE,
@@ -147,6 +216,13 @@ INSERT INTO requisito (nombre, descripcion) VALUES
 ('Fotografías', 'Tres fotografías 4x4 fondo azul'),
 ('Examen Médico', 'Certificado de aptitud médica');
 
+-- Tabla: postulante_requisito
+-- Relación N:M entre postulantes y requisitos.
+-- PK: id (SERIAL)
+-- FK: postulante_id -> postulante(id) (CASCADE)
+-- FK: requisito_id -> requisito(id) (RESTRICT)
+-- UQ: (postulante_id, requisito_id) — un postulante no puede tener el mismo requisito duplicado.
+-- cumplido indica si el postulante ya presentó ese documento.
 CREATE TABLE postulante_requisito (
     id              SERIAL      PRIMARY KEY,
     postulante_id   INTEGER     NOT NULL,
@@ -162,6 +238,15 @@ CREATE TABLE postulante_requisito (
 -- GRUPOS (cada grupo = materia + turno, cupo max 70)
 -- ============================================================
 
+-- Tabla: grupo
+-- Cada grupo es una combinación de materia, docente y turno.
+-- Los postulantes se asignan a grupos para rendir exámenes.
+-- PK: id (SERIAL)
+-- UQ: codigo (ej: G-1-MAT-1-A)
+-- FK: materia_id -> materia(id) (RESTRICT)
+-- FK: docente_id -> docente(id) (RESTRICT)
+-- FK: turno_id -> turno(id) (RESTRICT)
+-- cupo: máximo 70 postulantes por grupo.
 CREATE TABLE grupo (
     id          SERIAL          PRIMARY KEY,
     codigo      VARCHAR(20)     NOT NULL UNIQUE,
@@ -179,6 +264,12 @@ CREATE TABLE grupo (
 -- EXAMENES (3 parciales por grupo)
 -- ============================================================
 
+-- Tabla: examen
+-- Cada grupo tiene 3 exámenes parciales (cada uno vale ~33.33%).
+-- PK: id (SERIAL)
+-- UQ: (nro, grupo_id) — no puede haber dos exámenes con el mismo número en un grupo.
+-- FK: grupo_id -> grupo(id) (RESTRICT)
+-- porcentaje: contribución del examen a la nota final de la materia (default 33.33).
 CREATE TABLE examen (
     id          SERIAL          PRIMARY KEY,
     nro         VARCHAR(20)     NOT NULL,
@@ -195,6 +286,12 @@ CREATE TABLE examen (
 -- HORARIOS
 -- ============================================================
 
+-- Tabla: horario
+-- Define en qué días y horas se dicta cada grupo, y en qué aula.
+-- PK: id (SERIAL)
+-- FK: grupo_id -> grupo(id) (CASCADE) — si se elimina un grupo, se eliminan sus horarios.
+-- FK: aula_id -> aula(id) (SET NULL) — si se elimina un aula, el horario queda sin aula asignada.
+-- CHECK: hora_fin > hora_inicio (valida que el horario sea lógico).
 CREATE TABLE horario (
     id          SERIAL      PRIMARY KEY,
     dia         VARCHAR(15) NOT NULL CHECK (dia IN (
@@ -213,7 +310,22 @@ CREATE TABLE horario (
 -- ============================================================
 -- POSTULACION (corazón del sistema)
 -- ============================================================
+-- Tabla central del sistema. Cada fila representa la postulación
+-- de un postulante a una carrera, con sus preferencias, turno,
+-- promedios y resultado de admisión.
 
+-- Tabla: postulacion
+-- PK: id (SERIAL)
+-- FK: postulante_id -> postulante(id) (RESTRICT)
+-- FK: carrera_id -> carrera(id) (RESTRICT) — carrera de preferencia principal
+-- FK: primera_opcion_id -> carrera(id) (RESTRICT)
+-- FK: segunda_opcion_id -> carrera(id) (RESTRICT) — opcional
+-- FK: turno_id -> turno(id) (RESTRICT)
+-- FK: semestre_id -> semestre(id) (RESTRICT)
+-- FK: admision_id -> admision(id) (SET NULL)
+-- FK: carrera_asignada_id -> carrera(id) (SET NULL) — carrera finalmente asignada
+-- estado: 'pendiente', 'inscrito', 'admitido', 'rechazado', 'cancelado'
+-- Los campos promedio_* se actualizan automáticamente vía trigger al insertar notas.
 CREATE TABLE postulacion (
     id                      SERIAL          PRIMARY KEY,
     estado                  VARCHAR(20)     NOT NULL DEFAULT 'pendiente'
@@ -248,6 +360,14 @@ CREATE TABLE postulacion (
 -- POSTULACION_GRUPO (asignación del postulante a sus 4 grupos)
 -- ============================================================
 
+-- Tabla: postulacion_grupo
+-- Asigna cada postulación a los 4 grupos (uno por materia)
+-- en los que el postulante rendirá exámenes.
+-- PK: id (SERIAL)
+-- FK: postulacion_id -> postulacion(id) (CASCADE)
+-- FK: grupo_id -> grupo(id) (RESTRICT)
+-- FK: materia_id -> materia(id) (RESTRICT)
+-- UQ: (postulacion_id, materia_id) — un postulante tiene un solo grupo por materia.
 CREATE TABLE postulacion_grupo (
     id              SERIAL      PRIMARY KEY,
     postulacion_id  INTEGER     NOT NULL,
@@ -263,6 +383,15 @@ CREATE TABLE postulacion_grupo (
 -- PAGOS
 -- ============================================================
 
+-- Tabla: pago
+-- Registra los pagos realizados por cada postulante para su inscripción.
+-- PK: id (SERIAL)
+-- UQ: numero_recibo (número único de recibo)
+-- FK: postulacion_id -> postulacion(id) (RESTRICT)
+-- FK: postulante_id -> postulante(id) (RESTRICT)
+-- metodo_pago: 'efectivo', 'transferencia', 'tarjeta', 'qr', 'pasarela'
+-- estado: 'pendiente', 'confirmado', 'rechazado', 'reembolsado'
+-- transaccion_id, gateway, respuesta_gateway: soporte para pagos por pasarela.
 CREATE TABLE pago (
     id              SERIAL          PRIMARY KEY,
     numero_recibo   VARCHAR(50)     NOT NULL UNIQUE,
@@ -284,6 +413,13 @@ CREATE TABLE pago (
 -- RINDE (notas de exámenes)
 -- ============================================================
 
+-- Tabla: rinde
+-- Almacena las notas obtenidas por cada postulante en cada examen.
+-- PK: id (SERIAL)
+-- FK: postulacion_id -> postulacion(id) (CASCADE)
+-- FK: examen_id -> examen(id) (RESTRICT)
+-- UQ: (postulacion_id, examen_id) — un postulante no puede rendir el mismo examen dos veces.
+-- nota: valor entre 0 y 100. Al insertar/actualizar, un trigger recalcula los promedios.
 CREATE TABLE rinde (
     id              SERIAL          PRIMARY KEY,
     postulacion_id  INTEGER         NOT NULL,
@@ -298,6 +434,9 @@ CREATE TABLE rinde (
 -- ============================================================
 -- ÍNDICES
 -- ============================================================
+-- Los siguientes índices optimizan las consultas más frecuentes
+-- del sistema: búsquedas por código, estado, fechas, FK,
+-- ordenamientos por promedio, etc.
 
 CREATE INDEX idx_postulante_codigo ON postulante(codigo);
 CREATE INDEX idx_docente_codigo ON docente(cod_docente);
@@ -341,6 +480,17 @@ CREATE INDEX idx_postulante_requisitos ON postulante(requisitos_verificado);
 -- ============================================================
 -- FUNCIÓN: Calcular promedios de un postulante
 -- ============================================================
+-- Parámetros:
+--   p_postulacion_id (INTEGER): ID de la postulación a calcular.
+-- Retorna: tabla con:
+--   promedio_matematicas, promedio_fisica, promedio_computacion,
+--   promedio_ingles, promedio_general, todas_aprobadas (BOOLEAN).
+-- Lógica:
+--   1. Obtiene los pesos de cada materia desde la tabla materia.
+--   2. Calcula el promedio ponderado de cada materia sumando
+--      (nota * porcentaje_del_examen / 100) para sus 3 parciales.
+--   3. Calcula el promedio general como suma ponderada de las 4 materias.
+--   4. todas_aprobadas es TRUE si las 4 materias tienen promedio >= 60.
 
 CREATE FUNCTION fn_calcular_promedios(p_postulacion_id INTEGER)
 RETURNS TABLE (
@@ -395,6 +545,13 @@ $$;
 -- ============================================================
 -- FUNCIÓN: Actualizar promedios en postulacion
 -- ============================================================
+-- Parámetros:
+--   p_postulacion_id (INTEGER): ID de la postulación.
+-- Retorna: VOID
+-- Lógica:
+--   Similar a fn_calcular_promedios pero en lugar de retornar los valores,
+--   hace un UPDATE directo a la tabla postulacion con los nuevos promedios
+--   y el campo aprobado (TRUE si todas las materias >= 60).
 
 CREATE FUNCTION fn_actualizar_promedios_postulacion(p_postulacion_id INTEGER)
 RETURNS VOID
@@ -443,6 +600,14 @@ $$;
 -- ============================================================
 -- TRIGGER: Actualizar promedios al insertar/actualizar notas
 -- ============================================================
+-- Función de trigger que se ejecuta después de INSERT, UPDATE o DELETE en rinde.
+-- Lógica:
+--   - Recalcula los promedios de la postulación afectada llamando
+--     a fn_actualizar_promedios_postulacion().
+--   - Si la postulación tiene una admisión asociada, reprocesa la
+--     asignación de cupos llamando a sp_procesar_admision().
+--   - Esto garantiza que los promedios y las admisiones estén
+--     siempre sincronizados con las notas registradas.
 
 CREATE FUNCTION trg_rinde_actualizar_promedios()
 RETURNS TRIGGER
@@ -471,6 +636,10 @@ BEGIN
 END;
 $$;
 
+-- Trigger: trg_after_rinde
+-- Se dispara AFTER INSERT, UPDATE o DELETE en la tabla rinde.
+-- Por cada fila afectada, ejecuta trg_rinde_actualizar_promedios()
+-- para mantener actualizados los promedios y asignaciones de admisión.
 CREATE TRIGGER trg_after_rinde
     AFTER INSERT OR UPDATE OR DELETE ON rinde
     FOR EACH ROW
@@ -479,6 +648,20 @@ CREATE TRIGGER trg_after_rinde
 -- ============================================================
 -- PROCEDIMIENTO: Procesar admisión
 -- ============================================================
+-- Parámetros:
+--   p_admision_id (INTEGER): ID del proceso de admisión a procesar.
+--   p_finalizar (BOOLEAN, default TRUE): si TRUE, marca la admisión como 'finalizada'.
+-- Lógica:
+--   1. Reinicia las asignaciones previas (carrera_asignada_id = NULL,
+--      estado = 'inscrito') para todos los postulantes aprobados.
+--   2. Itera sobre los postulantes aprobados ordenados por promedio_general DESC.
+--   3. Para cada postulante:
+--      a. Intenta asignar a su primera opción si hay cupo disponible.
+--      b. Si no hay cupo en 1ra opción, intenta con la 2da opción
+--         (si el promedio supera la nota de corte actual de esa carrera).
+--      c. Si ninguna opción tiene cupo, el postulante es rechazado.
+--   4. Actualiza la nota_corte de cada carrera al promedio del último admitido.
+--   5. Si p_finalizar es TRUE, cambia el estado de la admisión a 'finalizada'.
 
 CREATE PROCEDURE sp_procesar_admision(
     p_admision_id INTEGER,
@@ -555,6 +738,13 @@ $$;
 -- ============================================================
 -- PROCEDIMIENTO: Contratar docente (valida requisitos)
 -- ============================================================
+-- Parámetros:
+--   p_docente_id (INTEGER): ID del docente a contratar.
+-- Lógica:
+--   1. Verifica que el docente cumpla los 3 requisitos:
+--      es_profesional_area, tiene_maestria, tiene_diplomado_edu_sup.
+--   2. Si alguno falta, lanza una excepción (RAISE EXCEPTION).
+--   3. Si cumple todos, actualiza contratado = TRUE.
 
 CREATE PROCEDURE sp_contratar_docente(
     p_docente_id INTEGER
@@ -589,6 +779,17 @@ $$;
 -- PROCEDIMIENTO: Generar grupos automáticamente
 -- Calcula la cantidad de grupos según total de inscritos (max 70 por grupo)
 -- ============================================================
+-- Parámetros:
+--   p_admision_id (INTEGER): ID de la admisión para la cual generar grupos.
+-- Lógica:
+--   1. Para cada combinación de materia x turno, cuenta los postulantes
+--      inscritos (excluyendo cancelados).
+--   2. Calcula cuántos grupos se necesitan: CEIL(inscritos / 70).
+--   3. Selecciona aleatoriamente docentes contratados que aún no tengan
+--      4 grupos asignados.
+--   4. Crea los grupos con código único, nombre descriptivo, cupo=70,
+--      y asigna docentes en round-robin.
+--   5. Emite NOTICE con la cantidad de grupos creados por materia/turno.
 
 CREATE PROCEDURE sp_generar_grupos(
     p_admision_id INTEGER
@@ -671,6 +872,10 @@ $$;
 -- ============================================================
 -- FUNCIÓN: Verificar cantidad de grupos de un docente
 -- ============================================================
+-- Parámetros:
+--   p_docente_id (INTEGER): ID del docente.
+-- Retorna: INTEGER — cantidad de grupos que tiene asignados el docente.
+-- Uso: función auxiliar para validaciones antes de asignar más grupos.
 
 CREATE FUNCTION fn_contar_grupos_docente(p_docente_id INTEGER)
 RETURNS INTEGER
@@ -682,6 +887,11 @@ $$;
 -- ============================================================
 -- TRIGGER: Validar que un docente no tenga más de 4 grupos
 -- ============================================================
+-- Función de trigger que se ejecuta BEFORE INSERT en grupo.
+-- Lógica:
+--   Cuenta cuántos grupos tiene ya el docente (NEW.docente_id).
+--   Si ya tiene 4 o más, lanza una excepción y cancela la inserción.
+--   Esto garantiza que ningún docente tenga más de 4 grupos.
 
 CREATE FUNCTION trg_check_docente_grupos()
 RETURNS TRIGGER
@@ -698,6 +908,10 @@ BEGIN
 END;
 $$;
 
+-- Trigger: trg_before_insert_grupo
+-- Se dispara BEFORE INSERT en la tabla grupo.
+-- Por cada fila a insertar, ejecuta trg_check_docente_grupos()
+-- para asegurar que el docente no exceda el límite de 4 grupos.
 CREATE TRIGGER trg_before_insert_grupo
     BEFORE INSERT ON grupo
     FOR EACH ROW
@@ -706,6 +920,14 @@ CREATE TRIGGER trg_before_insert_grupo
 -- ============================================================
 -- FUNCIÓN: Reporte de admisión
 -- ============================================================
+-- Parámetros:
+--   p_admision_id (INTEGER): ID de la admisión a reportar.
+-- Retorna: tabla con carrera, cupo, asignados, vacantes,
+--          promedio_min, promedio_max por carrera.
+-- Lógica:
+--   Para cada carrera, cuenta cuántos postulantes fueron admitidos
+--   y calcula el promedio mínimo y máximo entre los admitidos.
+--   Las vacantes se calculan como cupo - asignados.
 
 CREATE FUNCTION fn_reporte_admision(p_admision_id INTEGER)
 RETURNS TABLE (
@@ -736,6 +958,13 @@ $$;
 -- VISTAS
 -- ============================================================
 
+-- Vista: vw_resultados_admision
+-- Muestra los resultados completos de la admisión: datos del postulante,
+-- código, colegio, preferencias de carrera (1ra y 2da opción),
+-- carrera finalmente asignada, turno, promedios por materia,
+-- promedio general, estado académico (APROBADO/REPROBADO)
+-- y estado de admisión (admitido/rechazado/etc.).
+-- Útil para reportes generales y consulta de resultados.
 CREATE VIEW vw_resultados_admision AS
 SELECT
     per.ci,
@@ -763,6 +992,11 @@ LEFT JOIN carrera c2 ON c2.id = p.segunda_opcion_id
 LEFT JOIN carrera ca ON ca.id = p.carrera_asignada_id
 JOIN turno t ON t.id = p.turno_id;
 
+-- Vista: vw_acta_notas
+-- Muestra el acta de notas detallada: por cada examen rendido, muestra
+-- el postulante, materia, grupo, turno, número de examen, porcentaje,
+-- nota obtenida, nota ponderada (nota * % / 100) y resultado.
+-- Útil para generar actas oficiales y revisar calificaciones.
 CREATE VIEW vw_acta_notas AS
 SELECT
     r.id AS rinde_id,
@@ -791,6 +1025,12 @@ JOIN turno t ON t.id = g.turno_id;
 -- VISTA: Estado de requisitos por postulante
 -- ============================================================
 
+-- Vista: vw_requisitos_postulante
+-- Muestra el estado de cada requisito por postulante: CI, nombre,
+-- código, nombre del requisito, si está cumplido, fecha de verificación,
+-- y si todos los requisitos están verificados.
+-- Útil para control documental y seguimiento de admisión.
+
 CREATE VIEW vw_requisitos_postulante AS
 SELECT
     per.ci,
@@ -808,6 +1048,13 @@ LEFT JOIN requisito r ON r.id = pr.requisito_id;
 -- ============================================================
 -- VISTA: Docentes contratados y asignación
 -- ============================================================
+
+-- Vista: vw_docentes_asignacion
+-- Muestra información de cada docente: código, nombre, estado de
+-- requisitos (profesional, maestría, diplomado), si está contratado,
+-- cuántos grupos tiene asignados y cuántos grupos disponibles le quedan
+-- (máximo 4 grupos por docente).
+-- Útil para la gestión de asignación de docentes a grupos.
 
 CREATE VIEW vw_docentes_asignacion AS
 SELECT

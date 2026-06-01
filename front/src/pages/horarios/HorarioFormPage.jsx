@@ -5,16 +5,18 @@ import useHorarios from '../../hooks/useHorarios';
 import useGrupos from '../../hooks/useGrupos';
 import Loader from '../../components/ui/Loader';
 
+// Días de la semana disponibles para horarios
 const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
 
 export default function HorarioFormPage() {
   const { id } = useParams();
-  const isEdit = Boolean(id);
+  const isEdit = Boolean(id); // true si estamos editando, false si es creación
   const navigate = useNavigate();
   const { getHorario, createHorario, updateHorario, loading } = useHorarios();
   const { getGrupos } = useGrupos();
 
-  const [grupos, setGrupos] = useState([]);
+  const [grupos, setGrupos] = useState([]); // Lista de grupos para el selector
+  // Datos del formulario del horario
   const [form, setForm] = useState({
     dia: '',
     hora_inicio: '',
@@ -22,9 +24,10 @@ export default function HorarioFormPage() {
     grupo_id: '',
     aula_id: '',
   });
-  const [submitting, setSubmitting] = useState(false);
-  const [pageLoading, setPageLoading] = useState(isEdit);
+  const [submitting, setSubmitting] = useState(false);  // Estado de envío
+  const [pageLoading, setPageLoading] = useState(isEdit); // Carga inicial solo en edición
 
+  // Carga la lista de grupos para el selector al montar
   useEffect(() => {
     (async () => {
       const d = await getGrupos(1);
@@ -32,6 +35,7 @@ export default function HorarioFormPage() {
     })();
   }, [getGrupos]);
 
+  // Si es edición, carga los datos del horario existente
   useEffect(() => {
     if (isEdit) {
       (async () => {
@@ -55,10 +59,12 @@ export default function HorarioFormPage() {
     }
   }, [id, isEdit, getHorario]);
 
+  // Maneja cambios genéricos en los campos del formulario
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  // Envía el formulario: crea o actualiza según isEdit, luego redirige al listado
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);

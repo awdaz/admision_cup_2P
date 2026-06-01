@@ -9,8 +9,13 @@ use App\Models\Grupo;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+// Controlador de grupos — gestiona el CRUD de grupos académicos
+// con materia, docente y turno en el sistema CUP-FICCT.
 class GrupoController extends Controller
 {
+    // Lista grupos paginados (15 por página) con filtros opcionales (materia_id, turno_id).
+    // Autorización: si el usuario es tipo 'docente', solo ve sus propios grupos.
+    // Retorna: JSON con datos paginados y relaciones (materia, docente.persona, turno).
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -38,6 +43,9 @@ class GrupoController extends Controller
         return response()->json($query->paginate(15));
     }
 
+    // Crea un nuevo grupo académico.
+    // Parámetros: datos validados por GrupoStoreRequest (código, materia_id, docente_id, turno_id, etc.).
+    // Retorna: JSON del grupo creado (código 201) con relaciones cargadas.
     public function store(GrupoStoreRequest $request): JsonResponse
     {
         $grupo = Grupo::create($request->validated());
@@ -46,6 +54,9 @@ class GrupoController extends Controller
         return response()->json($grupo, 201);
     }
 
+    // Muestra un grupo específico con todas sus relaciones.
+    // Parámetros: id del grupo.
+    // Retorna: JSON con datos del grupo y relaciones (materia, docente, turno, horarios, examenes) o error 404.
     public function show($id): JsonResponse
     {
         $grupo = Grupo::with(['materia', 'docente.persona', 'turno', 'horarios.aula', 'examenes'])->find($id);
@@ -57,6 +68,9 @@ class GrupoController extends Controller
         return response()->json($grupo);
     }
 
+    // Actualiza los datos de un grupo académico.
+    // Parámetros: id del grupo + datos validados por GrupoUpdateRequest.
+    // Retorna: JSON del grupo actualizado con relaciones, o error 404.
     public function update(GrupoUpdateRequest $request, $id): JsonResponse
     {
         $grupo = Grupo::find($id);
@@ -71,6 +85,10 @@ class GrupoController extends Controller
         return response()->json($grupo);
     }
 
+    // Elimina un grupo académico.
+    // Parámetros: id del grupo.
+    // Regla de negocio: no se puede eliminar si tiene exámenes registrados.
+    // Retorna: mensaje de confirmación o error 404/422.
     public function destroy($id): JsonResponse
     {
         $grupo = Grupo::find($id);

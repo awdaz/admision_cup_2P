@@ -1,5 +1,21 @@
 <?php
 
+// =============================================================================
+// Modelo: PostulanteRequisito (Pivote)
+// Tabla: postulante_requisito
+// Propósito: Tabla pivote que relaciona un postulante con los requisitos que
+//            debe cumplir. Indica si cada requisito fue cumplido y la fecha
+//            de verificación.
+//
+// Relaciones:
+//   - belongsTo(Postulante) → Postulante asociado.
+//   - belongsTo(Requisito)  → Requisito asociado.
+//
+// Notas:
+//   - No usa timestamps automáticos.
+//   - 'cumplido' es booleano; 'fecha_verificacion' es datetime.
+// =============================================================================
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;

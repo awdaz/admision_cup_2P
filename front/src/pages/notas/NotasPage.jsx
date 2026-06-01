@@ -1,3 +1,4 @@
+// Página principal de Notas — renderiza componentes según el rol del usuario
 import { useState, useEffect } from 'react';
 import useAuthStore from '../../store/authStore';
 import useRindes from '../../hooks/useRindes';
@@ -6,6 +7,7 @@ import { toast } from 'sonner';
 import useGrupos from '../../hooks/useGrupos';
 import { useNavigate } from 'react-router-dom';
 
+// Componente raíz que delega en DocenteNotas, PostulanteNotas o AdminNotas según user.tipo
 export default function NotasPage() {
   const user = useAuthStore((s) => s.user);
   const tipo = user?.tipo;
@@ -15,16 +17,18 @@ export default function NotasPage() {
   return <AdminNotas />;
 }
 
+// Componente para que el docente registre notas de estudiantes por grupo y examen
 function DocenteNotas() {
   const { getGrupos } = useGrupos();
   const { getExamenes } = useExamenes();
   const { storeRinde, loading } = useRindes();
-  const [grupos, setGrupos] = useState([]);
-  const [examenes, setExamenes] = useState([]);
-  const [selectedExamen, setSelectedExamen] = useState('');
-  const [estudiantes, setEstudiantes] = useState([]);
-  const [notas, setNotas] = useState({});
+  const [grupos, setGrupos] = useState([]);          // Lista de grupos del docente
+  const [examenes, setExamenes] = useState([]);      // Exámenes del grupo seleccionado
+  const [selectedExamen, setSelectedExamen] = useState(''); // Examen actualmente seleccionado
+  const [estudiantes, setEstudiantes] = useState([]); // Estudiantes del grupo seleccionado
+  const [notas, setNotas] = useState({});             // Mapa postulacion_id → nota
 
+  // Carga los grupos del docente al montar el componente
   useEffect(() => {
     (async () => {
       const d = await getGrupos(1);
@@ -32,6 +36,7 @@ function DocenteNotas() {
     })();
   }, [getGrupos]);
 
+  // Al seleccionar un examen, carga las notas existentes de los estudiantes
   useEffect(() => {
     if (!selectedExamen) { setEstudiantes([]); return; }
     (async () => {
@@ -51,6 +56,7 @@ function DocenteNotas() {
     })();
   }, [selectedExamen, getExamenes]);
 
+  // Al cambiar de grupo, resetea selecciones y carga exámenes y estudiantes
   const handleGrupoChange = async (grupoId) => {
     setSelectedExamen('');
     setEstudiantes([]);
@@ -69,10 +75,12 @@ function DocenteNotas() {
     }
   };
 
+  // Actualiza el valor de la nota para un estudiante en el estado local
   const handleNotaChange = (postulacionId, value) => {
     setNotas({ ...notas, [postulacionId]: value });
   };
 
+  // Guarda (o actualiza) la nota de un estudiante en el servidor
   const handleGuardarNota = async (postulacionId) => {
     if (!selectedExamen) return;
     try {
@@ -158,13 +166,15 @@ function DocenteNotas() {
   );
 }
 
+// Muestra las notas del postulante logueado
 function PostulanteNotas() {
   const user = useAuthStore((s) => s.user);
   const { getRindesByPostulacion } = useRindes();
-  const [postulaciones, setPostulaciones] = useState([]);
-  const [notas, setNotas] = useState({});
-  const [loading, setLoading] = useState(true);
+  const [postulaciones, setPostulaciones] = useState([]); // Postulaciones del usuario
+  const [notas, setNotas] = useState({});                 // Notas obtenidas
+  const [loading, setLoading] = useState(true);           // Estado de carga
 
+  // Obtiene las notas asociadas a la postulación del usuario al cargar el componente
   useEffect(() => {
     (async () => {
       try {
@@ -220,6 +230,7 @@ function PostulanteNotas() {
   );
 }
 
+// Vista genérica para administradores — enlaces rápidos a secciones relacionadas
 function AdminNotas() {
   const navigate = useNavigate();
   

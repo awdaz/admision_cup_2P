@@ -11,8 +11,13 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+// Controlador de pagos — gestiona el registro, consulta y confirmación
+// de pagos de postulantes en el sistema CUP-FICCT.
 class PagoController extends Controller
 {
+    // Lista pagos paginados (15 por página) con relaciones postulante y postulación.
+    // Autorización: si el usuario es 'postulante', solo ve sus propios pagos.
+    // Retorna: JSON con datos paginados.
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -34,6 +39,12 @@ class PagoController extends Controller
         return response()->json($pagos->paginate(15));
     }
 
+    // Registra un nuevo pago para un postulante.
+    // Parámetros: postulante_id, monto, metodo_pago, postulacion_id.
+    // Regla de negocio: el postulante debe tener todos los requisitos cumplidos para poder pagar.
+    // Genera automáticamente el número de recibo (REC-XXXXXX).
+    // El pago se crea en estado 'pendiente'.
+    // Retorna: JSON del pago creado (código 201) o error 404/422/500.
     public function store(PagoStoreRequest $request): JsonResponse
     {
         $postulante = Postulante::find($request->postulante_id);
@@ -79,6 +90,10 @@ class PagoController extends Controller
         }
     }
 
+    // Muestra un pago específico con sus relaciones (postulante, postulación).
+    // Parámetros: id del pago.
+    // Autorización: si el usuario es 'postulante', solo ve sus propios pagos.
+    // Retorna: JSON del pago o error 404/403.
     public function show($id, Request $request): JsonResponse
     {
         $user = $request->user();
@@ -102,6 +117,12 @@ class PagoController extends Controller
         return response()->json($pago);
     }
 
+    // Confirma un pago pendiente y actualiza el estado de la postulación a 'inscrito'.
+    // Parámetros: id del pago.
+    // Reglas de negocio:
+    //   - No se puede confirmar un pago ya confirmado.
+    //   - Al confirmar el pago, la postulación asociada pasa a estado 'inscrito'.
+    // Retorna: JSON con mensaje y pago actualizado, o error 404/422/500.
     public function confirmar($id): JsonResponse
     {
         $pago = Pago::with('postulacion')->find($id);

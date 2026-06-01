@@ -4,12 +4,16 @@ import { toast } from 'sonner';
 import useDocentes from '../../hooks/useDocentes';
 import Loader from '../../components/ui/Loader';
 
+// Página de formulario para crear o editar un docente
+// Ruta: /docentes/nuevo | /docentes/:id/editar
+// Acceso: Administradores
 export default function DocenteFormPage() {
   const { id } = useParams();
-  const isEdit = Boolean(id);
+  const isEdit = Boolean(id); // true si estamos editando, false si es creación
   const navigate = useNavigate();
   const { getDocente, createDocente, updateDocente, loading } = useDocentes();
 
+  // Datos del formulario con todos los campos del docente
   const [form, setForm] = useState({
     ci: '',
     nombre: '',
@@ -25,9 +29,10 @@ export default function DocenteFormPage() {
     tiene_maestria: false,
     tiene_diplomado_edu_sup: false,
   });
-  const [submitting, setSubmitting] = useState(false);
-  const [pageLoading, setPageLoading] = useState(isEdit);
+  const [submitting, setSubmitting] = useState(false); // Estado de envío del formulario
+  const [pageLoading, setPageLoading] = useState(isEdit); // Carga inicial solo en edición
 
+  // Si es edición, carga los datos del docente existente desde la API
   useEffect(() => {
     if (isEdit) {
       (async () => {
@@ -60,11 +65,13 @@ export default function DocenteFormPage() {
     }
   }, [id, isEdit, getDocente]);
 
+  // Maneja cambios en inputs y checkboxes: para checkboxes usa el valor "checked"
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm({ ...form, [name]: type === 'checkbox' ? checked : value });
   };
 
+  // Envía el formulario: crea o actualiza según isEdit, luego redirige al listado
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
@@ -94,6 +101,7 @@ export default function DocenteFormPage() {
         <div className="card shadow-sm">
           <div className="card-body">
             <form onSubmit={handleSubmit}>
+              {/* Sección de información personal básica */}
               <h6 className="text-muted mb-3">Datos Personales</h6>
               <div className="row g-3">
                 <div className="col-md-4">
@@ -139,6 +147,7 @@ export default function DocenteFormPage() {
                 </div>
               </div>
 
+              {/* Sección de información laboral del docente */}
               <hr className="my-4" />
               <h6 className="text-muted mb-3">Datos Laborales</h6>
               <div className="row g-3">

@@ -1,5 +1,22 @@
 <?php
 
+// =============================================================================
+// Modelo: Docente
+// Tabla: docente
+// Propósito: Representa a un profesor que imparte materias en grupos.
+//            Almacena datos de cualificación profesional y estado
+//            contractual.
+//
+// Relaciones:
+//   - belongsTo(Persona)    → Datos personales del docente.
+//   - hasMany(Grupo)        → Grupos que el docente tiene asignados.
+//
+// Notas:
+//   - No usa timestamps automáticos.
+//   - Los campos 'es_profesional_area', 'tiene_maestria',
+//     'tiene_diplomado_edu_sup' y 'contratado' son booleanos.
+// =============================================================================
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;

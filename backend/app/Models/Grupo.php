@@ -1,5 +1,25 @@
 <?php
 
+// =============================================================================
+// Modelo: Grupo
+// Tabla: grupo
+// Propósito: Representa una comisión o grupo de estudiantes que cursan una
+//            materia específica con un docente en un turno determinado.
+//            Cada grupo tiene un código, nombre y cupo máximo.
+//
+// Relaciones:
+//   - belongsTo(Materia)            → Materia que se imparte en el grupo.
+//   - belongsTo(Docente)            → Docente a cargo del grupo.
+//   - belongsTo(Turno)              → Turno (mañana/tarde/noche).
+//   - hasMany(Examen)               → Exámenes del grupo.
+//   - hasMany(Horario)              → Horarios del grupo.
+//   - hasMany(PostulacionGrupo)     → Postulaciones asignadas al grupo.
+//
+// Notas:
+//   - No usa timestamps automáticos.
+//   - 'cupo' es entero.
+// =============================================================================
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;

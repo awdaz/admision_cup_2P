@@ -4,15 +4,19 @@ import { toast } from 'sonner';
 import useDocentes from '../../hooks/useDocentes';
 import DataTable from '../../components/ui/DataTable';
 
+// Página de listado de docentes con búsqueda, paginación y acciones CRUD
+// Ruta: /docentes
+// Acceso: Administradores
 export default function DocenteListPage() {
   const navigate = useNavigate();
   const { getDocentes, deleteDocente, loading } = useDocentes();
-  const [docentes, setDocentes] = useState([]);
-  const [pagination, setPagination] = useState(null);
-  const [page, setPage] = useState(1);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchInput, setSearchInput] = useState('');
+  const [docentes, setDocentes] = useState([]);          // Lista de docentes desde la API
+  const [pagination, setPagination] = useState(null);     // Datos de paginación
+  const [page, setPage] = useState(1);                    // Página actual
+  const [searchQuery, setSearchQuery] = useState('');     // Término de búsqueda efectivo (se aplica al hacer submit)
+  const [searchInput, setSearchInput] = useState('');     // Valor del input de búsqueda (cambio inmediato)
 
+  // Carga los docentes desde la API con paginación y filtro de búsqueda
   const load = useCallback(async (p, s) => {
     try {
       const data = await getDocentes(p, s);
@@ -25,6 +29,7 @@ export default function DocenteListPage() {
     }
   }, [getDocentes]);
 
+  // Recarga al cambiar página o término de búsqueda
   useEffect(() => {
     load(page, searchQuery);
   }, [page, searchQuery, load]);
@@ -48,6 +53,7 @@ export default function DocenteListPage() {
     return { start, end, pages };
   }, [page, totalPages]);
 
+  // Elimina un docente previa confirmación, luego recarga la lista
   const handleDelete = async (row) => {
     const ci = row.persona?.ci || '';
     if (!window.confirm(`¿Eliminar docente ${ci}?`)) return;
@@ -59,12 +65,14 @@ export default function DocenteListPage() {
     }
   };
 
+  // Al enviar el formulario de búsqueda, reinicia a página 1 y aplica el filtro
   const handleSearch = (e) => {
     e.preventDefault();
     setPage(1);
     setSearchQuery(searchInput);
   };
 
+  // Configuración de columnas para la tabla de docentes
   const columns = [
     { key: 'cod_docente', label: 'Código', render: (row) => row.cod_docente || '-' },
     { key: 'ci', label: 'CI', render: (row) => row.persona?.ci || '-' },
@@ -100,6 +108,7 @@ export default function DocenteListPage() {
         </button>
       </div>
 
+      {/* Barra de búsqueda: filtra docentes por CI, nombre o código */}
       <form onSubmit={handleSearch} className="mb-3">
         <div className="input-group">
           <input
@@ -127,6 +136,7 @@ export default function DocenteListPage() {
         </div>
       </div>
 
+      {/* Paginación con navegación completa: primera, anterior, páginas visibles, siguiente, última */}
       {pagination && totalPages > 1 && (
         <nav className="mt-3" aria-label="Navegación de páginas">
           <ul className="pagination justify-content-center flex-wrap mb-0">
@@ -139,6 +149,7 @@ export default function DocenteListPage() {
               <button className="page-link" onClick={() => setPage((p) => Math.max(1, p - 1))}>Anterior</button>
             </li>
 
+            {/* Páginas iniciales con ellipsis si hay saltos */}
             {visiblePages.start > 1 && (
               <>
                 <li className="page-item">
@@ -152,12 +163,14 @@ export default function DocenteListPage() {
               </>
             )}
 
+            {/* Páginas visibles en el rango actual */}
             {visiblePages.pages.map((i) => (
               <li key={i} className={`page-item ${page === i ? 'active' : ''}`}>
                 <button className="page-link" onClick={() => setPage(i)}>{i}</button>
               </li>
             ))}
 
+            {/* Páginas finales con ellipsis si hay saltos */}
             {visiblePages.end < totalPages && (
               <>
                 {visiblePages.end < totalPages - 1 && (

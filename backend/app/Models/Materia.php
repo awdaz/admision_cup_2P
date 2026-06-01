@@ -1,5 +1,21 @@
 <?php
 
+// =============================================================================
+// Modelo: Materia
+// Tabla: materia
+// Propósito: Define las materias o asignaturas del plan de estudios. Cada
+//            materia tiene un peso (ponderación) que influye en el cálculo
+//            de promedios.
+//
+// Relaciones:
+//   - hasMany(Grupo)             → Grupos que imparten esta materia.
+//   - hasMany(PostulacionGrupo)  → Asignación de materia a postulaciones.
+//
+// Notas:
+//   - No usa timestamps automáticos.
+//   - 'peso' es decimal(2).
+// =============================================================================
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;

@@ -3,19 +3,31 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import cliente from '../api/cliente';
 import Alert from '../components/ui/Alert';
 
+// Página para restablecer la contraseña usando un token de recuperación
+// Ruta: "/reset-password" — Acceso: Público (con token válido)
+// Permite al usuario ingresar email, token y nueva contraseña para cambiar su clave
 export default function RestablecerPasswordPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  // Email precargado desde query param ?email=
   const initialEmail = searchParams.get('email') || '';
 
+  // Correo electrónico del usuario
   const [email, setEmail] = useState(initialEmail);
+  // Token de recuperación recibido por correo
   const [token, setToken] = useState('');
+  // Nueva contraseña ingresada
   const [password, setPassword] = useState('');
+  // Confirmación de la nueva contraseña
   const [passwordConfirm, setPasswordConfirm] = useState('');
+  // Indica si la solicitud de restablecimiento está en curso
   const [loading, setLoading] = useState(false);
+  // Mensaje de error del servidor
   const [error, setError] = useState('');
+  // Mensaje de éxito al restablecer la contraseña
   const [success, setSuccess] = useState('');
 
+  // Envía email + token + nueva contraseña al backend; redirige al login tras 2 segundos
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');

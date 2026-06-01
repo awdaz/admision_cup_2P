@@ -4,13 +4,20 @@ import cliente from '../../api/cliente';
 import { toast } from 'sonner';
 import Loader from '../../components/ui/Loader';
 
+// Página de gestión de requisitos de un postulante
+// Ruta: "/postulantes/:id/requisitos" — Acceso: Usuarios autenticados
+// Permite marcar/desmarcar requisitos como cumplidos y guardar los cambios
 export default function RequisitosPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  // Lista de requisitos con su estado de cumplido
   const [requisitos, setRequisitos] = useState([]);
+  // Indica si los requisitos están cargando
   const [loading, setLoading] = useState(true);
+  // Indica si se están guardando los cambios
   const [saving, setSaving] = useState(false);
 
+  // Al montar, carga la lista de requisitos desde GET /postulantes/:id/requisitos
   useEffect(() => {
     (async () => {
       try {
@@ -25,12 +32,14 @@ export default function RequisitosPage() {
     })();
   }, [id]);
 
+  // Alterna el estado cumplido de un requisito en la posición dada
   const toggleRequisito = (index) => {
     setRequisitos((prev) =>
       prev.map((r, i) => (i === index ? { ...r, cumplido: !r.cumplido } : r))
     );
   };
 
+  // Guarda el estado actual de todos los requisitos vía PUT /postulantes/:id/requisitos
   const handleSave = async () => {
     setSaving(true);
     try {

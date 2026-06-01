@@ -1,9 +1,15 @@
 -- ============================================================
 -- DATOS DE EJEMPLO - CUP UAGRM
 -- 4 carreras, 3 turnos, 4 materias, 30 postulantes a docente (16 contratados), 60 grupos, 1000 postulantes
+-- Propósito: Poblar la base de datos con datos de prueba para
+--            verificar el funcionamiento del sistema CUP.
+-- Orden de carga: turnos -> carreras -> semestre/admisión ->
+--   admin -> aulas -> materias/requisitos -> docentes ->
+--   grupos -> exámenes -> horarios -> postulantes -> notas
 -- ============================================================
 
 -- Limpiar datos existentes (evita error de PK duplicado)
+-- Se eliminan todas las tablas en orden inverso a las FK y se reinician los IDs.
 TRUNCATE TABLE rinde, pago, postulacion_grupo, postulacion, usuario,
             postulante, docente, persona, examen, horario, grupo,
             aula, materia, admision, semestre, turno, carrera,
@@ -13,6 +19,8 @@ RESTART IDENTITY CASCADE;
 -- ============================================================
 -- TURNOS
 -- ============================================================
+-- Inserta los 3 turnos disponibles: Mañana (presencial),
+-- Tarde (presencial) y Noche (virtual).
 
 INSERT INTO turno (nombre, modalidad) VALUES
 ('Mañana', 'presencial'),
@@ -22,6 +30,8 @@ INSERT INTO turno (nombre, modalidad) VALUES
 -- ============================================================
 -- CARRERAS
 -- ============================================================
+-- Inserta las 4 carreras ofertadas con sus respectivos cupos.
+-- ING-SIS: 200, ING-INF: 150, ING-RED: 100, ING-ROB: 50.
 
 INSERT INTO carrera (codigo, nombre, cupo, nota_corte) VALUES
 ('ING-SIS', 'Ingeniería de Sistemas', 200, NULL),
@@ -32,6 +42,8 @@ INSERT INTO carrera (codigo, nombre, cupo, nota_corte) VALUES
 -- ============================================================
 -- SEMESTRE Y ADMISION
 -- ============================================================
+-- Crea el semestre 1-2026 y una admisión ordinaria activa
+-- que va del 15 de enero al 15 de marzo de 2026.
 
 INSERT INTO semestre (semestre, anio) VALUES ('1-2026', 2026);
 
@@ -42,6 +54,7 @@ VALUES ('ADM-001-2026', 'activa', '2026-01-15', '2026-03-15', 2026,
 -- ============================================================
 -- ADMINISTRADOR
 -- ============================================================
+-- Crea el usuario administrador por defecto del sistema.
 
 INSERT INTO persona (ci, nombre, apellido, fecha_nac, sexo, email, telefono, direccion, ciudad)
 VALUES ('1234567', 'Admin', 'Principal', '1990-01-01', 'Masculino', 'admin@cup.uagrm.edu.bo',
@@ -53,6 +66,8 @@ VALUES ('admin', 'admin@cup.uagrm.edu.bo', '$2y$10$0TcHweH8OatRchjoj5VRnuLQA98z8
 -- ============================================================
 -- AULAS
 -- ============================================================
+-- Crea 12 aulas: 8 en pisos 1-2 (capacidad 70 c/u) y
+-- 4 laboratorios en piso 3 (capacidad 35 c/u).
 
 INSERT INTO aula (nro, piso, capacidad) VALUES
 ('101',1,70),('102',1,70),('103',1,70),('104',1,70),
@@ -62,6 +77,9 @@ INSERT INTO aula (nro, piso, capacidad) VALUES
 -- ============================================================
 -- MATERIAS
 -- ============================================================
+-- Inserta las 4 materias del curso de admisión con sus pesos:
+-- Matemáticas 30%, Física 30%, Computación 30%, Inglés 10%.
+-- También inserta los 5 requisitos de postulación.
 
 INSERT INTO materia (codigo, nombre, peso, descripcion) VALUES
 ('MAT', 'Matemáticas', 30.00, 'Razonamiento lógico matemático y álgebra'),
@@ -80,6 +98,11 @@ INSERT INTO requisito (nombre, descripcion) VALUES
 -- DOCENTES (30 postulantes, solo contratados los que cumplen los 3 requisitos)
 -- [nombre, apellido, username, codigo, prof, maestria, diplomado]
 -- ============================================================
+-- Crea 30 docentes distribuidos: 8 Matemáticas, 8 Física,
+-- 7 Computación, 7 Inglés. Solo se contratan aquellos que
+-- tienen los 3 requisitos (es_profesional_area = TRUE,
+-- tiene_maestria = TRUE, tiene_diplomado_edu_sup = TRUE).
+-- Total contratados: 16 (4 por materia aprox).
 
 DO $$
 DECLARE
@@ -157,6 +180,9 @@ END $$;
 -- Noche:  250 est → ceil(250/70)=4 grupos/materia → 16 grupos
 -- Total: 60 grupos, 16 docentes contratados (~4 grupos c/u)
 -- ============================================================
+-- Crea 60 grupos (6 mañana + 5 tarde + 4 noche = 15 por materia x 4 materias).
+-- Asigna docentes contratados de la misma materia en round-robin.
+-- Cada grupo tiene cupo máximo de 70 postulantes.
 
 DO $$
 DECLARE
@@ -206,6 +232,10 @@ END $$;
 -- ============================================================
 -- EXAMENES (3 parciales por grupo)
 -- ============================================================
+-- Crea 3 exámenes parciales por cada grupo (60 grupos x 3 = 180 exámenes).
+-- Las fechas base varían por materia: MAT→16-feb, FIS→17-feb,
+-- COM→18-feb, ING→19-feb. Cada parcial está separado por 21 días.
+-- Los porcentajes se dividen: 33.33%, 33.33%, 33.34%.
 
 DO $$
 DECLARE
@@ -235,6 +265,11 @@ END $$;
 -- ============================================================
 -- HORARIOS
 -- ============================================================
+-- Crea horarios para cada grupo según su turno:
+--   Mañana (turno 1): Lunes y Miércoles 07:30-09:00
+--   Tarde  (turno 2): Martes y Jueves 14:00-15:30
+--   Noche  (turno 3): Lunes, Miércoles, Viernes 19:00-20:30
+-- Las aulas se asignan en round-robin entre las 12 disponibles.
 
 DO $$
 DECLARE
@@ -273,6 +308,21 @@ END $$;
 -- ============================================================
 -- 1000 POSTULANTES
 -- ============================================================
+-- Bloque principal que crea 1000 postulantes con datos ficticios.
+-- Por cada postulante:
+--   1. Crea su registro en persona con datos aleatorios (nombres,
+--      apellidos, ciudades, fechas de nacimiento).
+--   2. Crea su registro en postulante con código único (POST-0001...).
+--   3. Asigna los 5 requisitos como cumplidos.
+--   4. Crea su usuario de acceso.
+--   5. Asigna preferencias de carrera: 40% SIS, 30% INF, 15% RED, 15% ROB.
+--   6. Asigna turno: 40% mañana, 35% tarde, 25% noche.
+--   7. Crea la postulación con estado 'inscrito'.
+--   8. Registra un pago (mayoría confirmado, 5% pendiente).
+--   9. Asigna a 4 grupos (uno por materia) en round-robin.
+--   10. Genera notas para 12 exámenes (3 por materia) con distribución
+--       ponderada: 17% bajo (<60), 30% regular (60-74), 30% bueno (75-89),
+--       23% excelente (90-100).
 
 ALTER TABLE rinde DISABLE TRIGGER trg_after_rinde;
 
@@ -480,6 +530,8 @@ END $$;
 ALTER TABLE rinde ENABLE TRIGGER trg_after_rinde;
 
 -- Recalcular promedios de todas las postulaciones
+-- Una vez insertadas todas las notas, se recorren todas las postulaciones
+-- y se actualizan sus promedios y estado de aprobación.
 DO $$
 DECLARE
     r RECORD;
@@ -490,4 +542,7 @@ BEGIN
 END $$;
 
 -- Procesar admisión con todos los datos ya cargados
+-- Ejecuta el algoritmo de asignación de cupos: ordena por promedio
+-- descendente y asigna a cada postulante su primera o segunda opción
+-- según disponibilidad de cupo.
 CALL sp_procesar_admision(1);

@@ -1,8 +1,10 @@
+// Componente de alerta descartable con auto-cierre después de 5 segundos
 import { useState, useEffect } from 'react';
 
 export default function Alert({ type = 'info', message, onClose }) {
-  const [visible, setVisible] = useState(true);
+  const [visible, setVisible] = useState(true); // Controla si la alerta está visible
 
+  // Auto-cierra la alerta tras 5 segundos
   useEffect(() => {
     const timer = setTimeout(() => {
       setVisible(false);
@@ -16,6 +18,7 @@ export default function Alert({ type = 'info', message, onClose }) {
   return (
     <div className={`alert alert-${type} alert-dismissible fade show`} role="alert">
       {message}
+      {/* Botón manual para cerrar la alerta */}
       <button
         type="button"
         className="btn-close"

@@ -1,3 +1,4 @@
+// Página de listado de usuarios con búsqueda, filtro por rol y paginación
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -6,13 +7,14 @@ import DataTable from '../../components/ui/DataTable';
 
 export default function UserListPage() {
   const navigate = useNavigate();
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
-  const [pagination, setPagination] = useState(null);
-  const [search, setSearch] = useState('');
-  const [filtroTipo, setFiltroTipo] = useState('');
+  const [users, setUsers] = useState([]);         // Lista de usuarios cargados
+  const [loading, setLoading] = useState(true);    // Estado de carga
+  const [page, setPage] = useState(1);             // Página actual de la paginación
+  const [pagination, setPagination] = useState(null); // Metadatos de paginación (total, per_page)
+  const [search, setSearch] = useState('');         // Término de búsqueda
+  const [filtroTipo, setFiltroTipo] = useState(''); // Filtro por rol (admin, docente, postulante)
 
+  // Carga la lista de usuarios desde el servidor, con filtros y paginación
   const load = useCallback(async () => {
     setLoading(true);
     try {
@@ -30,8 +32,10 @@ export default function UserListPage() {
     }
   }, [page, search, filtroTipo]);
 
+  // Recarga cuando cambian los parámetros
   useEffect(() => { load(); }, [load]);
 
+  // Activa o desactiva un usuario (toggle activo/inactivo)
   const handleToggleActive = async (row) => {
     const action = row.activo ? 'desactivar' : 'activar';
     if (!window.confirm(`¿${action === 'activar' ? 'Activar' : 'Desactivar'} usuario "${row.username}"?`)) return;
@@ -44,6 +48,7 @@ export default function UserListPage() {
     }
   };
 
+  // Elimina un usuario previa confirmación
   const handleDelete = async (row) => {
     if (!window.confirm(`¿Eliminar usuario "${row.username}"?`)) return;
     try {

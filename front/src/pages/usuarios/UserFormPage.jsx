@@ -1,3 +1,4 @@
+// Página de formulario para crear o editar un usuario
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -6,9 +7,10 @@ import Loader from '../../components/ui/Loader';
 
 export default function UserFormPage() {
   const navigate = useNavigate();
-  const { id } = useParams();
-  const isEdit = Boolean(id);
+  const { id } = useParams();    // Si hay id en la URL, estamos en modo edición
+  const isEdit = Boolean(id);    // Bandera que indica si se edita o crea un usuario
 
+  // Estado del formulario con valores por defecto
   const [form, setForm] = useState({
     username: '',
     email: '',
@@ -18,11 +20,12 @@ export default function UserFormPage() {
     activo: true,
   });
 
-  const [personas, setPersonas] = useState([]);
-  const [searchPersona, setSearchPersona] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [pageLoading, setPageLoading] = useState(isEdit);
+  const [personas, setPersonas] = useState([]);       // Lista de personas disponibles (sin usar actualmente)
+  const [searchPersona, setSearchPersona] = useState(''); // Término para buscar persona por CI
+  const [loading, setLoading] = useState(false);       // Estado del envío del formulario
+  const [pageLoading, setPageLoading] = useState(isEdit); // Carga inicial en modo edición
 
+  // En modo edición, carga los datos del usuario existente al montar el componente
   useEffect(() => {
     if (!isEdit) return;
     (async () => {
@@ -45,6 +48,7 @@ export default function UserFormPage() {
     })();
   }, [id, isEdit]);
 
+  // Busca una persona por CI y asigna su ID al formulario
   const handleBuscarPersona = async () => {
     if (!searchPersona.trim()) return;
     try {
@@ -62,11 +66,13 @@ export default function UserFormPage() {
     }
   };
 
+  // Actualiza el campo del formulario que disparó el evento
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm({ ...form, [name]: type === 'checkbox' ? checked : value });
   };
 
+  // Envía el formulario: crea o actualiza el usuario según isEdit
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);

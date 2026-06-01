@@ -4,13 +4,17 @@ import { toast } from 'sonner';
 import usePagos from '../../hooks/usePagos';
 import DataTable from '../../components/ui/DataTable';
 
+// Página de listado de pagos registrados
+// Ruta: /pagos
+// Acceso: Administradores y personal de cobros
 export default function PagoListPage() {
   const navigate = useNavigate();
   const { getPagos, confirmarPago, loading } = usePagos();
-  const [pagos, setPagos] = useState([]);
-  const [pagination, setPagination] = useState(null);
-  const [page, setPage] = useState(1);
+  const [pagos, setPagos] = useState([]);          // Lista de pagos obtenidos de la API
+  const [pagination, setPagination] = useState(null); // Datos de paginación (total, por página, etc.)
+  const [page, setPage] = useState(1);              // Página actual del listado
 
+  // Carga los pagos según la página actual
   const load = useCallback(async () => {
     try {
       const data = await getPagos(page);
@@ -23,10 +27,12 @@ export default function PagoListPage() {
     }
   }, [getPagos, page]);
 
+  // Recarga cuando cambia la página
   useEffect(() => {
     load();
   }, [load]);
 
+  // Confirma un pago pendiente: muestra confirmación, llama a la API y recarga
   const handleConfirmar = async (row) => {
     if (!window.confirm(`¿Confirmar pago de Bs. ${row.monto}?`)) return;
     try {
@@ -38,6 +44,7 @@ export default function PagoListPage() {
     }
   };
 
+  // Configuración de columnas de la tabla de pagos
   const columns = [
     { key: 'numero_recibo', label: 'Recibo', render: (row) => row.numero_recibo || row.id || '-' },
     {
@@ -67,6 +74,7 @@ export default function PagoListPage() {
     },
     {
       key: 'estado', label: 'Estado',
+      // Muestra el estado con un badge de color: pendiente (amarillo), confirmado (verde), rechazado (rojo)
       render: (row) => {
         const map = { pendiente: 'warning', confirmado: 'success', rechazado: 'danger' };
         return <span className={`badge bg-${map[row.estado] || 'secondary'}`}>{row.estado || '-'}</span>;
@@ -98,6 +106,7 @@ export default function PagoListPage() {
         </div>
       </div>
 
+      {/* Controles de paginación */}
       {pagination && (
         <nav className="mt-3">
           <ul className="pagination justify-content-center">

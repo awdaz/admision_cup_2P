@@ -1,5 +1,31 @@
 <?php
 
+// =============================================================================
+// Modelo: Postulacion
+// Tabla: postulacion
+// Propósito: Registro central de cada postulación realizada por un postulante.
+//            Contiene las carreras elegidas (1ra y 2da opción), la carrera
+//            asignada tras el proceso de admisión, los promedios por área,
+//            el turno, semestre y admisión asociada.
+//
+// Relaciones:
+//   - belongsTo(Postulante)    → Postulante que realiza la postulación.
+//   - belongsTo(Carrera, 'carrera_id')            → Carrera base.
+//   - belongsTo(Carrera, 'primera_opcion_id')     → 1ra opción.
+//   - belongsTo(Carrera, 'segunda_opcion_id')     → 2da opción.
+//   - belongsTo(Carrera, 'carrera_asignada_id')   → Carrera asignada.
+//   - belongsTo(Turno)         → Turno seleccionado.
+//   - belongsTo(Semestre)      → Semestre de la postulación.
+//   - belongsTo(Admision)      → Proceso de admisión asociado.
+//   - hasMany(Pago)            → Pagos realizados para esta postulación.
+//   - hasMany(Rinde)           → Notas de exámenes rendidos.
+//   - hasMany(PostulacionGrupo)→ Grupos asignados a la postulación.
+//
+// Notas:
+//   - No usa timestamps automáticos.
+//   - 'aprobado' es booleano; los promedios son decimal(2).
+// =============================================================================
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
