@@ -43,6 +43,15 @@ php artisan route:list --path=api
 
 # Iniciar servidor de desarrollo
 php artisan serve
+
+# Generar tablas
+php artisan migrate
+
+# Refrescar tablas
+php artisan migrate:fresh
+
+# Correr seeders
+php artisan db:seed
 ```
 
 ---
