@@ -1,81 +1,55 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
 import useGrupos from '../../hooks/useGrupos';
 import useCatalogos from '../../hooks/useCatalogos';
+import useList from '../../hooks/useList';
 import DataTable from '../../components/ui/DataTable';
 import HeaderBar from '../../components/ui/HeaderBar';
 import FilterSelect from '../../components/ui/FilterSelect';
 import Pagination from '../../components/ui/Pagination';
 
-// Página de listado de grupos con filtros por materia y turno
-// Ruta: /grupos
-// Acceso: Administradores y docentes
 export default function GrupoListPage() {
   const navigate = useNavigate();
-  const { getGrupos, deleteGrupo, loading } = useGrupos();
+  const { getGrupos, deleteGrupo, loading: loadingHook } = useGrupos();
   const { getMaterias, getTurnos, materias, turnos } = useCatalogos();
-  const [grupos, setGrupos] = useState([]);            // Lista de grupos desde la API
-  const [pagination, setPagination] = useState(null);   // Datos de paginación
-  const [page, setPage] = useState(1);                  // Página actual
-  const [filtroMateria, setFiltroMateria] = useState(''); // Filtro por materia
-  const [filtroTurno, setFiltroTurno] = useState('');   // Filtro por turno
 
-  // Carga catálogos de materias y turnos al montar el componente
+  const [filtroMateria, setFiltroMateria] = useState('');
+  const [filtroTurno, setFiltroTurno] = useState('');
+
   useEffect(() => {
     getMaterias();
     getTurnos();
   }, [getMaterias, getTurnos]);
 
-  // Carga los grupos con filtros opcionales de materia y turno
-  const load = useCallback(async (p, matId, turnId) => {
-    try {
-      const params = {};
-      if (matId) params.materia_id = matId;
-      if (turnId) params.turno_id = turnId;
-      const data = await getGrupos(p, params);
-      if (data) {
-        setGrupos(data.data || data.grupos || data);
-        setPagination(data.pagination || data.meta || data);
-      }
-    } catch (err) {
-      toast.error(err.message);
-    }
-  }, [getGrupos]);
-
-  // Recarga al cambiar página o filtros
-  useEffect(() => {
-    load(page, filtroMateria, filtroTurno);
-  }, [page, filtroMateria, filtroTurno, load]);
+  const { items: grupos, pagination, page, setPage, loading, load } = useList(
+    (p, matId, turnId) => getGrupos(p, { materia_id: matId, turno_id: turnId }),
+    [filtroMateria, filtroTurno]
+  );
 
   const totalPages = useMemo(() =>
     Math.ceil((pagination?.total || 1) / (pagination?.per_page || 15)),
     [pagination]
   );
 
-  // Elimina un grupo previa confirmación y recarga la lista
   const handleDelete = async (row) => {
     if (!window.confirm(`¿Eliminar grupo ${row.codigo}?`)) return;
     try {
       await deleteGrupo(row.id);
       load(page, filtroMateria, filtroTurno);
     } catch (err) {
-      toast.error(err.message);
+      /* toast handled by hook */
     }
   };
 
-  // Al aplicar filtros, reinicia a la primera página
   const handleFiltrar = (e) => {
     e.preventDefault();
     setPage(1);
   };
 
-  // Configuración de columnas de la tabla de grupos
   const columns = [
     { key: 'codigo', label: 'Código' },
     {
       key: 'nombre', label: 'Nombre',
-      // El nombre del grupo es clickeable y redirige a la vista detalle
       render: (row) => (
         <span
           className="text-primary text-decoration-none"
@@ -99,7 +73,6 @@ export default function GrupoListPage() {
     <div>
       <HeaderBar createLabel="Nuevo Grupo" onCreate={() => navigate('/grupos/nuevo')} />
 
-      {/* Filtros: selección de materia y turno para acotar la búsqueda */}
       <form onSubmit={handleFiltrar} className="mb-3">
         <div className="row g-2">
           <div className="col-md-4">
@@ -121,7 +94,7 @@ export default function GrupoListPage() {
           <DataTable
             columns={columns}
             data={grupos}
-            loading={loading}
+            loading={loading || loadingHook}
             onEdit={(row) => navigate(`/grupos/${row.id}/editar`)}
             onDelete={handleDelete}
           />

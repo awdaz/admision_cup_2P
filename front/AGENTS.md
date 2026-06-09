@@ -40,6 +40,20 @@ src/
 │   │   └── SubmitButton.jsx    → Botón guardar con spinner
 │   └── ProtectedRoute.jsx      → Guard de autenticación
 ├── hooks/                      → 13 hooks personalizados
+│   ├── useAuth                 → login, register, logout, user
+│   ├── useAdmisiones           → getAdmisiones, procesarAdmision, generarGrupos, getCupos
+│   ├── useCatalogos            → getMaterias, getCarreras, getTurnos, getSemestres
+│   ├── useDocentes             → CRUD docentes + disponibilidad
+│   ├── useExamenes             → CRUD examenes + rindes
+│   ├── useGrupos               → CRUD grupos
+│   ├── useHorarios             → CRUD horarios
+│   ├── useList                 → Hook genérico de listas con paginación (items, pagination, page, loading)
+│   ├── usePagos                → CRUD pagos + confirmar
+│   ├── usePostulaciones        → CRUD postulaciones + cancelar
+│   ├── usePostulantes          → CRUD postulantes + buscar
+│   ├── usePromedios            → getPromedios, recalcularPromedios
+│   ├── useReportes             → reportes admision/docente/postulante
+│   └── useRindes               → CRUD rindes + getByPostulacion
 ├── pages/                      → 24 páginas agrupadas por módulo
 ├── router/
 │   └── AppRouter.jsx           → Definición de rutas

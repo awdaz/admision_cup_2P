@@ -1,27 +1,20 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
 import useExamenes from '../../hooks/useExamenes';
 import useGrupos from '../../hooks/useGrupos';
+import useList from '../../hooks/useList';
 import DataTable from '../../components/ui/DataTable';
 import HeaderBar from '../../components/ui/HeaderBar';
 import FilterSelect from '../../components/ui/FilterSelect';
 import Pagination from '../../components/ui/Pagination';
 
-// Página de listado de exámenes con filtro por grupo
-// Ruta: /examenes
-// Acceso: Administradores y docentes
 export default function ExamenListPage() {
   const navigate = useNavigate();
-  const { getExamenes, deleteExamen, loading } = useExamenes();
+  const { getExamenes, deleteExamen, loading: loadingHook } = useExamenes();
   const { getGrupos } = useGrupos();
-  const [examenes, setExamenes] = useState([]);        // Lista de exámenes desde la API
-  const [grupos, setGrupos] = useState([]);            // Lista de grupos para el filtro
-  const [pagination, setPagination] = useState(null);   // Datos de paginación
-  const [page, setPage] = useState(1);                  // Página actual
-  const [filtroGrupo, setFiltroGrupo] = useState('');   // Filtro por grupo
+  const [grupos, setGrupos] = useState([]);
+  const [filtroGrupo, setFiltroGrupo] = useState('');
 
-  // Carga la lista de grupos para el selector de filtro al montar
   useEffect(() => {
     (async () => {
       const d = await getGrupos(1);
@@ -29,41 +22,26 @@ export default function ExamenListPage() {
     })();
   }, [getGrupos]);
 
-  // Carga los exámenes con filtro opcional por grupo
-  const load = useCallback(async (p, gId) => {
-    try {
-      const data = await getExamenes(p, gId);
-      if (data) {
-        setExamenes(data.data || data.examenes || data);
-        setPagination(data.pagination || data.meta || data);
-      }
-    } catch (err) {
-      toast.error(err.message);
-    }
-  }, [getExamenes]);
-
-  // Recarga al cambiar página o filtro de grupo
-  useEffect(() => {
-    load(page, filtroGrupo);
-  }, [page, filtroGrupo, load]);
+  const { items: examenes, pagination, page, setPage, loading, load } = useList(
+    (p, gId) => getExamenes(p, gId),
+    [filtroGrupo]
+  );
 
   const totalPages = useMemo(() =>
     Math.ceil((pagination?.total || 1) / (pagination?.per_page || 15)),
     [pagination]
   );
 
-  // Elimina un examen previa confirmación y recarga la lista
   const handleDelete = async (row) => {
     if (!window.confirm(`¿Eliminar examen ${row.nro}?`)) return;
     try {
       await deleteExamen(row.id);
       load(page, filtroGrupo);
     } catch (err) {
-      toast.error(err.message);
+      /* toast handled by hook */
     }
   };
 
-  // Configuración de columnas de la tabla de exámenes
   const columns = [
     { key: 'nro', label: 'Nro' },
     { key: 'descripcion', label: 'Descripción', render: (row) => row.descripcion || '-' },
@@ -86,7 +64,7 @@ export default function ExamenListPage() {
           <DataTable
             columns={columns}
             data={examenes}
-            loading={loading}
+            loading={loading || loadingHook}
             onEdit={(row) => navigate(`/examenes/${row.id}/editar`)}
             onDelete={handleDelete}
           />

@@ -1,52 +1,37 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import usePagos from '../../hooks/usePagos';
+import useList from '../../hooks/useList';
 import DataTable from '../../components/ui/DataTable';
 import HeaderBar from '../../components/ui/HeaderBar';
 import Pagination from '../../components/ui/Pagination';
 
-// Página de listado de pagos registrados
-// Ruta: /pagos
-// Acceso: Administradores y personal de cobros
 export default function PagoListPage() {
   const navigate = useNavigate();
-  const { getPagos, confirmarPago, loading } = usePagos();
-  const [pagos, setPagos] = useState([]);          // Lista de pagos obtenidos de la API
-  const [pagination, setPagination] = useState(null); // Datos de paginación (total, por página, etc.)
-  const [page, setPage] = useState(1);              // Página actual del listado
+  const { getPagos, confirmarPago, loading: loadingHook } = usePagos();
 
-  // Carga los pagos según la página actual
-  const load = useCallback(async () => {
-    try {
-      const data = await getPagos(page);
-      if (data) {
-        setPagos(data.data || data.pagos || data);
-        setPagination(data.pagination || data.meta || null);
-      }
-    } catch (err) {
-      toast.error(err.message);
-    }
-  }, [getPagos, page]);
+  const { items: pagos, pagination, page, setPage, loading, load } = useList(
+    (p) => getPagos(p),
+    []
+  );
 
-  // Recarga cuando cambia la página
-  useEffect(() => {
-    load();
-  }, [load]);
+  const totalPages = useMemo(() =>
+    Math.ceil((pagination?.total || 1) / (pagination?.per_page || 10)),
+    [pagination]
+  );
 
-  // Confirma un pago pendiente: muestra confirmación, llama a la API y recarga
   const handleConfirmar = async (row) => {
     if (!window.confirm(`¿Confirmar pago de Bs. ${row.monto}?`)) return;
     try {
       await confirmarPago(row.id);
       toast.success('Pago confirmado correctamente');
-      load();
+      load(page);
     } catch (err) {
       toast.error(err.message);
     }
   };
 
-  // Configuración de columnas de la tabla de pagos
   const columns = [
     { key: 'numero_recibo', label: 'Recibo', render: (row) => row.numero_recibo || row.id || '-' },
     {
@@ -76,7 +61,6 @@ export default function PagoListPage() {
     },
     {
       key: 'estado', label: 'Estado',
-      // Muestra el estado con un badge de color: pendiente (amarillo), confirmado (verde), rechazado (rojo)
       render: (row) => {
         const map = { pendiente: 'warning', confirmado: 'success', rechazado: 'danger' };
         return <span className={`badge bg-${map[row.estado] || 'secondary'}`}>{row.estado || '-'}</span>;
@@ -97,13 +81,13 @@ export default function PagoListPage() {
           <DataTable
             columns={columns}
             data={pagos}
-            loading={loading}
+            loading={loading || loadingHook}
             onEdit={(row) => row.estado === 'pendiente' ? handleConfirmar(row) : null}
           />
         </div>
       </div>
 
-      <Pagination page={page} totalPages={Math.ceil((pagination?.total || 1) / (pagination?.per_page || 10))} setPage={setPage} simple />
+      <Pagination page={page} totalPages={totalPages} setPage={setPage} simple />
     </div>
   );
 }

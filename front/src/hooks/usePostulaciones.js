@@ -2,7 +2,6 @@ import { useState, useCallback } from 'react';
 import cliente from '../api/cliente';
 
 export default function usePostulaciones() {
-  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -11,7 +10,6 @@ export default function usePostulaciones() {
     setError(null);
     try {
       const result = await fn();
-      setData(result);
       return result;
     } catch (err) {
       setError(err.message);
@@ -46,7 +44,7 @@ export default function usePostulaciones() {
   }, [exec]);
 
   return {
-    data, loading, error,
+    loading, error,
     getPostulaciones, getPostulacion, createPostulacion, cancelarPostulacion,
   };
 }

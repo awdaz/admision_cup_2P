@@ -1,50 +1,32 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import useDocentes from '../../hooks/useDocentes';
+import useList from '../../hooks/useList';
 import DataTable from '../../components/ui/DataTable';
 import ProgressBar from '../../components/ui/ProgressBar';
 import HeaderBar from '../../components/ui/HeaderBar';
 import Pagination from '../../components/ui/Pagination';
 
-// Página de listado de docentes con búsqueda, paginación y acciones CRUD
-// Ruta: /docentes
-// Acceso: Administradores
 export default function DocenteListPage() {
   const navigate = useNavigate();
-  const { getDocentes, deleteDocente, getDisponibilidad, loading } = useDocentes();
-  const [docentes, setDocentes] = useState([]);
-  const [pagination, setPagination] = useState(null);
-  const [page, setPage] = useState(1);
+  const { getDocentes, deleteDocente, getDisponibilidad, loading: loadingHook } = useDocentes();
+
   const [searchQuery, setSearchQuery] = useState('');
   const [searchInput, setSearchInput] = useState('');
   const [showDisponibilidad, setShowDisponibilidad] = useState(false);
   const [disponibilidad, setDisponibilidad] = useState([]);
 
-  // Carga los docentes desde la API con paginación y filtro de búsqueda
-  const load = useCallback(async (p, s) => {
-    try {
-      const data = await getDocentes(p, s);
-      if (data) {
-        setDocentes(data.data || data.docentes || data);
-        setPagination(data.pagination || data.meta || data);
-      }
-    } catch (err) {
-      toast.error(err.message);
-    }
-  }, [getDocentes]);
-
-  // Recarga al cambiar página o término de búsqueda
-  useEffect(() => {
-    load(page, searchQuery);
-  }, [page, searchQuery, load]);
+  const { items: docentes, pagination, page, setPage, loading, load } = useList(
+    (p, q) => getDocentes(p, q),
+    [searchQuery]
+  );
 
   const totalPages = useMemo(() =>
     Math.ceil((pagination?.total || 1) / (pagination?.per_page || 15)),
     [pagination]
   );
 
-  // Elimina un docente previa confirmación, luego recarga la lista
   const handleDelete = async (row) => {
     const ci = row.persona?.ci || '';
     if (!window.confirm(`¿Eliminar docente ${ci}?`)) return;
@@ -52,11 +34,10 @@ export default function DocenteListPage() {
       await deleteDocente(row.id);
       load(page, searchQuery);
     } catch (err) {
-      toast.error(err.message);
+      /* toast handled by hook */
     }
   };
 
-  // Al enviar el formulario de búsqueda, reinicia a página 1 y aplica el filtro
   const handleSearch = (e) => {
     e.preventDefault();
     setPage(1);
@@ -74,7 +55,6 @@ export default function DocenteListPage() {
     setShowDisponibilidad(!showDisponibilidad);
   };
 
-  // Configuración de columnas para la tabla de docentes
   const columns = [
     { key: 'cod_docente', label: 'Código', render: (row) => row.cod_docente || '-' },
     { key: 'ci', label: 'CI', render: (row) => row.persona?.ci || '-' },
@@ -105,7 +85,6 @@ export default function DocenteListPage() {
     <div>
       <HeaderBar createLabel="Nuevo Docente" onCreate={() => navigate('/docentes/nuevo')} />
 
-      {/* Barra de búsqueda: filtra docentes por CI, nombre o código */}
       <form onSubmit={handleSearch} className="mb-3">
         <div className="input-group">
           <input
@@ -124,7 +103,6 @@ export default function DocenteListPage() {
         </div>
       </form>
 
-      {/* Tabla de disponibilidad */}
       {showDisponibilidad && (
         <div className="table-responsive">
           <table className="table table-hover table-striped align-middle table-sm">
@@ -169,7 +147,7 @@ export default function DocenteListPage() {
           <DataTable
             columns={columns}
             data={docentes}
-            loading={loading}
+            loading={loading || loadingHook}
             onEdit={(row) => navigate(`/docentes/${row.id}/editar`)}
             onDelete={handleDelete}
           />

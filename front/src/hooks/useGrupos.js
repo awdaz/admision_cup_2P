@@ -2,7 +2,6 @@ import { useState, useCallback } from 'react';
 import cliente from '../api/cliente';
 
 export default function useGrupos() {
-  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -11,7 +10,6 @@ export default function useGrupos() {
     setError(null);
     try {
       const result = await fn();
-      setData(result);
       return result;
     } catch (err) {
       setError(err.message);
@@ -48,7 +46,7 @@ export default function useGrupos() {
   }, [exec]);
 
   return {
-    data, loading, error,
+    loading, error,
     getGrupos, getGrupo,
     createGrupo, updateGrupo, deleteGrupo,
   };

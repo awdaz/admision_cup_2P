@@ -2,7 +2,6 @@ import { useState, useCallback } from 'react';
 import cliente from '../api/cliente';
 
 export default function useReportes() {
-  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -11,7 +10,6 @@ export default function useReportes() {
     setError(null);
     try {
       const result = await fn();
-      setData(result);
       return result;
     } catch (err) {
       setError(err.message);
@@ -34,7 +32,7 @@ export default function useReportes() {
   }, [exec]);
 
   return {
-    data, loading, error,
+    loading, error,
     getReporteAdmision, getReporteDocenteMisGrupos, getReportePostulanteMisNotas,
   };
 }

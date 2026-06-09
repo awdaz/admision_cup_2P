@@ -2,7 +2,6 @@ import { useState, useCallback } from 'react';
 import cliente from '../api/cliente';
 
 export default function useAdmisiones() {
-  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -11,7 +10,6 @@ export default function useAdmisiones() {
     setError(null);
     try {
       const result = await fn();
-      setData(result);
       return result;
     } catch (err) {
       setError(err.message);
@@ -43,7 +41,7 @@ export default function useAdmisiones() {
   }, [exec]);
 
   return {
-    data, loading, error,
+    loading, error,
     getAdmisiones, procesarAdmision, generarGrupos, getCupos, getPostulantesCupo,
   };
 }

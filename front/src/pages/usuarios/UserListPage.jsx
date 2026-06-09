@@ -1,8 +1,8 @@
-// Página de listado de usuarios con búsqueda, filtro por rol y paginación
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import cliente from '../../api/cliente';
+import useList from '../../hooks/useList';
 import DataTable from '../../components/ui/DataTable';
 import HeaderBar from '../../components/ui/HeaderBar';
 import FilterSelect from '../../components/ui/FilterSelect';
@@ -16,54 +16,37 @@ const roles = [
 
 export default function UserListPage() {
   const navigate = useNavigate();
-  const [users, setUsers] = useState([]);         // Lista de usuarios cargados
-  const [loading, setLoading] = useState(true);    // Estado de carga
-  const [page, setPage] = useState(1);             // Página actual de la paginación
-  const [pagination, setPagination] = useState(null); // Metadatos de paginación (total, per_page)
-  const [search, setSearch] = useState('');         // Término de búsqueda
-  const [filtroTipo, setFiltroTipo] = useState(''); // Filtro por rol (admin, docente, postulante)
+  const [search, setSearch] = useState('');
+  const [filtroTipo, setFiltroTipo] = useState('');
 
-  // Carga la lista de usuarios desde el servidor, con filtros y paginación
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams();
-      if (page) params.append('page', page);
-      if (search) params.append('search', search);
-      if (filtroTipo) params.append('tipo', filtroTipo);
-      const data = await cliente.get(`/users?${params.toString()}`);
-      setUsers(data.data || data.users || data);
-      setPagination(data.pagination || data.meta || null);
-    } catch (err) {
-      toast.error(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [page, search, filtroTipo]);
+  const { items: users, pagination, page, setPage, loading, load } = useList(
+    (p, s, t) => {
+      const qs = new URLSearchParams({ page: p });
+      if (s) qs.append('search', s);
+      if (t) qs.append('tipo', t);
+      return cliente.get(`/users?${qs}`);
+    },
+    [search, filtroTipo]
+  );
 
-  // Recarga cuando cambian los parámetros
-  useEffect(() => { load(); }, [load]);
-
-  // Activa o desactiva un usuario (toggle activo/inactivo)
   const handleToggleActive = async (row) => {
     const action = row.activo ? 'desactivar' : 'activar';
     if (!window.confirm(`¿${action === 'activar' ? 'Activar' : 'Desactivar'} usuario "${row.username}"?`)) return;
     try {
       const data = await cliente.put(`/users/${row.id}/toggle-active`);
       toast.success(data.message);
-      load();
+      load(page, search, filtroTipo);
     } catch (err) {
       toast.error(err.message);
     }
   };
 
-  // Elimina un usuario previa confirmación
   const handleDelete = async (row) => {
     if (!window.confirm(`¿Eliminar usuario "${row.username}"?`)) return;
     try {
       await cliente.del(`/users/${row.id}`);
       toast.success('Usuario eliminado correctamente');
-      load();
+      load(page, search, filtroTipo);
     } catch (err) {
       toast.error(err.message);
     }
