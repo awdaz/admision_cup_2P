@@ -6,6 +6,7 @@ import cliente from '../api/cliente';
 import Loader from '../components/ui/Loader';
 import StatCard from '../components/ui/StatCard';
 import ProgressBar from '../components/ui/ProgressBar';
+import FormCard from '../components/ui/FormCard';
 
 export default function DashboardPage() {
   const { user } = useAuthStore();
@@ -31,8 +32,6 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <h4 className="mb-4">Dashboard</h4>
-
       <div className="row g-4 mb-4">
         <StatCard title="Total Postulantes" value={stats?.total_postulantes} color="primary" icon="bi bi-people" colClass="col-12 col-sm-6 col-xl-3" />
         <StatCard title="Postulantes Verificados" value={stats?.postulantes_verificados} color="success" icon="bi bi-check-circle" colClass="col-12 col-sm-6 col-xl-3" />
@@ -69,9 +68,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      <div className="card shadow-sm">
-        <div className="card-header"><strong>Acceso Rapido</strong></div>
-        <div className="card-body">
+      <FormCard title="Acceso Rapido" className="">
           <div className="row g-2">
             {tipo === 'admin' && (
               <>
@@ -98,8 +95,7 @@ export default function DashboardPage() {
               </>
             )}
           </div>
-        </div>
-      </div>
+      </FormCard>
     </div>
   );
 }

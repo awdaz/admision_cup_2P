@@ -49,7 +49,6 @@ function PostulantePromedios() {
 
   return (
     <div>
-      <h4 className="mb-4">Mis Promedios</h4>
       {postulaciones.length === 0 ? (
         <div className="alert alert-info">No tienes postulaciones registradas.</div>
       ) : (
@@ -102,7 +101,6 @@ function PostulantePromedios() {
 function DocentePromedios() {
   return (
     <div>
-      <h4 className="mb-4">Promedios de Estudiantes</h4>
       <p className="text-muted">Seleccione un grupo y examen para ver los promedios en la seccion <Link to="/notas">Notas</Link>.</p>
     </div>
   );
@@ -111,7 +109,6 @@ function DocentePromedios() {
 function AdminPromedios() {
   return (
     <div>
-      <h4 className="mb-4">Promedios</h4>
       <p className="text-muted">Consulte los promedios desde la seccion <Link to="/admisiones">Control de Admision</Link> o desde <Link to="/reportes">Reportes</Link>.</p>
     </div>
   );

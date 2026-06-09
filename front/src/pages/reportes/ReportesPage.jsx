@@ -6,6 +6,7 @@ import usePromedios from '../../hooks/usePromedios';
 import useAdmisiones from '../../hooks/useAdmisiones';
 import ProgressBar from '../../components/ui/ProgressBar';
 import StatCard from '../../components/ui/StatCard';
+import FormCard from '../../components/ui/FormCard';
 
 export default function ReportesPage() {
   const { user } = useAuthStore();
@@ -46,8 +47,6 @@ function ReporteAdmision() {
 
   return (
     <div>
-      <h4 className="mb-4">Reporte de Admision</h4>
-
       <div className="row g-3 mb-4">
         <StatCard title="Postulantes" value={resumen.total_postulantes} color="primary" variant="bg" />
         <StatCard title="Postulaciones" value={resumen.total_postulaciones} color="info" variant="bg" />
@@ -57,9 +56,7 @@ function ReporteAdmision() {
 
       <div className="row g-3 mb-4">
         <div className="col-md-6">
-          <div className="card shadow-sm h-100">
-            <div className="card-header"><strong>Distribucion por Estado</strong></div>
-            <div className="card-body">
+          <FormCard title="Distribucion por Estado" className="h-100">
               {(function() {
                 const total = (resumen.inscritos || 0) + (resumen.admitidos || 0) + (resumen.pendientes || 0);
                 const items = [
@@ -79,13 +76,10 @@ function ReporteAdmision() {
                   </div>
                 ));
               })()}
-            </div>
-          </div>
+          </FormCard>
         </div>
         <div className="col-md-6">
-          <div className="card shadow-sm h-100">
-            <div className="card-header"><strong>Pagos</strong></div>
-            <div className="card-body">
+          <FormCard title="Pagos" className="h-100">
               <div className="mb-2">
                 <div className="d-flex justify-content-between">
                   <span>Confirmados</span>
@@ -103,8 +97,7 @@ function ReporteAdmision() {
                 <strong>Total pagos confirmados</strong>
                 <strong>${resumen.pagos_confirmados || 0}</strong>
               </div>
-            </div>
-          </div>
+          </FormCard>
         </div>
       </div>
 
@@ -173,8 +166,6 @@ function ReporteDocente() {
 
   return (
     <div>
-      <h4 className="mb-4">Mis Grupos</h4>
-
       <div className="row g-3 mb-4">
         <StatCard title="Grupos" value={stats.total_grupos} color="primary" variant="bg" />
         <StatCard title="Estudiantes" value={stats.total_estudiantes} color="success" variant="bg" />
@@ -246,7 +237,6 @@ function ReportePostulante() {
 
   return (
     <div>
-      <h4 className="mb-4">Mis Postulaciones y Notas</h4>
       {postulaciones.length === 0 ? (
         <div className="alert alert-info">No tienes postulaciones registradas.</div>
       ) : (

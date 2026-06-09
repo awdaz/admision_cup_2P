@@ -103,7 +103,7 @@ export default function DocenteListPage() {
 
   return (
     <div>
-      <HeaderBar title="Docentes" createLabel="Nuevo Docente" onCreate={() => navigate('/docentes/nuevo')} />
+      <HeaderBar createLabel="Nuevo Docente" onCreate={() => navigate('/docentes/nuevo')} />
 
       {/* Barra de búsqueda: filtra docentes por CI, nombre o código */}
       <form onSubmit={handleSearch} className="mb-3">

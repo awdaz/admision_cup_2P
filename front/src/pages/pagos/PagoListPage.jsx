@@ -90,7 +90,7 @@ export default function PagoListPage() {
 
   return (
     <div>
-      <HeaderBar title="Pagos" createLabel="Nuevo Pago" onCreate={() => navigate('/pagos/nuevo')} />
+      <HeaderBar createLabel="Nuevo Pago" onCreate={() => navigate('/pagos/nuevo')} />
 
       <div className="card shadow-sm">
         <div className="card-body p-0">

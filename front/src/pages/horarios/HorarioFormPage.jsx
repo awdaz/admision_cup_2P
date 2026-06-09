@@ -90,7 +90,7 @@ export default function HorarioFormPage() {
   if (pageLoading) return <Loader />;
 
   return (
-    <FormPageLayout title={isEdit ? 'Editar Horario' : 'Nuevo Horario'}>
+    <FormPageLayout>
       <form onSubmit={handleSubmit}>
               <div className="row g-3">
                 <div className="col-md-4">

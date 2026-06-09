@@ -22,7 +22,10 @@ export default function Navbar() {
           <span className="navbar-toggler-icon"></span>
         </button>
         {/* Logo/marca de la aplicación */}
-        <span className="navbar-brand mb-0 h1">CUP - FICCT</span>
+        <span className="navbar-brand mb-0 h1 d-flex align-items-center gap-2">
+          <img src="/ficct_logo.png" alt="FICCT" height="32" />
+          CUP - FICCT
+        </span>
 
         <div className="d-flex align-items-center gap-2 ms-auto">
           {/* Muestra el nombre del usuario autenticado */}

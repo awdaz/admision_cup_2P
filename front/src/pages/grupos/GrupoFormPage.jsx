@@ -99,7 +99,7 @@ export default function GrupoFormPage() {
   if (pageLoading) return <Loader />;
 
   return (
-    <FormPageLayout title={isEdit ? 'Editar Grupo' : 'Nuevo Grupo'}>
+    <FormPageLayout>
       <form onSubmit={handleSubmit}>
               <div className="row g-3">
                 <div className="col-md-4">

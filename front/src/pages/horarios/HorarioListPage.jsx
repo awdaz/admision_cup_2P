@@ -59,7 +59,7 @@ export default function HorarioListPage() {
 
   return (
     <div>
-      <HeaderBar title="Horarios" createLabel="Nuevo Horario" onCreate={() => navigate('/horarios/nuevo')} />
+      <HeaderBar createLabel="Nuevo Horario" onCreate={() => navigate('/horarios/nuevo')} />
 
       {/* Filtros de búsqueda: grupo y día de la semana */}
       <div className="row g-2 mb-3">

@@ -97,7 +97,7 @@ export default function DocenteFormPage() {
   if (pageLoading) return <Loader />;
 
   return (
-    <FormPageLayout title={isEdit ? 'Editar Docente' : 'Nuevo Docente'}>
+    <FormPageLayout>
       <form onSubmit={handleSubmit}>
               {/* Sección de información personal básica */}
               <h6 className="text-muted mb-3">Datos Personales</h6>

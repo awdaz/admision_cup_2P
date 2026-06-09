@@ -1,8 +1,6 @@
-// Sidebar de navegación con enlaces según el rol del usuario
 import { NavLink } from 'react-router-dom';
 import useAuthStore from '../../store/authStore';
 
-// Enlaces del menú para administradores
 const adminLinks = [
   { to: '/dashboard', label: 'Dashboard', icon: 'bi-speedometer2' },
   { to: '/postulantes', label: 'Postulantes', icon: 'bi-people' },
@@ -19,7 +17,6 @@ const adminLinks = [
   { to: '/usuarios', label: 'Usuarios', icon: 'bi-shield-lock' },
 ];
 
-// Enlaces del menú para postulantes
 const postulanteLinks = [
   { to: '/dashboard', label: 'Dashboard', icon: 'bi-speedometer2' },
   { to: '/postulantes', label: 'Mis Datos', icon: 'bi-person' },
@@ -30,7 +27,6 @@ const postulanteLinks = [
   { to: '/reportes', label: 'Mis Reportes', icon: 'bi-bar-chart' },
 ];
 
-// Enlaces del menú para docentes
 const docenteLinks = [
   { to: '/dashboard', label: 'Dashboard', icon: 'bi-speedometer2' },
   { to: '/docentes', label: 'Mis Grupos', icon: 'bi-mortarboard' },
@@ -43,17 +39,20 @@ const docenteLinks = [
   { to: '/reportes', label: 'Reportes', icon: 'bi-bar-chart' },
 ];
 
-// Mapa de roles a sus respectivos conjuntos de enlaces
-const roleLinks = {
-  admin: adminLinks,
-  postulante: postulanteLinks,
-  docente: docenteLinks,
-};
+const roleLinks = { admin: adminLinks, postulante: postulanteLinks, docente: docenteLinks };
 
-export default function Sidebar({ offcanvasId, onLinkClick }) {
+function closeOffcanvas() {
+  const el = document.getElementById('sidebarOffcanvas');
+  if (el) {
+    const bs = window.bootstrap?.Offcanvas?.getInstance(el);
+    if (bs) bs.hide();
+  }
+}
+
+export default function Sidebar() {
   const { user } = useAuthStore();
-  const tipo = user?.tipo;  // Rol del usuario autenticado
-  const links = tipo ? roleLinks[tipo] || adminLinks : []; // Enlaces según el rol
+  const tipo = user?.tipo;
+  const links = tipo ? roleLinks[tipo] || adminLinks : [];
 
   const content = (
     <ul className="nav nav-pills flex-column">
@@ -64,7 +63,7 @@ export default function Sidebar({ offcanvasId, onLinkClick }) {
             className={({ isActive }) =>
               `nav-link d-flex align-items-center gap-2 ${isActive ? 'active' : ''}`
             }
-            onClick={onLinkClick}
+            onClick={closeOffcanvas}
           >
             <i className={`bi ${link.icon}`}></i>
             <span>{link.label}</span>
@@ -74,26 +73,23 @@ export default function Sidebar({ offcanvasId, onLinkClick }) {
     </ul>
   );
 
-  if (offcanvasId) {
-    return (
-      <>
-        <div className="d-lg-none">
-          <div className="offcanvas offcanvas-start" tabIndex="-1" id={offcanvasId}>
-            <div className="offcanvas-header">
-              <h5 className="offcanvas-title">Menú</h5>
-              <button type="button" className="btn-close" data-bs-dismiss="offcanvas"></button>
-            </div>
-            <div className="offcanvas-body">
-              {content}
-            </div>
+  return (
+    <>
+      {/* Offcanvas para móviles (< lg) */}
+      <div className="d-lg-none">
+        <div className="offcanvas offcanvas-start" tabIndex="-1" id="sidebarOffcanvas">
+          <div className="offcanvas-header">
+            <button type="button" className="btn-close" data-bs-dismiss="offcanvas"></button>
+          </div>
+          <div className="offcanvas-body">
+            {content}
           </div>
         </div>
-        <div className="d-none d-lg-block sidebar-sticky">
-          {content}
-        </div>
-      </>
-    );
-  }
-
-  return <div className="sidebar-sticky">{content}</div>;
+      </div>
+      {/* Sidebar fijo para desktop (>= lg) */}
+      <aside className="bg-light border-end d-none d-lg-flex flex-column p-3" style={{ width: '250px', minWidth: '250px' }}>
+        {content}
+      </aside>
+    </>
+  );
 }

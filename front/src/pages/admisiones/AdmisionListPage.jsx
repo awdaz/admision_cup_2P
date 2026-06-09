@@ -72,8 +72,6 @@ export default function AdmisionListPage() {
 
   return (
     <div>
-      <h4 className="mb-4">Control de Admisión y Cupos</h4>
-
       <div className="row g-3 mb-4">
         <div className="col-md-4">
           <FilterSelect value={selectedGestion} onChange={(e) => setSelectedGestion(e.target.value)} options={gestiones} allLabel="Seleccionar gestión..." />

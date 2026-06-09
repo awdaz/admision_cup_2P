@@ -8,8 +8,9 @@ export default function LandingPage() {
     <div className="min-vh-100 d-flex flex-column">
       <nav className="navbar navbar-light bg-white shadow-sm">
         <div className="container">
-          <span className="navbar-brand fw-bold">
-            <i className="bi bi-shield-check me-2 text-primary"></i>CUP - FICCT
+          <span className="navbar-brand fw-bold d-flex align-items-center gap-2">
+            <img src="/ficct_logo.png" alt="FICCT" height="36" />
+            CUP - FICCT
           </span>
           <Link to="/login" className="btn btn-primary">
             <i className="bi bi-box-arrow-in-right me-1"></i>Ingresar
@@ -22,7 +23,7 @@ export default function LandingPage() {
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
       }}>
         <div className="container text-center text-white py-5">
-          <i className="bi bi-shield-check" style={{ fontSize: '5rem' }}></i>
+          <img src="/ficct_logo.png" alt="FICCT" className="mb-3" style={{ height: '6rem' }} />
           <h1 className="display-4 fw-bold mt-3">CUP - FICCT</h1>
           <p className="lead fs-4 mb-1">Sistema de Admisión Universitaria</p>
           <p className="fs-5 mb-4" style={{ opacity: 0.9 }}>

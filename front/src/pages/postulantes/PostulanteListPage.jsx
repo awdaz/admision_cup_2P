@@ -115,7 +115,7 @@ export default function PostulanteListPage() {
 
   return (
     <div>
-      <HeaderBar title="Postulantes" createLabel="Nuevo Postulante" onCreate={() => navigate('/postulantes/nuevo')} />
+      <HeaderBar createLabel="Nuevo Postulante" onCreate={() => navigate('/postulantes/nuevo')} />
 
       <SearchBar
         placeholder="Buscar por CI o nombre..."

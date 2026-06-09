@@ -7,6 +7,7 @@ import Loader from '../../components/ui/Loader';
 import FormPageLayout from '../../components/ui/FormPageLayout';
 import SubmitButton from '../../components/ui/SubmitButton';
 import CancelButton from '../../components/ui/CancelButton';
+import FormCard from '../../components/ui/FormCard';
 
 // Página de formulario para registrar un nuevo pago
 // Ruta: /pagos/nuevo (con ?postulante_id opcional)
@@ -98,12 +99,9 @@ export default function PagoFormPage() {
   if (pageLoading) return <Loader />;
 
   return (
-    <FormPageLayout title="Nuevo Pago">
+    <FormPageLayout>
 
-        {/* Sección de selección de postulante: búsqueda por CI o selección desde lista */}
-        <div className="card shadow-sm mb-4">
-          <div className="card-header"><strong>Seleccionar Postulante</strong></div>
-          <div className="card-body">
+        <FormCard title="Seleccionar Postulante">
             <div className="row g-3 align-items-end">
               {/* Búsqueda rápida por número de CI */}
               <div className="col-md-5">
@@ -153,13 +151,9 @@ export default function PagoFormPage() {
                 )}
               </div>
             )}
-          </div>
-        </div>
+        </FormCard>
 
-        {/* Formulario de datos del pago: monto y método de pago */}
-        <div className="card shadow-sm">
-          <div className="card-header"><strong>Datos del Pago</strong></div>
-          <div className="card-body">
+        <FormCard title="Datos del Pago" className="">
             <form onSubmit={handleSubmit}>
               <div className="row g-3">
                 <div className="col-md-6">
@@ -192,8 +186,7 @@ export default function PagoFormPage() {
                 <CancelButton to="/pagos" />
               </div>
             </form>
-          </div>
-        </div>
+        </FormCard>
     </FormPageLayout>
   );
 }

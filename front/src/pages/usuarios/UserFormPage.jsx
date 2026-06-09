@@ -101,7 +101,7 @@ export default function UserFormPage() {
   if (pageLoading) return <Loader />;
 
   return (
-    <FormPageLayout title={isEdit ? 'Editar Usuario' : 'Nuevo Usuario'}>
+    <FormPageLayout>
             <form onSubmit={handleSubmit}>
               <div className="row g-3">
                 <div className="col-md-6">

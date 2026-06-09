@@ -5,6 +5,7 @@ import cliente from '../../api/cliente';
 import Loader from '../../components/ui/Loader';
 import Alert from '../../components/ui/Alert';
 import BadgeStatus from '../../components/ui/BadgeStatus';
+import FormCard from '../../components/ui/FormCard';
 
 // Página de detalle de un postulante
 // Ruta: "/postulantes/:id" — Acceso: Usuarios autenticados
@@ -81,8 +82,7 @@ export default function PostulanteDetailPage() {
 
   return (
     <div>
-        <div className="d-flex justify-content-between align-items-center mb-4">
-          <h4 className="mb-0">Detalle del Postulante</h4>
+        <div className="d-flex justify-content-end mb-4">
           {/* Botones de acción: editar, eliminar, gestionar requisitos, postular, registrar pago */}
           <div className="d-flex gap-2">
           <button className="btn btn-outline-primary" onClick={() => navigate(`/postulantes/${id}/editar`)}>
@@ -104,11 +104,8 @@ export default function PostulanteDetailPage() {
       </div>
 
       <div className="row g-4">
-        {/* Tarjeta de información personal del postulante */}
         <div className="col-md-6">
-          <div className="card shadow-sm h-100">
-            <div className="card-header"><strong>Información Personal</strong></div>
-            <div className="card-body">
+          <FormCard title="Información Personal" className="h-100">
               <table className="table table-hover table-striped align-middle table-sm table-borderless">
                 <tbody>
                   <tr><td className="text-muted" style={{ width: '140px' }}>CI</td><td>{postulante.ci}</td></tr>
@@ -122,15 +119,11 @@ export default function PostulanteDetailPage() {
                   <tr><td className="text-muted">Colegio</td><td>{postulante.colegio_procedencia || '-'}</td></tr>
                 </tbody>
               </table>
-            </div>
-          </div>
+          </FormCard>
         </div>
 
-        {/* Tarjeta de postulación: carrera, turno, semestre, estado y fecha */}
         <div className="col-md-6">
-          <div className="card shadow-sm h-100">
-            <div className="card-header"><strong>Postulación</strong></div>
-            <div className="card-body">
+          <FormCard title="Postulación" className="h-100">
               {postulante.postulacion ? (
 <table className="table table-hover table-striped align-middle table-sm table-borderless">
                   <tbody>
@@ -144,15 +137,11 @@ export default function PostulanteDetailPage() {
               ) : (
                 <p className="text-muted mb-0">Sin postulación registrada</p>
               )}
-            </div>
-          </div>
+          </FormCard>
         </div>
 
-        {/* Tarjeta de requisitos: lista con indicador de cumplido/no cumplido */}
         <div className="col-md-6">
-          <div className="card shadow-sm">
-            <div className="card-header"><strong>Requisitos</strong></div>
-            <div className="card-body">
+          <FormCard title="Requisitos" className="">
               {requisitos.length > 0 ? (
                 <ul className="list-group list-group-flush">
                   {requisitos.map((req, idx) => (
@@ -165,15 +154,11 @@ export default function PostulanteDetailPage() {
               ) : (
                 <p className="text-muted mb-0">Sin requisitos registrados</p>
               )}
-            </div>
-          </div>
+          </FormCard>
         </div>
 
-        {/* Tarjeta de pagos: monto, método, fecha y estado de cada pago */}
         <div className="col-md-6">
-          <div className="card shadow-sm">
-            <div className="card-header"><strong>Pagos</strong></div>
-            <div className="card-body">
+          <FormCard title="Pagos" className="">
               {pagos.length > 0 ? (
                 <ul className="list-group list-group-flush">
                   {pagos.map((pago, idx) => (
@@ -191,8 +176,7 @@ export default function PostulanteDetailPage() {
               ) : (
                 <p className="text-muted mb-0">Sin pagos registrados</p>
               )}
-            </div>
-          </div>
+          </FormCard>
         </div>
       </div>
     </div>

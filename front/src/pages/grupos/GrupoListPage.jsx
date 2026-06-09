@@ -97,7 +97,7 @@ export default function GrupoListPage() {
 
   return (
     <div>
-      <HeaderBar title="Grupos" createLabel="Nuevo Grupo" onCreate={() => navigate('/grupos/nuevo')} />
+      <HeaderBar createLabel="Nuevo Grupo" onCreate={() => navigate('/grupos/nuevo')} />
 
       {/* Filtros: selección de materia y turno para acotar la búsqueda */}
       <form onSubmit={handleFiltrar} className="mb-3">

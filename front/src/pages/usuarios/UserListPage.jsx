@@ -95,7 +95,7 @@ export default function UserListPage() {
 
   return (
     <div>
-      <HeaderBar title="Usuarios" createLabel="Nuevo Usuario" onCreate={() => navigate('/usuarios/nuevo')} />
+      <HeaderBar createLabel="Nuevo Usuario" onCreate={() => navigate('/usuarios/nuevo')} />
 
       <div className="input-group mb-3">
         <input className="form-control" placeholder="Buscar por username o email..." value={search} onChange={(e) => setSearch(e.target.value)} />

@@ -350,7 +350,6 @@ function DocenteNotas() {
 
   return (
     <div>
-      <h4 className="mb-4">Registro de Notas</h4>
       <div className="d-flex flex-wrap gap-2 mb-2">
         <div className="input-group" style={{ minWidth: 250 }} ref={searchRef}>
           <input type="text" className="form-control form-control-sm" placeholder="Agregar Alumno — CI, nombre o apellido..."
@@ -493,7 +492,6 @@ function PostulanteNotas() {
 
   return (
     <div>
-      <h4 className="mb-4">Mis Notas</h4>
       {promedios && (
         <div className="row g-2 mb-4">
           {[
@@ -783,7 +781,6 @@ function AdminNotas() {
 
   return (
     <div>
-      <h4 className="mb-4">Gestion de Notas (Admin)</h4>
       <div className="d-flex flex-wrap gap-2 mb-2">
         <div className="input-group" style={{ minWidth: 250 }} ref={searchRef}>
           <input type="text" className="form-control form-control-sm" placeholder="Agregar Alumno — CI, nombre o apellido..."

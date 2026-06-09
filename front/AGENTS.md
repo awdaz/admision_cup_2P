@@ -29,8 +29,9 @@ src/
 │   │   ├── DataTable.jsx       → Tabla genérica con acciones
 │   │   ├── EmptyState.jsx      → Mensaje de estado vacío
 │   │   ├── FilterSelect.jsx    → Select de filtro genérico
+│   │   ├── FormCard.jsx        → Card con header <strong> + body + disabled
 │   │   ├── FormPageLayout.jsx  → Layout centrado para formularios
-│   │   ├── HeaderBar.jsx       → Título + botón crear
+│   │   ├── HeaderBar.jsx       → Botón crear (sin título)
 │   │   ├── Loader.jsx          → Spinner de carga
 │   │   ├── Pagination.jsx      → Paginación (simple y avanzada)
 │   │   ├── ProgressBar.jsx     → Barra de progreso con colores
@@ -76,8 +77,9 @@ src/
 | **CancelButton** | `to` (ruta o -1) | Todas las form pages |
 | **EmptyState** | `message`, `icon` | PostulanteDetailPage, PromediosPage |
 | **FilterSelect** | `value`, `onChange`, `options`, `allLabel`, `mapOption` | GrupoListPage, ExamenListPage, HorarioListPage, UserListPage, AdmisionListPage |
-| **FormPageLayout** | `title`, `maxWidth` | Todas las form pages (Postulante, Docente, Grupo, Examen, Horario, Pago, User, Postulacion) |
-| **HeaderBar** | `title`, `createLabel`, `onCreate` | PostulanteListPage, DocenteListPage, GrupoListPage, ExamenListPage, HorarioListPage, PagoListPage, UserListPage |
+| **FormCard** | `title`, `children`, `actions`, `disabled`, `className` | PostulacionFormPage, PagoFormPage, PostulanteDetailPage, ReportesPage, DashboardPage |
+| **FormPageLayout** | `maxWidth` | Todas las form pages |
+| **HeaderBar** | `createLabel`, `onCreate` | PostulanteListPage, DocenteListPage, GrupoListPage, ExamenListPage, HorarioListPage, PagoListPage, UserListPage |
 | **Pagination** | `page`, `totalPages`, `setPage`, `simple` | PostulanteListPage, DocenteListPage, GrupoListPage, ExamenListPage, PagoListPage, UserListPage |
 | **ProgressBar** | `value`, `height`, `showLabel`, `children` | DashboardPage, ReportesPage, DocenteListPage, AdmisionListPage |
 | **SearchBar** | `placeholder`, `value`, `onChange`, `onSearch` | PostulanteListPage |

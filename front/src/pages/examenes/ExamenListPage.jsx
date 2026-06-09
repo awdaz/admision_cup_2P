@@ -75,7 +75,7 @@ export default function ExamenListPage() {
 
   return (
     <div>
-      <HeaderBar title="Exámenes" createLabel="Nuevo Examen" onCreate={() => navigate('/examenes/nuevo')} />
+      <HeaderBar createLabel="Nuevo Examen" onCreate={() => navigate('/examenes/nuevo')} />
 
       <div className="mb-3">
         <FilterSelect value={filtroGrupo} onChange={(e) => { setPage(1); setFiltroGrupo(e.target.value); }} options={grupos} allLabel="Todos los grupos" mapOption={(g) => `${g.codigo} - ${g.materia?.nombre}`} />
