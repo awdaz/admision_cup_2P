@@ -2,8 +2,7 @@
 import useAuthStore from '../../store/authStore';
 
 export default function Navbar() {
-  const user = useAuthStore((s) => s.user);    // Usuario logueado
-  const logout = useAuthStore((s) => s.logout); // Función para cerrar sesión
+  const { user, logout } = useAuthStore();
 
   // Maneja el cierre de sesión al hacer clic en "Salir"
   const handleLogout = async () => {

@@ -7,9 +7,10 @@ import usePostulaciones from '../../hooks/usePostulaciones';
 import { toast } from 'sonner';
 import useGrupos from '../../hooks/useGrupos';
 import useCatalogos from '../../hooks/useCatalogos';
+import BadgeStatus from '../../components/ui/BadgeStatus';
 
 export default function NotasPage() {
-  const user = useAuthStore((s) => s.user);
+  const { user } = useAuthStore();
   const tipo = user?.tipo;
   if (tipo === 'postulante') return <PostulanteNotas />;
   if (tipo === 'docente') return <DocenteNotas />;
@@ -443,7 +444,7 @@ function DocenteNotas() {
                             </button>
                           </div>
                         </td>
-                        <td>{r.nota >= 60 ? <span className="badge bg-success">A</span> : <span className="badge bg-danger">R</span>}</td>
+                        <td>{r.nota >= 60 ? <BadgeStatus value="aprobado" /> : <BadgeStatus value="reprobado" />}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -465,7 +466,7 @@ function DocenteNotas() {
 }
 
 function PostulanteNotas() {
-  const user = useAuthStore((s) => s.user);
+  const { user } = useAuthStore();
   const { getRindesByPostulacion } = useRindes();
   const { getPromedios } = usePromedios();
   const [notas, setNotas] = useState([]);
@@ -508,7 +509,7 @@ function PostulanteNotas() {
                   <div className="card-body text-center py-2">
                     <small className="text-muted d-block">{m.label}</small>
                     <strong className={"fs-5 " + (val >= 60 ? 'text-success' : 'text-danger')}>{promedios[m.key] ?? '-'}</strong>
-                    {val >= 60 ? <span className="badge bg-success ms-1">A</span> : <span className="badge bg-danger ms-1">R</span>}
+                    {val >= 60 ? <BadgeStatus value="aprobado" /> : <BadgeStatus value="reprobado" />}
                   </div>
                 </div>
               </div>
@@ -517,9 +518,9 @@ function PostulanteNotas() {
           <div className="col-12">
             <div className="d-flex align-items-center gap-3 p-2 bg-light rounded">
               <strong className="fs-5">Promedio General: {promedios.promedio_general ?? '-'}</strong>
-              {promedios.todas_aprobadas
-                ? <span className="badge bg-success fs-6">APROBADO</span>
-                : <span className="badge bg-danger fs-6">REPROBADO</span>}
+{promedios.todas_aprobadas
+                ? <BadgeStatus value="aprobado" />
+                : <BadgeStatus value="reprobado" />}
             </div>
           </div>
         </div>
@@ -538,7 +539,7 @@ function PostulanteNotas() {
                   <td>{r.examen?.grupo?.materia?.nombre || '-'}</td>
                   <td>{r.examen?.nro || '-'}</td>
                   <td><strong>{r.nota ?? '-'}</strong></td>
-                  <td>{r.nota >= 60 ? <span className="badge bg-success">Aprobado</span> : <span className="badge bg-danger">Reprobado</span>}</td>
+                  <td>{r.nota >= 60 ? <BadgeStatus value="aprobado" /> : <BadgeStatus value="reprobado" />}</td>
                 </tr>
               ))}
             </tbody>
@@ -876,7 +877,7 @@ function AdminNotas() {
                             </button>
                           </div>
                         </td>
-                        <td>{r.nota >= 60 ? <span className="badge bg-success">A</span> : <span className="badge bg-danger">R</span>}</td>
+                        <td>{r.nota >= 60 ? <BadgeStatus value="aprobado" /> : <BadgeStatus value="reprobado" />}</td>
                       </tr>
                     ))}
                   </tbody>

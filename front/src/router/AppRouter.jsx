@@ -1,5 +1,5 @@
 // Configuración central de React Router con todas las rutas de la aplicación
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Link } from 'react-router-dom';
 import ProtectedRoute from '../components/ProtectedRoute';
 import MainLayout from '../components/Layout/MainLayout';
 import LandingPage from '../pages/LandingPage';
@@ -36,7 +36,7 @@ function NotFoundPage() {
     <div className="text-center py-5">
       <h1 className="display-1 text-muted">404</h1>
       <p className="lead">Página no encontrada</p>
-      <a href="/" className="btn btn-primary">Ir al inicio</a>
+      <Link to="/" className="btn btn-primary">Ir al inicio</Link>
     </div>
   );
 }

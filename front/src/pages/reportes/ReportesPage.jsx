@@ -4,9 +4,11 @@ import useAuthStore from '../../store/authStore';
 import useReportes from '../../hooks/useReportes';
 import usePromedios from '../../hooks/usePromedios';
 import useAdmisiones from '../../hooks/useAdmisiones';
+import ProgressBar from '../../components/ui/ProgressBar';
+import StatCard from '../../components/ui/StatCard';
 
 export default function ReportesPage() {
-  const user = useAuthStore((s) => s.user);
+  const { user } = useAuthStore();
   const tipo = user?.tipo;
 
   if (tipo === 'admin') return <ReporteAdmision />;
@@ -47,38 +49,10 @@ function ReporteAdmision() {
       <h4 className="mb-4">Reporte de Admision</h4>
 
       <div className="row g-3 mb-4">
-        <div className="col-md-3">
-          <div className="card text-bg-primary">
-            <div className="card-body text-center">
-              <h5 className="card-title">{resumen.total_postulantes || 0}</h5>
-              <p className="card-text mb-0">Postulantes</p>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-3">
-          <div className="card text-bg-info">
-            <div className="card-body text-center">
-              <h5 className="card-title">{resumen.total_postulaciones || 0}</h5>
-              <p className="card-text mb-0">Postulaciones</p>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-3">
-          <div className="card text-bg-success">
-            <div className="card-body text-center">
-              <h5 className="card-title">{resumen.inscritos || 0}</h5>
-              <p className="card-text mb-0">Inscritos</p>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-3">
-          <div className="card text-bg-warning">
-            <div className="card-body text-center">
-              <h5 className="card-title">{resumen.admitidos || 0}</h5>
-              <p className="card-text mb-0">Admitidos</p>
-            </div>
-          </div>
-        </div>
+        <StatCard title="Postulantes" value={resumen.total_postulantes} color="primary" variant="bg" />
+        <StatCard title="Postulaciones" value={resumen.total_postulaciones} color="info" variant="bg" />
+        <StatCard title="Inscritos" value={resumen.inscritos} color="success" variant="bg" />
+        <StatCard title="Admitidos" value={resumen.admitidos} color="warning" variant="bg" />
       </div>
 
       <div className="row g-3 mb-4">
@@ -134,9 +108,7 @@ function ReporteAdmision() {
         </div>
       </div>
 
-      <div className="card shadow-sm mb-4">
-        <div className="card-header"><strong>Por Carrera</strong></div>
-        <div className="table-responsive">
+      <div className="table-responsive mb-4">
           <table className="table table-hover table-striped align-middle">
               <thead className="table-light">
                 <tr>
@@ -158,11 +130,9 @@ function ReporteAdmision() {
                     <td>{c.admitidos || 0}</td>
                     <td>{c.total_postulaciones || 0}</td>
                     <td style={{ width: 200 }}>
-                      <div className="progress" style={{ height: 20 }}>
-                        <div className={"progress-bar " + (ocupacion >= 100 ? 'bg-danger' : ocupacion >= 75 ? 'bg-warning' : 'bg-success')} style={{ width: ocupacion + '%' }}>
-                          {cupo ? (cupo.admitidos + '/' + cupo.cupo) : '-'}
-                        </div>
-                      </div>
+                      <ProgressBar value={ocupacion} height={20}>
+                        {cupo ? (cupo.admitidos + '/' + cupo.cupo) : '-'}
+                      </ProgressBar>
                     </td>
                   </tr>
                 );
@@ -173,7 +143,6 @@ function ReporteAdmision() {
             </tbody>
           </table>
         </div>
-      </div>
 
       <div className="text-end">
         <button className="btn btn-outline-secondary" onClick={() => window.print()}>
@@ -207,34 +176,12 @@ function ReporteDocente() {
       <h4 className="mb-4">Mis Grupos</h4>
 
       <div className="row g-3 mb-4">
-        <div className="col-md-4">
-          <div className="card text-bg-primary">
-            <div className="card-body text-center">
-              <h5>{stats.total_grupos || 0}</h5>
-              <p className="mb-0">Grupos</p>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-4">
-          <div className="card text-bg-info">
-            <div className="card-body text-center">
-              <h5>{stats.total_estudiantes || 0}</h5>
-              <p className="mb-0">Estudiantes</p>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-4">
-          <div className="card text-bg-success">
-            <div className="card-body text-center">
-              <h5>{stats.total_examenes || 0}</h5>
-              <p className="mb-0">Examenes</p>
-            </div>
-          </div>
-        </div>
+        <StatCard title="Grupos" value={stats.total_grupos} color="primary" variant="bg" />
+        <StatCard title="Estudiantes" value={stats.total_estudiantes} color="success" variant="bg" />
+        <StatCard title="Examenes" value={stats.total_examenes} color="info" variant="bg" />
       </div>
 
-      <div className="card shadow-sm">
-        <div className="card-header d-flex justify-content-between align-items-center">
+      <div className="d-flex justify-content-between align-items-center mb-2">
           <strong>Grupos Asignados</strong>
           <button className="btn btn-sm btn-outline-secondary" onClick={() => window.print()}>
             <i className="bi bi-printer"></i>
@@ -265,11 +212,7 @@ function ReporteDocente() {
                     <td>{g.postulacion_grupos?.length || 0}</td>
                     <td>{g.examenes?.length || 0}</td>
                     <td style={{ width: 150 }}>
-                      <div className="progress" style={{ height: 16 }}>
-                        <div className={"progress-bar " + (pct >= 100 ? 'bg-danger' : pct >= 75 ? 'bg-warning' : 'bg-success')} style={{ width: pct + '%' }}>
-                          {pct}%
-                        </div>
-                      </div>
+                      <ProgressBar value={pct} height={16} />
                     </td>
                   </tr>
                 );
@@ -280,7 +223,6 @@ function ReporteDocente() {
             </tbody>
           </table>
         </div>
-      </div>
     </div>
   );
 }
@@ -311,15 +253,14 @@ function ReportePostulante() {
         postulaciones.map((post) => {
           const promValue = post.promedio_general;
           return (
-            <div key={post.id} className="card shadow-sm mb-3">
-              <div className="card-header d-flex justify-content-between align-items-center">
+            <div key={post.id} className="mb-4 p-3 border rounded">
+              <div className="d-flex justify-content-between align-items-center mb-3">
                 <strong>Postulacion #{post.id}</strong>
                 <span className={"badge bg-" + (post.estado === 'admitido' ? 'success' : post.estado === 'inscrito' ? 'info' : post.estado === 'pendiente' ? 'warning' : 'secondary')}>
                   {post.estado}
                 </span>
               </div>
-              <div className="card-body">
-                <div className="row mb-3">
+              <div className="row mb-3">
                   <div className="col-md-4"><strong>1ra Opcion:</strong> {post.primeraOpcion?.nombre || '-'}</div>
                   <div className="col-md-4"><strong>2da Opcion:</strong> {post.segundaOpcion?.nombre || '-'}</div>
                   <div className="col-md-4"><strong>Asignada:</strong> {post.carreraAsignada?.nombre || '-'}</div>
@@ -364,7 +305,6 @@ function ReportePostulante() {
                     ))}
                   </div>
                 )}
-              </div>
             </div>
           );
         })

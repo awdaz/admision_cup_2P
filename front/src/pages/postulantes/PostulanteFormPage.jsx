@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import usePostulantes from '../../hooks/usePostulantes';
+import FormPageLayout from '../../components/ui/FormPageLayout';
+import SubmitButton from '../../components/ui/SubmitButton';
+import CancelButton from '../../components/ui/CancelButton';
 import Loader from '../../components/ui/Loader';
 
 // Página de formulario para crear o editar un postulante
@@ -90,78 +93,60 @@ export default function PostulanteFormPage() {
   if (pageLoading) return <Loader />;
 
   return (
-    <div className="row justify-content-center">
-      <div className="col-lg-8">
-        <h4 className="mb-4">{isEdit ? 'Editar Postulante' : 'Nuevo Postulante'}</h4>
-
-        <div className="card shadow-sm">
-          <div className="card-body">
-            <form onSubmit={handleSubmit}>
-              <div className="row g-3">
-                <div className="col-md-4">
-                  <label className="form-label">CI</label>
-                  <input name="ci" className="form-control" value={form.ci} onChange={handleChange} required />
-                </div>
-                <div className="col-md-4">
-                  <label className="form-label">Nombre</label>
-                  <input name="nombre" className="form-control" value={form.nombre} onChange={handleChange} required />
-                </div>
-                <div className="col-md-4">
-                  <label className="form-label">Apellido</label>
-                  <input name="apellido" className="form-control" value={form.apellido} onChange={handleChange} required />
-                </div>
-                <div className="col-md-4">
-                  <label className="form-label">Fecha Nacimiento</label>
-                  <input name="fecha_nac" type="date" className="form-control" value={form.fecha_nac} onChange={handleChange} />
-                </div>
-                <div className="col-md-4">
-                  <label className="form-label">Sexo</label>
-                  <select name="sexo" className="form-select" value={form.sexo} onChange={handleChange}>
-                    <option value="">Seleccionar...</option>
-                    <option value="Masculino">Masculino</option>
-                    <option value="Femenino">Femenino</option>
-                  </select>
-                </div>
-                <div className="col-md-4">
-                  <label className="form-label">Email</label>
-                  <input name="email" type="email" className="form-control" value={form.email} onChange={handleChange} required />
-                </div>
-                <div className="col-md-4">
-                  <label className="form-label">Teléfono</label>
-                  <input name="telefono" className="form-control" value={form.telefono} onChange={handleChange} />
-                </div>
-                <div className="col-md-4">
-                  <label className="form-label">Ciudad</label>
-                  <input name="ciudad" className="form-control" value={form.ciudad} onChange={handleChange} />
-                </div>
-                <div className="col-md-4">
-                  <label className="form-label">Colegio Procedencia</label>
-                  <input name="colegio_procedencia" className="form-control" value={form.colegio_procedencia} onChange={handleChange} />
-                </div>
-                <div className="col-12">
-                  <label className="form-label">Dirección</label>
-                  <textarea name="direccion" className="form-control" rows="2" value={form.direccion} onChange={handleChange}></textarea>
-                </div>
-              </div>
-
-              <div className="mt-4 d-flex gap-2">
-                <button type="submit" className="btn btn-primary" disabled={submitting}>
-                  {submitting ? (
-                    <>
-                      <span className="spinner-border spinner-border-sm me-2"></span>Guardando...
-                    </>
-                  ) : (
-                    'Guardar'
-                  )}
-                </button>
-                <button type="button" className="btn btn-secondary" onClick={() => navigate('/postulantes')}>
-                  Cancelar
-                </button>
-              </div>
-            </form>
+    <FormPageLayout title={isEdit ? 'Editar Postulante' : 'Nuevo Postulante'}>
+      <form onSubmit={handleSubmit}>
+        <div className="row g-3">
+          <div className="col-md-4">
+            <label className="form-label">CI</label>
+            <input name="ci" className="form-control" value={form.ci} onChange={handleChange} required />
+          </div>
+          <div className="col-md-4">
+            <label className="form-label">Nombre</label>
+            <input name="nombre" className="form-control" value={form.nombre} onChange={handleChange} required />
+          </div>
+          <div className="col-md-4">
+            <label className="form-label">Apellido</label>
+            <input name="apellido" className="form-control" value={form.apellido} onChange={handleChange} required />
+          </div>
+          <div className="col-md-4">
+            <label className="form-label">Fecha Nacimiento</label>
+            <input name="fecha_nac" type="date" className="form-control" value={form.fecha_nac} onChange={handleChange} />
+          </div>
+          <div className="col-md-4">
+            <label className="form-label">Sexo</label>
+            <select name="sexo" className="form-select" value={form.sexo} onChange={handleChange}>
+              <option value="">Seleccionar...</option>
+              <option value="Masculino">Masculino</option>
+              <option value="Femenino">Femenino</option>
+            </select>
+          </div>
+          <div className="col-md-4">
+            <label className="form-label">Email</label>
+            <input name="email" type="email" className="form-control" value={form.email} onChange={handleChange} required />
+          </div>
+          <div className="col-md-4">
+            <label className="form-label">Teléfono</label>
+            <input name="telefono" className="form-control" value={form.telefono} onChange={handleChange} />
+          </div>
+          <div className="col-md-4">
+            <label className="form-label">Ciudad</label>
+            <input name="ciudad" className="form-control" value={form.ciudad} onChange={handleChange} />
+          </div>
+          <div className="col-md-4">
+            <label className="form-label">Colegio Procedencia</label>
+            <input name="colegio_procedencia" className="form-control" value={form.colegio_procedencia} onChange={handleChange} />
+          </div>
+          <div className="col-12">
+            <label className="form-label">Dirección</label>
+            <textarea name="direccion" className="form-control" rows="2" value={form.direccion} onChange={handleChange}></textarea>
           </div>
         </div>
-      </div>
-    </div>
+
+        <div className="mt-4 d-flex gap-2">
+          <SubmitButton loading={submitting} />
+          <CancelButton to="/postulantes" />
+        </div>
+      </form>
+    </FormPageLayout>
   );
 }

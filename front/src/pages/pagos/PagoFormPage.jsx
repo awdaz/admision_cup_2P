@@ -4,6 +4,9 @@ import { toast } from 'sonner';
 import usePagos from '../../hooks/usePagos';
 import usePostulantes from '../../hooks/usePostulantes';
 import Loader from '../../components/ui/Loader';
+import FormPageLayout from '../../components/ui/FormPageLayout';
+import SubmitButton from '../../components/ui/SubmitButton';
+import CancelButton from '../../components/ui/CancelButton';
 
 // Página de formulario para registrar un nuevo pago
 // Ruta: /pagos/nuevo (con ?postulante_id opcional)
@@ -95,9 +98,7 @@ export default function PagoFormPage() {
   if (pageLoading) return <Loader />;
 
   return (
-    <div className="row justify-content-center">
-      <div className="col-lg-8">
-        <h4 className="mb-4">Nuevo Pago</h4>
+    <FormPageLayout title="Nuevo Pago">
 
         {/* Sección de selección de postulante: búsqueda por CI o selección desde lista */}
         <div className="card shadow-sm mb-4">
@@ -187,27 +188,12 @@ export default function PagoFormPage() {
               </div>
 
               <div className="mt-4 d-flex gap-2">
-                <button
-                  type="submit"
-                  className="btn btn-primary"
-                  disabled={submitting || !form.postulante_id}
-                >
-                  {submitting ? (
-                    <>
-                      <span className="spinner-border spinner-border-sm me-2"></span>Registrando...
-                    </>
-                  ) : (
-                    'Registrar Pago'
-                  )}
-                </button>
-                <button type="button" className="btn btn-secondary" onClick={() => navigate('/pagos')}>
-                  Cancelar
-                </button>
+                <SubmitButton loading={submitting} label="Registrar Pago" loadingLabel="Registrando..." disabled={!form.postulante_id} />
+                <CancelButton to="/pagos" />
               </div>
             </form>
           </div>
         </div>
-      </div>
-    </div>
+    </FormPageLayout>
   );
 }

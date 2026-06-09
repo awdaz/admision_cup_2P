@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import useDocentes from '../../hooks/useDocentes';
 import DataTable from '../../components/ui/DataTable';
+import ProgressBar from '../../components/ui/ProgressBar';
+import HeaderBar from '../../components/ui/HeaderBar';
+import Pagination from '../../components/ui/Pagination';
 
 // Página de listado de docentes con búsqueda, paginación y acciones CRUD
 // Ruta: /docentes
@@ -40,20 +43,6 @@ export default function DocenteListPage() {
     Math.ceil((pagination?.total || 1) / (pagination?.per_page || 15)),
     [pagination]
   );
-
-  const visiblePages = useMemo(() => {
-    const pages = [];
-    const maxVisible = 5;
-    let start = Math.max(1, page - Math.floor(maxVisible / 2));
-    let end = Math.min(totalPages, start + maxVisible - 1);
-    if (end - start + 1 < maxVisible) {
-      start = Math.max(1, end - maxVisible + 1);
-    }
-    for (let i = start; i <= end; i++) {
-      pages.push(i);
-    }
-    return { start, end, pages };
-  }, [page, totalPages]);
 
   // Elimina un docente previa confirmación, luego recarga la lista
   const handleDelete = async (row) => {
@@ -114,12 +103,7 @@ export default function DocenteListPage() {
 
   return (
     <div>
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h4 className="mb-0">Docentes</h4>
-        <button className="btn btn-primary" onClick={() => navigate('/docentes/nuevo')}>
-          <i className="bi bi-plus-lg me-1"></i>Nuevo Docente
-        </button>
-      </div>
+      <HeaderBar title="Docentes" createLabel="Nuevo Docente" onCreate={() => navigate('/docentes/nuevo')} />
 
       {/* Barra de búsqueda: filtra docentes por CI, nombre o código */}
       <form onSubmit={handleSearch} className="mb-3">
@@ -142,10 +126,8 @@ export default function DocenteListPage() {
 
       {/* Tabla de disponibilidad */}
       {showDisponibilidad && (
-        <div className="card shadow-sm mb-3">
-          <div className="card-header"><strong>Disponibilidad de Docentes</strong></div>
-          <div className="table-responsive">
-            <table className="table table-hover table-striped align-middle table-sm">
+        <div className="table-responsive">
+          <table className="table table-hover table-striped align-middle table-sm">
               <thead className="table-light">
                 <tr>
                   <th>Docente</th>
@@ -167,11 +149,9 @@ export default function DocenteListPage() {
                       <td>{d.grupos_asignados || 0}</td>
                       <td>{d.grupos_disponibles || 0}</td>
                       <td style={{ width: 150 }}>
-                        <div className="progress" style={{ height: 16 }}>
-                          <div className={"progress-bar " + (pct >= 100 ? 'bg-danger' : pct >= 75 ? 'bg-warning' : 'bg-success')} style={{ width: pct + '%' }}>
-                            {d.grupos_asignados || 0}/4
-                          </div>
-                        </div>
+                        <ProgressBar value={pct} height={16}>
+                          {d.grupos_asignados || 0}/4
+                        </ProgressBar>
                       </td>
                     </tr>
                   );
@@ -182,8 +162,7 @@ export default function DocenteListPage() {
               </tbody>
             </table>
           </div>
-        </div>
-      )}
+        )}
 
       <div className="card shadow-sm">
         <div className="card-body p-0">
@@ -197,65 +176,7 @@ export default function DocenteListPage() {
         </div>
       </div>
 
-      {/* Paginación con navegación completa: primera, anterior, páginas visibles, siguiente, última */}
-      {pagination && totalPages > 1 && (
-        <nav className="mt-3" aria-label="Navegación de páginas">
-          <ul className="pagination justify-content-center flex-wrap mb-0">
-            <li className={`page-item ${page <= 1 ? 'disabled' : ''}`}>
-              <button className="page-link" onClick={() => setPage(1)} aria-label="Primera página">
-                <i className="bi bi-chevron-double-left"></i>
-              </button>
-            </li>
-            <li className={`page-item ${page <= 1 ? 'disabled' : ''}`}>
-              <button className="page-link" onClick={() => setPage((p) => Math.max(1, p - 1))}>Anterior</button>
-            </li>
-
-            {/* Páginas iniciales con ellipsis si hay saltos */}
-            {visiblePages.start > 1 && (
-              <>
-                <li className="page-item">
-                  <button className="page-link" onClick={() => setPage(1)}>1</button>
-                </li>
-                {visiblePages.start > 2 && (
-                  <li className="page-item disabled">
-                    <span className="page-link">...</span>
-                  </li>
-                )}
-              </>
-            )}
-
-            {/* Páginas visibles en el rango actual */}
-            {visiblePages.pages.map((i) => (
-              <li key={i} className={`page-item ${page === i ? 'active' : ''}`}>
-                <button className="page-link" onClick={() => setPage(i)}>{i}</button>
-              </li>
-            ))}
-
-            {/* Páginas finales con ellipsis si hay saltos */}
-            {visiblePages.end < totalPages && (
-              <>
-                {visiblePages.end < totalPages - 1 && (
-                  <li className="page-item disabled">
-                    <span className="page-link">...</span>
-                  </li>
-                )}
-                <li className="page-item">
-                  <button className="page-link" onClick={() => setPage(totalPages)}>{totalPages}</button>
-                </li>
-              </>
-            )}
-
-            <li className={`page-item ${page >= totalPages ? 'disabled' : ''}`}>
-              <button className="page-link" onClick={() => setPage((p) => p + 1)}>Siguiente</button>
-            </li>
-            <li className={`page-item ${page >= totalPages ? 'disabled' : ''}`}>
-              <button className="page-link" onClick={() => setPage(totalPages)} aria-label="Última página">
-                <i className="bi bi-chevron-double-right"></i>
-              </button>
-            </li>
-          </ul>
-        </nav>
-      )}
+      <Pagination page={page} totalPages={totalPages} setPage={setPage} />
     </div>
   );
 }

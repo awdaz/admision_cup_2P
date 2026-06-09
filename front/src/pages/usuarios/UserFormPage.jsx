@@ -4,6 +4,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import cliente from '../../api/cliente';
 import Loader from '../../components/ui/Loader';
+import FormPageLayout from '../../components/ui/FormPageLayout';
+import SubmitButton from '../../components/ui/SubmitButton';
+import CancelButton from '../../components/ui/CancelButton';
 
 export default function UserFormPage() {
   const navigate = useNavigate();
@@ -98,13 +101,7 @@ export default function UserFormPage() {
   if (pageLoading) return <Loader />;
 
   return (
-    <div className="row justify-content-center">
-      <div className="col-lg-8">
-        <h4 className="mb-4">{isEdit ? 'Editar Usuario' : 'Nuevo Usuario'}</h4>
-
-        <div className="card shadow-sm">
-          <div className="card-header"><strong>Datos del Usuario</strong></div>
-          <div className="card-body">
+    <FormPageLayout title={isEdit ? 'Editar Usuario' : 'Nuevo Usuario'}>
             <form onSubmit={handleSubmit}>
               <div className="row g-3">
                 <div className="col-md-6">
@@ -163,21 +160,10 @@ export default function UserFormPage() {
               </div>
 
               <div className="mt-4 d-flex gap-2">
-                <button type="submit" className="btn btn-primary" disabled={loading}>
-                  {loading ? (
-                    <>
-                      <span className="spinner-border spinner-border-sm me-2"></span>Guardando...
-                    </>
-                  ) : (isEdit ? 'Actualizar Usuario' : 'Crear Usuario')}
-                </button>
-                <button type="button" className="btn btn-secondary" onClick={() => navigate('/usuarios')}>
-                  Cancelar
-                </button>
+                <SubmitButton loading={loading} label={isEdit ? 'Actualizar Usuario' : 'Crear Usuario'} />
+                <CancelButton to="/usuarios" />
               </div>
             </form>
-          </div>
-        </div>
-      </div>
-    </div>
+    </FormPageLayout>
   );
 }

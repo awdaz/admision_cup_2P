@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import useAuthStore from '../../store/authStore';
 import usePromedios from '../../hooks/usePromedios';
 import usePostulaciones from '../../hooks/usePostulaciones';
 import Loader from '../../components/ui/Loader';
+import StatCard from '../../components/ui/StatCard';
+import BadgeStatus from '../../components/ui/BadgeStatus';
 
 export default function PromediosPage() {
-  const user = useAuthStore((s) => s.user);
+  const { user } = useAuthStore();
   const tipo = user?.tipo;
 
   if (tipo === 'postulante') return <PostulantePromedios />;
@@ -15,7 +18,7 @@ export default function PromediosPage() {
 }
 
 function PostulantePromedios() {
-  const user = useAuthStore((s) => s.user);
+  const { user } = useAuthStore();
   const { getPromedios } = usePromedios();
   const { getPostulaciones } = usePostulaciones();
   const [postulaciones, setPostulaciones] = useState([]);
@@ -56,30 +59,23 @@ function PostulantePromedios() {
             <div key={post.id} className="card shadow-sm mb-3">
               <div className="card-header">
                 <strong>{post.primeraOpcion?.nombre || 'Postulacion #' + post.id}</strong>
-                <span className={"ms-2 badge bg-" + (post.estado === 'admitido' ? 'success' : post.estado === 'inscrito' ? 'info' : post.estado === 'pendiente' ? 'warning' : 'secondary')}>
-                  {post.estado}
-                </span>
+                <BadgeStatus value={post.estado} />
               </div>
               <div className="card-body">
                 {prom ? (
                   <>
                     <div className="row g-2 mb-3">
                       {[
-                        { label: 'Matematicas (30%)', key: 'promedio_matematicas' },
-                        { label: 'Fisica (30%)', key: 'promedio_fisica' },
-                        { label: 'Computacion (30%)', key: 'promedio_computacion' },
-                        { label: 'Ingles (10%)', key: 'promedio_ingles' },
+                        { label: 'Matematicas (30%)', key: 'promedio_matematicas', color: 'primary' },
+                        { label: 'Fisica (30%)', key: 'promedio_fisica', color: 'success' },
+                        { label: 'Computacion (30%)', key: 'promedio_computacion', color: 'warning' },
+                        { label: 'Ingles (10%)', key: 'promedio_ingles', color: 'info' },
                       ].map((m) => {
                         const val = Number(prom[m.key]);
                         return (
                           <div className="col-md-3" key={m.key}>
-                            <div className={"card " + (val >= 60 ? 'border-success' : 'border-danger')}>
-                              <div className="card-body text-center py-2">
-                                <small className="text-muted d-block">{m.label}</small>
-                                <strong className={"fs-5 " + (val >= 60 ? 'text-success' : 'text-danger')}>{prom[m.key] ?? '-'}</strong>
-                                {val >= 60 ? <span className="badge bg-success ms-1">A</span> : <span className="badge bg-danger ms-1">R</span>}
-                              </div>
-                            </div>
+                            <StatCard title={m.label} value={prom[m.key] ?? '-'} color={m.color} variant="border" />
+                            <BadgeStatus value={val >= 60 ? 'aprobado' : 'reprobado'} />
                           </div>
                         );
                       })}
@@ -87,8 +83,8 @@ function PostulantePromedios() {
                     <div className="d-flex align-items-center gap-3 p-3 bg-light rounded">
                       <strong className="fs-4">Promedio General: {prom.promedio_general ?? '-'}</strong>
                       {prom.todas_aprobadas
-                        ? <span className="badge bg-success fs-6">APROBADO</span>
-                        : <span className="badge bg-danger fs-6">REPROBADO</span>}
+                        ? <BadgeStatus value="aprobado" />
+                        : <BadgeStatus value="reprobado" />}
                     </div>
                   </>
                 ) : (
@@ -107,7 +103,7 @@ function DocentePromedios() {
   return (
     <div>
       <h4 className="mb-4">Promedios de Estudiantes</h4>
-      <p className="text-muted">Seleccione un grupo y examen para ver los promedios en la seccion <a href="/notas">Notas</a>.</p>
+      <p className="text-muted">Seleccione un grupo y examen para ver los promedios en la seccion <Link to="/notas">Notas</Link>.</p>
     </div>
   );
 }
@@ -116,7 +112,7 @@ function AdminPromedios() {
   return (
     <div>
       <h4 className="mb-4">Promedios</h4>
-      <p className="text-muted">Consulte los promedios desde la seccion <a href="/admisiones">Control de Admision</a> o desde <a href="/reportes">Reportes</a>.</p>
+      <p className="text-muted">Consulte los promedios desde la seccion <Link to="/admisiones">Control de Admision</Link> o desde <Link to="/reportes">Reportes</Link>.</p>
     </div>
   );
 }

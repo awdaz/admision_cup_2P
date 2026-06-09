@@ -4,8 +4,7 @@ import useAuthStore from './store/authStore';
 import AppRouter from './router/AppRouter';
 
 function App() {
-  const { token, user } = useAuthStore()
-  const fetchUser = useAuthStore((s) => s.fetchUser);
+  const { token, user, fetchUser } = useAuthStore();
 
   useEffect(() => {
     if (!user?.id && token) {

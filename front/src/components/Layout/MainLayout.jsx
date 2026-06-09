@@ -1,5 +1,6 @@
 // Layout principal con navbar superior, sidebar lateral y área de contenido
 import { Outlet } from 'react-router-dom';
+import * as bootstrap from 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 

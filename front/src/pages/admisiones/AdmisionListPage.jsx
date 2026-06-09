@@ -1,6 +1,9 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { toast } from 'sonner';
 import useAdmisiones from '../../hooks/useAdmisiones';
+import FilterSelect from '../../components/ui/FilterSelect';
+import StatCard from '../../components/ui/StatCard';
+import ProgressBar from '../../components/ui/ProgressBar';
 
 export default function AdmisionListPage() {
   const { getAdmisiones, getCupos } = useAdmisiones();
@@ -73,12 +76,7 @@ export default function AdmisionListPage() {
 
       <div className="row g-3 mb-4">
         <div className="col-md-4">
-          <select className="form-select" value={selectedGestion} onChange={(e) => setSelectedGestion(e.target.value)}>
-            <option value="">Seleccionar gestión...</option>
-            {gestiones.map((g) => (
-              <option key={g} value={g}>Gestión {g}</option>
-            ))}
-          </select>
+          <FilterSelect value={selectedGestion} onChange={(e) => setSelectedGestion(e.target.value)} options={gestiones} allLabel="Seleccionar gestión..." />
         </div>
         <div className="col-md d-flex align-items-center">
           {selectedAdmision && (
@@ -92,48 +90,13 @@ export default function AdmisionListPage() {
       {cupos && (
         <>
           <div className="row g-3 mb-4">
-            <div className="col-md-3">
-              <div className="card text-bg-success">
-                <div className="card-body text-center">
-                  <h5>{r.total_admitidos || 0}</h5>
-                  <p className="mb-0">Admitidos</p>
-                </div>
-              </div>
-            </div>
-            <div className="col-md-3">
-              <div className="card text-bg-danger">
-                <div className="card-body text-center">
-                  <h5>{r.total_rechazados || 0}</h5>
-                  <p className="mb-0">Rechazados</p>
-                </div>
-              </div>
-            </div>
-            <div className="col-md-3">
-              <div className="card text-bg-primary">
-                <div className="card-body text-center">
-                  <h5>{r.total_inscritos || 0}</h5>
-                  <p className="mb-0">Inscritos</p>
-                </div>
-              </div>
-            </div>
-            <div className="col-md-3">
-              <div className="card text-bg-warning">
-                <div className="card-body text-center">
-                  <h5>{r.total_pendientes || 0}</h5>
-                  <p className="mb-0">Pendientes</p>
-                </div>
-              </div>
-            </div>
+            <StatCard title="Admitidos" value={r.total_admitidos} color="success" variant="bg" />
+            <StatCard title="Rechazados" value={r.total_rechazados} color="danger" variant="bg" />
+            <StatCard title="Inscritos" value={r.total_inscritos} color="primary" variant="bg" />
+            <StatCard title="Pendientes" value={r.total_pendientes} color="warning" variant="bg" />
           </div>
 
-          <div className="card shadow-sm">
-            <div className="card-header d-flex justify-content-between align-items-center">
-              <strong>Cupos por Carrera</strong>
-              <button className="btn btn-sm btn-outline-secondary" onClick={() => loadCupos(selectedId)}>
-                <i className="bi bi-arrow-clockwise"></i>
-              </button>
-            </div>
-            <div className="table-responsive">
+          <div className="table-responsive">
               <table className="table table-hover table-striped align-middle">
                 <thead className="table-light">
                   <tr>
@@ -154,11 +117,7 @@ export default function AdmisionListPage() {
                         <td>{c.admitidos}</td>
                         <td>{c.vacantes}</td>
                         <td>
-                          <div className="progress" style={{ height: 20 }}>
-                            <div className={`progress-bar ${pct >= 100 ? 'bg-danger' : pct >= 75 ? 'bg-warning' : 'bg-success'}`} style={{ width: `${pct}%` }}>
-                              {pct}%
-                            </div>
-                          </div>
+                          <ProgressBar value={pct} height={20} />
                         </td>
                       </tr>
                     );
@@ -169,7 +128,6 @@ export default function AdmisionListPage() {
                 </tbody>
               </table>
             </div>
-          </div>
         </>
       )}
     </div>

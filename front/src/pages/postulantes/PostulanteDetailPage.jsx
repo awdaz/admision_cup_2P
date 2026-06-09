@@ -4,6 +4,7 @@ import usePostulantes from '../../hooks/usePostulantes';
 import cliente from '../../api/cliente';
 import Loader from '../../components/ui/Loader';
 import Alert from '../../components/ui/Alert';
+import BadgeStatus from '../../components/ui/BadgeStatus';
 
 // Página de detalle de un postulante
 // Ruta: "/postulantes/:id" — Acceso: Usuarios autenticados
@@ -136,7 +137,7 @@ export default function PostulanteDetailPage() {
                     <tr><td className="text-muted" style={{ width: '140px' }}>Carrera</td><td>{postulante.postulacion.carrera_nombre || '-'}</td></tr>
                     <tr><td className="text-muted">Turno</td><td>{postulante.postulacion.turno_nombre || '-'}</td></tr>
                     <tr><td className="text-muted">Semestre</td><td>{postulante.postulacion.semestre_nombre || '-'}</td></tr>
-                    <tr><td className="text-muted">Estado</td><td><span className="badge bg-info">{postulante.postulacion.estado || '-'}</span></td></tr>
+                    <tr><td className="text-muted">Estado</td><td><BadgeStatus value={postulante.postulacion.estado} /></td></tr>
                     <tr><td className="text-muted">Fecha</td><td>{postulante.postulacion.fecha || postulante.postulacion.created_at || '-'}</td></tr>
                   </tbody>
                 </table>

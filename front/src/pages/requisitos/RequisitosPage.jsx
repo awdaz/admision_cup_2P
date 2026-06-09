@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import cliente from '../../api/cliente';
 import { toast } from 'sonner';
 import Loader from '../../components/ui/Loader';
+import SubmitButton from '../../components/ui/SubmitButton';
+import CancelButton from '../../components/ui/CancelButton';
 
 // Página de gestión de requisitos de un postulante
 // Ruta: "/postulantes/:id/requisitos" — Acceso: Usuarios autenticados
@@ -59,9 +61,7 @@ export default function RequisitosPage() {
       <div className="col-lg-8">
         <div className="d-flex justify-content-between align-items-center mb-4">
           <h4 className="mb-0">Gestión de Requisitos</h4>
-          <button className="btn btn-outline-secondary" onClick={() => navigate(`/postulantes/${id}`)}>
-            <i className="bi bi-arrow-left me-1"></i>Volver
-          </button>
+          <CancelButton to="/postulantes" />
         </div>
 
         <div className="card shadow-sm">
@@ -98,15 +98,7 @@ export default function RequisitosPage() {
           </div>
           {requisitos.length > 0 && (
             <div className="card-footer d-flex justify-content-end gap-2">
-              <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
-                {saving ? (
-                  <>
-                    <span className="spinner-border spinner-border-sm me-2"></span>Guardando...
-                  </>
-                ) : (
-                  'Guardar Cambios'
-                )}
-              </button>
+              <SubmitButton loading={saving} label="Guardar Cambios" />
             </div>
           )}
         </div>

@@ -5,6 +5,9 @@ import useCatalogos from '../../hooks/useCatalogos';
 import { toast } from 'sonner';
 import usePostulantes from '../../hooks/usePostulantes';
 import Loader from '../../components/ui/Loader';
+import FormPageLayout from '../../components/ui/FormPageLayout';
+import SubmitButton from '../../components/ui/SubmitButton';
+import CancelButton from '../../components/ui/CancelButton';
 
 export default function PostulacionFormPage() {
   const navigate = useNavigate();
@@ -106,9 +109,7 @@ export default function PostulacionFormPage() {
   if (loadingPage) return <Loader />;
 
   return (
-    <div className="row justify-content-center">
-      <div className="col-lg-8">
-        <h4 className="mb-4">Nueva Postulación</h4>
+    <FormPageLayout title="Nueva Postulación">
 
         {selectedPostulante ? (
           <div className="card shadow-sm mb-4">
@@ -200,21 +201,12 @@ export default function PostulacionFormPage() {
               </div>
 
               <div className="mt-4 d-flex gap-2">
-                <button type="submit" className="btn btn-primary" disabled={submitting || !form.postulante_id}>
-                  {submitting ? (
-                    <>
-                      <span className="spinner-border spinner-border-sm me-2"></span>Registrando...
-                    </>
-                  ) : 'Registrar Postulación'}
-                </button>
-                <button type="button" className="btn btn-secondary" onClick={() => navigate('/postulantes')}>
-                  Cancelar
-                </button>
+                <SubmitButton loading={submitting} label="Registrar Postulación" loadingLabel="Registrando..." disabled={!form.postulante_id} />
+                <CancelButton to="/postulantes" />
               </div>
             </form>
           </div>
         </div>
-      </div>
-    </div>
+    </FormPageLayout>
   );
 }

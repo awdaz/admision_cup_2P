@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import usePagos from '../../hooks/usePagos';
 import DataTable from '../../components/ui/DataTable';
+import HeaderBar from '../../components/ui/HeaderBar';
+import Pagination from '../../components/ui/Pagination';
 
 // Página de listado de pagos registrados
 // Ruta: /pagos
@@ -88,12 +90,7 @@ export default function PagoListPage() {
 
   return (
     <div>
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h4 className="mb-0">Pagos</h4>
-        <button className="btn btn-primary" onClick={() => navigate('/pagos/nuevo')}>
-          <i className="bi bi-plus-lg me-1"></i>Nuevo Pago
-        </button>
-      </div>
+      <HeaderBar title="Pagos" createLabel="Nuevo Pago" onCreate={() => navigate('/pagos/nuevo')} />
 
       <div className="card shadow-sm">
         <div className="card-body p-0">
@@ -106,24 +103,7 @@ export default function PagoListPage() {
         </div>
       </div>
 
-      {/* Controles de paginación */}
-      {pagination && (
-        <nav className="mt-3">
-          <ul className="pagination justify-content-center">
-            <li className={`page-item ${page <= 1 ? 'disabled' : ''}`}>
-              <button className="page-link" onClick={() => setPage((p) => Math.max(1, p - 1))}>Anterior</button>
-            </li>
-            {Array.from({ length: Math.ceil((pagination.total || 1) / (pagination.per_page || 10)) }, (_, i) => (
-              <li key={i + 1} className={`page-item ${page === i + 1 ? 'active' : ''}`}>
-                <button className="page-link" onClick={() => setPage(i + 1)}>{i + 1}</button>
-              </li>
-            ))}
-            <li className={`page-item ${page >= Math.ceil((pagination.total || 1) / (pagination.per_page || 10)) ? 'disabled' : ''}`}>
-              <button className="page-link" onClick={() => setPage((p) => p + 1)}>Siguiente</button>
-            </li>
-          </ul>
-        </nav>
-      )}
+      <Pagination page={page} totalPages={Math.ceil((pagination?.total || 1) / (pagination?.per_page || 10))} setPage={setPage} simple />
     </div>
   );
 }

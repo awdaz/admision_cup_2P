@@ -3,6 +3,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import useDocentes from '../../hooks/useDocentes';
 import Loader from '../../components/ui/Loader';
+import FormPageLayout from '../../components/ui/FormPageLayout';
+import SubmitButton from '../../components/ui/SubmitButton';
+import CancelButton from '../../components/ui/CancelButton';
 
 // Página de formulario para crear o editar un docente
 // Ruta: /docentes/nuevo | /docentes/:id/editar
@@ -94,13 +97,8 @@ export default function DocenteFormPage() {
   if (pageLoading) return <Loader />;
 
   return (
-    <div className="row justify-content-center">
-      <div className="col-lg-8">
-        <h4 className="mb-4">{isEdit ? 'Editar Docente' : 'Nuevo Docente'}</h4>
-
-        <div className="card shadow-sm">
-          <div className="card-body">
-            <form onSubmit={handleSubmit}>
+    <FormPageLayout title={isEdit ? 'Editar Docente' : 'Nuevo Docente'}>
+      <form onSubmit={handleSubmit}>
               {/* Sección de información personal básica */}
               <h6 className="text-muted mb-3">Datos Personales</h6>
               <div className="row g-3">
@@ -172,23 +170,10 @@ export default function DocenteFormPage() {
               </div>
 
               <div className="mt-4 d-flex gap-2">
-                <button type="submit" className="btn btn-primary" disabled={submitting}>
-                  {submitting ? (
-                    <>
-                      <span className="spinner-border spinner-border-sm me-2"></span>Guardando...
-                    </>
-                  ) : (
-                    'Guardar'
-                  )}
-                </button>
-                <button type="button" className="btn btn-secondary" onClick={() => navigate('/docentes')}>
-                  Cancelar
-                </button>
+                <SubmitButton loading={submitting} />
+                <CancelButton to="/docentes" />
               </div>
             </form>
-          </div>
-        </div>
-      </div>
-    </div>
+    </FormPageLayout>
   );
 }

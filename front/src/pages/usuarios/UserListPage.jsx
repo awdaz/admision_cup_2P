@@ -4,6 +4,15 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import cliente from '../../api/cliente';
 import DataTable from '../../components/ui/DataTable';
+import HeaderBar from '../../components/ui/HeaderBar';
+import FilterSelect from '../../components/ui/FilterSelect';
+import Pagination from '../../components/ui/Pagination';
+
+const roles = [
+  { id: 'admin', nombre: 'Administrador' },
+  { id: 'postulante', nombre: 'Postulante' },
+  { id: 'docente', nombre: 'Docente' },
+];
 
 export default function UserListPage() {
   const navigate = useNavigate();
@@ -86,35 +95,11 @@ export default function UserListPage() {
 
   return (
     <div>
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h4 className="mb-0">Usuarios</h4>
-        <button className="btn btn-primary" onClick={() => navigate('/usuarios/nuevo')}>
-          <i className="bi bi-plus-lg me-1"></i>Nuevo Usuario
-        </button>
-      </div>
+      <HeaderBar title="Usuarios" createLabel="Nuevo Usuario" onCreate={() => navigate('/usuarios/nuevo')} />
 
-      <div className="card shadow-sm mb-4">
-        <div className="card-body">
-          <div className="row g-2">
-            <div className="col-md-6">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Buscar por usuario, email o nombre..."
-                value={search}
-                onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-              />
-            </div>
-            <div className="col-md-3">
-              <select className="form-select" value={filtroTipo} onChange={(e) => { setFiltroTipo(e.target.value); setPage(1); }}>
-                <option value="">Todos los roles</option>
-                <option value="admin">Administrador</option>
-                <option value="postulante">Postulante</option>
-                <option value="docente">Docente</option>
-              </select>
-            </div>
-          </div>
-        </div>
+      <div className="input-group mb-3">
+        <input className="form-control" placeholder="Buscar por username o email..." value={search} onChange={(e) => setSearch(e.target.value)} />
+        <FilterSelect value={filtroTipo} onChange={(e) => setFiltroTipo(e.target.value)} options={roles} allLabel="Todos los roles" />
       </div>
 
       <div className="card shadow-sm">
@@ -129,23 +114,7 @@ export default function UserListPage() {
         </div>
       </div>
 
-      {pagination && (
-        <nav className="mt-3">
-          <ul className="pagination justify-content-center">
-            <li className={`page-item ${page <= 1 ? 'disabled' : ''}`}>
-              <button className="page-link" onClick={() => setPage((p) => Math.max(1, p - 1))}>Anterior</button>
-            </li>
-            {Array.from({ length: Math.ceil((pagination.total || 1) / (pagination.per_page || 10)) }, (_, i) => (
-              <li key={i + 1} className={`page-item ${page === i + 1 ? 'active' : ''}`}>
-                <button className="page-link" onClick={() => setPage(i + 1)}>{i + 1}</button>
-              </li>
-            ))}
-            <li className={`page-item ${page >= Math.ceil((pagination.total || 1) / (pagination.per_page || 10)) ? 'disabled' : ''}`}>
-              <button className="page-link" onClick={() => setPage((p) => p + 1)}>Siguiente</button>
-            </li>
-          </ul>
-        </nav>
-      )}
+      <Pagination page={page} totalPages={Math.ceil((pagination?.total || 1) / (pagination?.per_page || 10))} setPage={setPage} simple />
     </div>
   );
 }

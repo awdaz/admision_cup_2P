@@ -4,6 +4,9 @@ import { toast } from 'sonner';
 import useExamenes from '../../hooks/useExamenes';
 import useGrupos from '../../hooks/useGrupos';
 import DataTable from '../../components/ui/DataTable';
+import HeaderBar from '../../components/ui/HeaderBar';
+import FilterSelect from '../../components/ui/FilterSelect';
+import Pagination from '../../components/ui/Pagination';
 
 // Página de listado de exámenes con filtro por grupo
 // Ruta: /examenes
@@ -49,20 +52,6 @@ export default function ExamenListPage() {
     [pagination]
   );
 
-  const visiblePages = useMemo(() => {
-    const pages = [];
-    const maxVisible = 5;
-    let start = Math.max(1, page - Math.floor(maxVisible / 2));
-    let end = Math.min(totalPages, start + maxVisible - 1);
-    if (end - start + 1 < maxVisible) {
-      start = Math.max(1, end - maxVisible + 1);
-    }
-    for (let i = start; i <= end; i++) {
-      pages.push(i);
-    }
-    return { start, end, pages };
-  }, [page, totalPages]);
-
   // Elimina un examen previa confirmación y recarga la lista
   const handleDelete = async (row) => {
     if (!window.confirm(`¿Eliminar examen ${row.nro}?`)) return;
@@ -86,21 +75,10 @@ export default function ExamenListPage() {
 
   return (
     <div>
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h4 className="mb-0">Exámenes</h4>
-        <button className="btn btn-primary" onClick={() => navigate('/examenes/nuevo')}>
-          <i className="bi bi-plus-lg me-1"></i>Nuevo Examen
-        </button>
-      </div>
+      <HeaderBar title="Exámenes" createLabel="Nuevo Examen" onCreate={() => navigate('/examenes/nuevo')} />
 
-      {/* Filtro por grupo: al cambiar, reinicia a página 1 */}
       <div className="mb-3">
-        <select className="form-select w-auto" value={filtroGrupo} onChange={(e) => { setPage(1); setFiltroGrupo(e.target.value); }}>
-          <option value="">Todos los grupos</option>
-          {grupos.map((g) => (
-            <option key={g.id} value={g.id}>{g.codigo} - {g.materia?.nombre}</option>
-          ))}
-        </select>
+        <FilterSelect value={filtroGrupo} onChange={(e) => { setPage(1); setFiltroGrupo(e.target.value); }} options={grupos} allLabel="Todos los grupos" mapOption={(g) => `${g.codigo} - ${g.materia?.nombre}`} />
       </div>
 
       <div className="card shadow-sm">
@@ -115,41 +93,7 @@ export default function ExamenListPage() {
         </div>
       </div>
 
-      {/* Paginación con navegación completa */}
-      {pagination && totalPages > 1 && (
-        <nav className="mt-3" aria-label="Navegación de páginas">
-          <ul className="pagination justify-content-center flex-wrap mb-0">
-            <li className={`page-item ${page <= 1 ? 'disabled' : ''}`}>
-              <button className="page-link" onClick={() => setPage(1)}><i className="bi bi-chevron-double-left"></i></button>
-            </li>
-            <li className={`page-item ${page <= 1 ? 'disabled' : ''}`}>
-              <button className="page-link" onClick={() => setPage((p) => Math.max(1, p - 1))}>Anterior</button>
-            </li>
-            {/* Páginas iniciales con ellipsis */}
-            {visiblePages.start > 1 && (
-              <><li className="page-item"><button className="page-link" onClick={() => setPage(1)}>1</button></li>
-                {visiblePages.start > 2 && <li className="page-item disabled"><span className="page-link">...</span></li>}</>
-            )}
-            {/* Rango de páginas visibles */}
-            {visiblePages.pages.map((i) => (
-              <li key={i} className={`page-item ${page === i ? 'active' : ''}`}>
-                <button className="page-link" onClick={() => setPage(i)}>{i}</button>
-              </li>
-            ))}
-            {/* Páginas finales con ellipsis */}
-            {visiblePages.end < totalPages && (
-              <>{visiblePages.end < totalPages - 1 && <li className="page-item disabled"><span className="page-link">...</span></li>}
-                <li className="page-item"><button className="page-link" onClick={() => setPage(totalPages)}>{totalPages}</button></li></>
-            )}
-            <li className={`page-item ${page >= totalPages ? 'disabled' : ''}`}>
-              <button className="page-link" onClick={() => setPage((p) => p + 1)}>Siguiente</button>
-            </li>
-            <li className={`page-item ${page >= totalPages ? 'disabled' : ''}`}>
-              <button className="page-link" onClick={() => setPage(totalPages)}><i className="bi bi-chevron-double-right"></i></button>
-            </li>
-          </ul>
-        </nav>
-      )}
+      <Pagination page={page} totalPages={totalPages} setPage={setPage} />
     </div>
   );
 }

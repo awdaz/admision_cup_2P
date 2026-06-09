@@ -5,6 +5,9 @@ import useGrupos from '../../hooks/useGrupos';
 import useDocentes from '../../hooks/useDocentes';
 import useCatalogos from '../../hooks/useCatalogos';
 import Loader from '../../components/ui/Loader';
+import FormPageLayout from '../../components/ui/FormPageLayout';
+import SubmitButton from '../../components/ui/SubmitButton';
+import CancelButton from '../../components/ui/CancelButton';
 
 // Página de formulario para crear o editar un grupo
 // Ruta: /grupos/nuevo | /grupos/:id/editar
@@ -96,13 +99,8 @@ export default function GrupoFormPage() {
   if (pageLoading) return <Loader />;
 
   return (
-    <div className="row justify-content-center">
-      <div className="col-lg-8">
-        <h4 className="mb-4">{isEdit ? 'Editar Grupo' : 'Nuevo Grupo'}</h4>
-
-        <div className="card shadow-sm">
-          <div className="card-body">
-            <form onSubmit={handleSubmit}>
+    <FormPageLayout title={isEdit ? 'Editar Grupo' : 'Nuevo Grupo'}>
+      <form onSubmit={handleSubmit}>
               <div className="row g-3">
                 <div className="col-md-4">
                   <label className="form-label">Código</label>
@@ -148,23 +146,10 @@ export default function GrupoFormPage() {
               </div>
 
               <div className="mt-4 d-flex gap-2">
-                <button type="submit" className="btn btn-primary" disabled={submitting}>
-                  {submitting ? (
-                    <>
-                      <span className="spinner-border spinner-border-sm me-2"></span>Guardando...
-                    </>
-                  ) : (
-                    'Guardar'
-                  )}
-                </button>
-                <button type="button" className="btn btn-secondary" onClick={() => navigate('/grupos')}>
-                  Cancelar
-                </button>
+                <SubmitButton loading={submitting} />
+                <CancelButton to="/grupos" />
               </div>
             </form>
-          </div>
-        </div>
-      </div>
-    </div>
+    </FormPageLayout>
   );
 }

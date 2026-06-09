@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import useHorarios from '../../hooks/useHorarios';
 import useGrupos from '../../hooks/useGrupos';
+import HeaderBar from '../../components/ui/HeaderBar';
+import FilterSelect from '../../components/ui/FilterSelect';
 
 // Días de la semana disponibles para horarios
 const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
@@ -57,28 +59,15 @@ export default function HorarioListPage() {
 
   return (
     <div>
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h4 className="mb-0">Horarios</h4>
-        <button className="btn btn-primary" onClick={() => navigate('/horarios/nuevo')}>
-          <i className="bi bi-plus-lg me-1"></i>Nuevo Horario
-        </button>
-      </div>
+      <HeaderBar title="Horarios" createLabel="Nuevo Horario" onCreate={() => navigate('/horarios/nuevo')} />
 
       {/* Filtros de búsqueda: grupo y día de la semana */}
       <div className="row g-2 mb-3">
         <div className="col-auto">
-          <select className="form-select" value={filtroGrupo} onChange={(e) => setFiltroGrupo(e.target.value)}>
-            <option value="">Todos los grupos</option>
-            {grupos.map((g) => (
-              <option key={g.id} value={g.id}>{g.codigo} - {g.materia?.nombre}</option>
-            ))}
-          </select>
+          <FilterSelect value={filtroGrupo} onChange={(e) => setFiltroGrupo(e.target.value)} options={grupos} allLabel="Todos los grupos" mapOption={(g) => `${g.codigo} - ${g.materia?.nombre}`} />
         </div>
         <div className="col-auto">
-          <select className="form-select" value={filtroDia} onChange={(e) => setFiltroDia(e.target.value)}>
-            <option value="">Todos los días</option>
-            {DIAS.map((d) => <option key={d} value={d}>{d}</option>)}
-          </select>
+          <FilterSelect value={filtroDia} onChange={(e) => setFiltroDia(e.target.value)} options={DIAS} allLabel="Todos los días" mapOption={(d) => d} />
         </div>
         <div className="col-auto">
           <button className="btn btn-outline-secondary" onClick={load}><i className="bi bi-funnel"></i> Filtrar</button>

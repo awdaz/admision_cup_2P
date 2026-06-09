@@ -51,7 +51,7 @@ const roleLinks = {
 };
 
 export default function Sidebar({ offcanvasId, onLinkClick }) {
-  const user = useAuthStore((s) => s.user);
+  const { user } = useAuthStore();
   const tipo = user?.tipo;  // Rol del usuario autenticado
   const links = tipo ? roleLinks[tipo] || adminLinks : []; // Enlaces según el rol
 

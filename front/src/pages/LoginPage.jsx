@@ -9,7 +9,7 @@ import useAuthStore from '../store/authStore';
 export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const login = useAuthStore((s) => s.login);
+  const { login } = useAuthStore();
   // Almacena el nombre de usuario ingresado
   const [username, setUsername] = useState('');
   // Almacena la contraseña ingresada
