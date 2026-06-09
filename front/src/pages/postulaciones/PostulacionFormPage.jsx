@@ -43,15 +43,6 @@ export default function PostulacionFormPage() {
   useEffect(() => {
     (async () => {
       try {
-        const [car, tur, sem] = await Promise.all([
-          getCarreras(),
-          getTurnos(),
-          getSemestres(),
-        ]);
-        setCarreras(Array.isArray(car) ? car : []);
-        setTurnos(Array.isArray(tur) ? tur : []);
-        setSemestres(Array.isArray(sem) ? sem : []);
-
         if (preselectedId) {
           const p = await getPostulante(preselectedId);
           const pData = p.postulante || p.persona || p;
@@ -67,6 +58,24 @@ export default function PostulacionFormPage() {
       }
     })();
   }, []);
+
+  useEffect(() => {
+    if (!selectedPostulante || carreras.length > 0) return;
+    (async () => {
+      try {
+        const [car, tur, sem] = await Promise.all([
+          getCarreras(),
+          getTurnos(),
+          getSemestres(),
+        ]);
+        setCarreras(Array.isArray(car) ? car : []);
+        setTurnos(Array.isArray(tur) ? tur : []);
+        setSemestres(Array.isArray(sem) ? sem : []);
+      } catch (err) {
+        toast.error(err.message);
+      }
+    })();
+  }, [selectedPostulante]);
 
   const handleSearch = async () => {
     const q = busqueda.trim();
