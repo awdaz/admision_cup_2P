@@ -22,9 +22,9 @@ export default function DataTable({ columns, data, loading, onEdit, onDelete }) 
 
   return (
     <div className="table-responsive">
-      <table className="table table-striped table-hover align-middle mb-0">
+      <table className="table table-hover table-striped align-middle">
         {/* Cabecera generada a partir del array de columnas */}
-        <thead className="table-dark">
+        <thead className="table-light">
           <tr>
             {columns.map((col) => (
               <th key={col.key}>{col.label}</th>

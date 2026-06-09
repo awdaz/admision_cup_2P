@@ -108,7 +108,7 @@ export default function PostulanteDetailPage() {
           <div className="card shadow-sm h-100">
             <div className="card-header"><strong>Información Personal</strong></div>
             <div className="card-body">
-              <table className="table table-sm table-borderless mb-0">
+              <table className="table table-hover table-striped align-middle table-sm table-borderless">
                 <tbody>
                   <tr><td className="text-muted" style={{ width: '140px' }}>CI</td><td>{postulante.ci}</td></tr>
                   <tr><td className="text-muted">Nombre</td><td>{postulante.nombre} {postulante.apellido}</td></tr>
@@ -131,7 +131,7 @@ export default function PostulanteDetailPage() {
             <div className="card-header"><strong>Postulación</strong></div>
             <div className="card-body">
               {postulante.postulacion ? (
-                <table className="table table-sm table-borderless mb-0">
+<table className="table table-hover table-striped align-middle table-sm table-borderless">
                   <tbody>
                     <tr><td className="text-muted" style={{ width: '140px' }}>Carrera</td><td>{postulante.postulacion.carrera_nombre || '-'}</td></tr>
                     <tr><td className="text-muted">Turno</td><td>{postulante.postulacion.turno_nombre || '-'}</td></tr>

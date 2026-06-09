@@ -27,6 +27,8 @@ import PagoListPage from '../pages/pagos/PagoListPage';
 import PagoFormPage from '../pages/pagos/PagoFormPage';
 import UserListPage from '../pages/usuarios/UserListPage';
 import UserFormPage from '../pages/usuarios/UserFormPage';
+import AdmisionListPage from '../pages/admisiones/AdmisionListPage';
+import PromediosPage from '../pages/promedios/PromediosPage';
 
 // Componente interno para la página 404
 function NotFoundPage() {
@@ -85,6 +87,8 @@ export default function AppRouter() {
           <Route path="/horarios/:id/editar" element={<HorarioFormPage />} />
 
           <Route path="/notas" element={<NotasPage />} />
+          <Route path="/promedios" element={<PromediosPage />} />
+          <Route path="/admisiones" element={<AdmisionListPage />} />
           <Route path="/reportes" element={<ReportesPage />} />
 
           {/* CRUD de pagos */}

@@ -51,7 +51,17 @@ class PostulacionController extends Controller
             $query->where('postulante_id', $request->postulante_id);
         }
 
-        return response()->json($query->paginate(15));
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->whereHas('postulante.persona', function ($q) use ($search) {
+                $q->where('nombre', 'ilike', "%{$search}%")
+                  ->orWhere('apellido', 'ilike', "%{$search}%")
+                  ->orWhere('ci', 'ilike', "%{$search}%");
+            });
+        }
+
+        $perPage = min((int) $request->input('per_page', 15), 200);
+        return response()->json($query->paginate($perPage));
     }
 
     // Crea una nueva postulación para un postulante.

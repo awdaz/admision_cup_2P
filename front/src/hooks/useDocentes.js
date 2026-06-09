@@ -49,10 +49,14 @@ export default function useDocentes() {
     return exec(() => cliente.put(`/docentes/${id}/contratar`));
   }, [exec]);
 
+  const getDisponibilidad = useCallback(() => {
+    return exec(() => cliente.get('/docentes/disponibilidad'));
+  }, [exec]);
+
   return {
     data, loading, error,
     getDocentes, getDocente,
     createDocente, updateDocente, deleteDocente,
-    contratarDocente,
+    contratarDocente, getDisponibilidad,
   };
 }

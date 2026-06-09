@@ -94,7 +94,7 @@ export default function HorarioListPage() {
         <div className="alert alert-info">No hay horarios registrados.</div>
       ) : (
         <div className="table-responsive">
-          <table className="table table-hover align-middle mb-0">
+          <table className="table table-hover table-striped align-middle">
             <thead className="table-light">
               <tr>
                 <th>Día</th>

@@ -13,6 +13,8 @@ const adminLinks = [
   { to: '/notas', label: 'Notas', icon: 'bi-clipboard-data' },
   { to: '/postulaciones/nueva', label: 'Nueva Postulación', icon: 'bi-file-earmark-plus' },
   { to: '/pagos', label: 'Pagos', icon: 'bi-credit-card' },
+  { to: '/admisiones', label: 'Control Admisión', icon: 'bi-check2-circle' },
+  { to: '/promedios', label: 'Promedios', icon: 'bi-calculator' },
   { to: '/reportes', label: 'Reportes', icon: 'bi-bar-chart' },
   { to: '/usuarios', label: 'Usuarios', icon: 'bi-shield-lock' },
 ];
@@ -23,6 +25,7 @@ const postulanteLinks = [
   { to: '/postulantes', label: 'Mis Datos', icon: 'bi-person' },
   { to: '/postulaciones/nueva', label: 'Nueva Postulación', icon: 'bi-file-earmark-plus' },
   { to: '/notas', label: 'Mis Notas', icon: 'bi-clipboard-data' },
+  { to: '/promedios', label: 'Mis Promedios', icon: 'bi-calculator' },
   { to: '/pagos', label: 'Mis Pagos', icon: 'bi-credit-card' },
   { to: '/reportes', label: 'Mis Reportes', icon: 'bi-bar-chart' },
 ];
@@ -34,6 +37,7 @@ const docenteLinks = [
   { to: '/examenes', label: 'Exámenes', icon: 'bi-file-text' },
   { to: '/horarios', label: 'Horarios', icon: 'bi-calendar-week' },
   { to: '/notas', label: 'Registrar Notas', icon: 'bi-clipboard-data' },
+  { to: '/promedios', label: 'Promedios', icon: 'bi-calculator' },
   { to: '/postulantes', label: 'Postulantes', icon: 'bi-people' },
   { to: '/postulaciones/nueva', label: 'Nueva Postulación', icon: 'bi-file-earmark-plus' },
   { to: '/reportes', label: 'Reportes', icon: 'bi-bar-chart' },

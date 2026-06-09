@@ -113,6 +113,37 @@ class RindeController extends Controller
         return response()->json($rinde);
     }
 
+    // Actualiza una nota existente (edición explícita).
+    // Autorización: misma lógica que store — docente solo puede editar notas de sus grupos.
+    public function update(Request $request, $id): JsonResponse
+    {
+        $rinde = Rinde::with(['examen.grupo'])->find($id);
+
+        if (!$rinde) {
+            return response()->json(['message' => 'Registro de nota no encontrado.'], 404);
+        }
+
+        $request->validate([
+            'nota' => 'required|numeric|min:0|max:100',
+        ]);
+
+        $user = $request->user();
+
+        if ($user->tipo === 'docente') {
+            $docente = \App\Models\Docente::where('persona_id', $user->persona_id)->first();
+            if (!$docente || $rinde->examen->grupo->docente_id !== $docente->id) {
+                return response()->json(['message' => 'No autorizado: este examen no pertenece a tus grupos.'], 403);
+            }
+        }
+
+        $rinde->nota = $request->nota;
+        $rinde->save();
+
+        $rinde->load(['postulacion.postulante.persona', 'examen.grupo.materia']);
+
+        return response()->json($rinde);
+    }
+
     // Elimina un registro de nota por su ID.
     // Retorna 404 si no existe.
     public function destroy($id): JsonResponse
@@ -133,7 +164,7 @@ class RindeController extends Controller
     // Retorna las notas y la postulación con todas sus relaciones.
     public function postulacion($postulacionId): JsonResponse
     {
-        $rindes = Rinde::with(['examen.grupo.materia'])
+        $rindes = Rinde::with(['examen.grupo.materia', 'examen.grupo.turno', 'examen.grupo.docente.persona'])
             ->where('postulacion_id', $postulacionId)
             ->get();
 

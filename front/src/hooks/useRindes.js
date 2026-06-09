@@ -32,6 +32,10 @@ export default function useRindes() {
     return exec(() => cliente.post('/rindes', data));
   }, [exec]);
 
+  const updateRinde = useCallback((id, data) => {
+    return exec(() => cliente.put(`/rindes/${id}`, data));
+  }, [exec]);
+
   const deleteRinde = useCallback((id) => {
     return exec(() => cliente.del(`/rindes/${id}`));
   }, [exec]);
@@ -42,6 +46,6 @@ export default function useRindes() {
 
   return {
     data, loading, error,
-    getRindes, storeRinde, deleteRinde, getRindesByPostulacion,
+    getRindes, storeRinde, updateRinde, deleteRinde, getRindesByPostulacion,
   };
 }

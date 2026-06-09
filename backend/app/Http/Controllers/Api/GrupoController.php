@@ -40,7 +40,8 @@ class GrupoController extends Controller
             $query->where('turno_id', $request->turno_id);
         }
 
-        return response()->json($query->paginate(15));
+        $perPage = min((int) $request->input('per_page', 15), 200);
+        return response()->json($query->paginate($perPage));
     }
 
     // Crea un nuevo grupo académico.
@@ -54,12 +55,16 @@ class GrupoController extends Controller
         return response()->json($grupo, 201);
     }
 
-    // Muestra un grupo específico con todas sus relaciones.
+    // Muestra un grupo específico con todas sus relaciones, incluyendo estudiantes inscritos.
     // Parámetros: id del grupo.
-    // Retorna: JSON con datos del grupo y relaciones (materia, docente, turno, horarios, examenes) o error 404.
+    // Retorna: JSON con datos del grupo y relaciones (materia, docente, turno, horarios, examenes,
+    //           postulacionGrupos con postulacion y persona) o error 404.
     public function show($id): JsonResponse
     {
-        $grupo = Grupo::with(['materia', 'docente.persona', 'turno', 'horarios.aula', 'examenes'])->find($id);
+        $grupo = Grupo::with([
+            'materia', 'docente.persona', 'turno', 'horarios.aula', 'examenes',
+            'postulacionGrupos.postulacion.postulante.persona',
+        ])->find($id);
 
         if (!$grupo) {
             return response()->json(['message' => 'Grupo no encontrado.'], 404);

@@ -26,6 +26,7 @@ export default function useGrupos() {
     qs.append('page', page);
     if (params.materia_id) qs.append('materia_id', params.materia_id);
     if (params.turno_id) qs.append('turno_id', params.turno_id);
+    if (params.per_page) qs.append('per_page', params.per_page);
     const query = qs.toString();
     return exec(() => cliente.get(`/grupos${query ? '?' + query : ''}`));
   }, [exec]);

@@ -53,9 +53,16 @@ export default function useCatalogos() {
     return data;
   }, [exec]);
 
+  const getAdmisiones = useCallback(async (estado = '') => {
+    const qs = estado ? `?estado=${estado}` : '';
+    const data = await exec(() => cliente.get(`/admisiones${qs}`));
+    return data || [];
+  }, [exec]);
+
   return {
     carreras, turnos, semestres, materias, requisitos,
     loading, error,
     getCarreras, getTurnos, getSemestres, getMaterias, getRequisitos,
+    getAdmisiones,
   };
 }

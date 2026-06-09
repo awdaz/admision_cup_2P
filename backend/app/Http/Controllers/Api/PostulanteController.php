@@ -43,7 +43,10 @@ class PostulanteController extends Controller
             });
         }
 
-        $postulantes = $query->paginate(15);
+        $perPage = (int) $request->get('per_page', 15);
+        if ($perPage > 1000) $perPage = 1000;
+        if ($perPage < 1) $perPage = 15;
+        $postulantes = $query->paginate($perPage);
 
         $postulantes->getCollection()->transform(function ($p) {
             $post = $p->postulacions->first();

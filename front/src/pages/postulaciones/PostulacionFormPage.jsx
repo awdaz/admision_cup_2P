@@ -1,69 +1,56 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import cliente from '../../api/cliente';
 import usePostulaciones from '../../hooks/usePostulaciones';
 import useCatalogos from '../../hooks/useCatalogos';
 import { toast } from 'sonner';
 import usePostulantes from '../../hooks/usePostulantes';
 import Loader from '../../components/ui/Loader';
 
-// Página de formulario para crear una nueva postulación
-// Ruta: /postulaciones/nuevo (con ?postulante_id opcional para preseleccionar)
-// Acceso: Administradores y personal de registro
 export default function PostulacionFormPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const preselectedId = searchParams.get('postulante_id'); // ID de postulante preseleccionado vía query param
+  const preselectedId = searchParams.get('postulante_id');
 
   const { createPostulacion } = usePostulaciones();
   const { getCarreras, getTurnos, getSemestres } = useCatalogos();
   const { getPostulante, getPostulantes } = usePostulantes();
 
-  // Catálogos cargados desde la API
-  const [carreras, setCarreras] = useState([]);      // Lista de carreras disponibles
-  const [turnos, setTurnos] = useState([]);          // Lista de turnos (mañana/tarde/noche)
-  const [semestres, setSemestres] = useState([]);    // Lista de semestres académicos
-  const [admisiones, setAdmisiones] = useState([]);  // Lista de admisiones activas
-  const [postulantes, setPostulantes] = useState([]); // Lista de postulantes (para selector)
-  const [postulante, setPostulante] = useState(null); // Postulante preseleccionado (datos completos)
-  const [loadingPage, setLoadingPage] = useState(true); // Estado de carga inicial de datos
+  const [carreras, setCarreras] = useState([]);
+  const [turnos, setTurnos] = useState([]);
+  const [semestres, setSemestres] = useState([]);
+  const [selectedPostulante, setSelectedPostulante] = useState(null);
+  const [loadingPage, setLoadingPage] = useState(true);
+  const [postulantes, setPostulantes] = useState([]);
 
-  // Datos del formulario de postulación
   const [form, setForm] = useState({
     postulante_id: preselectedId || '',
     primera_opcion_id: '',
     segunda_opcion_id: '',
     turno_id: '',
     semestre_id: '',
-    admision_id: '',
   });
 
-  const [submitting, setSubmitting] = useState(false); // Estado de envío del formulario
+  const [submitting, setSubmitting] = useState(false);
+  const [busqueda, setBusqueda] = useState('');
 
-  // Carga inicial: catálogos (carreras, turnos, semestres), postulantes y admisiones activas
-  // Si viene un postulante_id en la URL, también carga sus datos completos
   useEffect(() => {
     (async () => {
       try {
-        const [car, tur, sem, postList] = await Promise.all([
+        const [car, tur, sem, postRes] = await Promise.all([
           getCarreras(),
           getTurnos(),
           getSemestres(),
-          getPostulantes(1, ''),
+          !preselectedId ? getPostulantes(1, '', 1000) : Promise.resolve(null),
         ]);
         setCarreras(Array.isArray(car) ? car : []);
         setTurnos(Array.isArray(tur) ? tur : []);
         setSemestres(Array.isArray(sem) ? sem : []);
-        const plist = postList.data || postList.postulantes || postList || [];
-        setPostulantes(Array.isArray(plist) ? plist : []);
-
-        const adm = await cliente.get('/admisiones?estado=activa');
-        setAdmisiones(Array.isArray(adm) ? adm : []);
+        if (postRes?.data) setPostulantes(postRes.data);
 
         if (preselectedId) {
           const p = await getPostulante(preselectedId);
           const pData = p.postulante || p.persona || p;
-          setPostulante(pData);
+          setSelectedPostulante(pData);
           setForm((prev) => ({ ...prev, postulante_id: pData.id }));
         }
       } catch (err) {
@@ -74,12 +61,34 @@ export default function PostulacionFormPage() {
     })();
   }, []);
 
-  // Maneja cambios en los campos del formulario actualizando el estado
+  const postulantesFiltrados = useMemo(() => {
+    if (!busqueda.trim()) return postulantes;
+    const s = busqueda.toLowerCase();
+    return postulantes.filter((p) => {
+      const per = p.persona || {};
+      return (per.ci || '').toLowerCase().includes(s) ||
+             (per.nombre || '').toLowerCase().includes(s) ||
+             (per.apellido || '').toLowerCase().includes(s);
+    });
+  }, [postulantes, busqueda]);
+
+  const handleSeleccionarPostulante = (postulante) => {
+    setSelectedPostulante(postulante);
+    const post = postulante.postulacion;
+    setForm({
+      postulante_id: postulante.id,
+      primera_opcion_id: post?.primera_opcion_id || '',
+      segunda_opcion_id: post?.segunda_opcion_id || '',
+      turno_id: post?.turno_id || '',
+      semestre_id: post?.semestre_id || '',
+    });
+    setBusqueda('');
+  };
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // Envía el formulario: llama a createPostulacion y redirige al postulante
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
@@ -101,17 +110,45 @@ export default function PostulacionFormPage() {
       <div className="col-lg-8">
         <h4 className="mb-4">Nueva Postulación</h4>
 
-        {/* Tarjeta informativa del postulante preseleccionado (se muestra cuando se pasa postulante_id en la URL) */}
-        {postulante && (
+        {selectedPostulante ? (
           <div className="card shadow-sm mb-4">
-            <div className="card-header"><strong>Postulante</strong></div>
+            <div className="card-header d-flex justify-content-between align-items-center">
+              <strong>Postulante</strong>
+              {!preselectedId && (
+                <button className="btn btn-sm btn-outline-secondary" onClick={() => { setSelectedPostulante(null); setForm({ ...form, postulante_id: '' }); }}>
+                  Cambiar
+                </button>
+              )}
+            </div>
             <div className="card-body">
               <p className="mb-0">
-                <strong>{postulante.nombre} {postulante.apellido}</strong>
+                <strong>{selectedPostulante.persona?.nombre} {selectedPostulante.persona?.apellido}</strong>
                 <span className="mx-2">|</span>
-                CI: {postulante.ci}
-                {postulante.codigo && <><span className="mx-2">|</span>Código: {postulante.codigo}</>}
+                CI: {selectedPostulante.persona?.ci}
+                {selectedPostulante.codigo && <><span className="mx-2">|</span>Código: {selectedPostulante.codigo}</>}
               </p>
+            </div>
+          </div>
+        ) : !preselectedId && (
+          <div className="card shadow-sm mb-4">
+            <div className="card-header"><strong>Seleccionar Postulante</strong></div>
+            <div className="card-body">
+              <input type="text" className="form-control mb-2" placeholder="Filtrar por CI, nombre o apellido..."
+                value={busqueda} onChange={(e) => setBusqueda(e.target.value)} autoFocus />
+              {postulantes.length > 0 && (
+                <ul className="list-group" style={{ maxHeight: 300, overflowY: 'auto' }}>
+                  {postulantesFiltrados.length === 0 ? (
+                    <li className="list-group-item text-muted">Sin resultados</li>
+                  ) : (
+                    postulantesFiltrados.map((p) => (
+                      <li key={p.id} className="list-group-item list-group-item-action" role="button"
+                        onClick={() => handleSeleccionarPostulante(p)} style={{ cursor: 'pointer' }}>
+                        <strong>{p.persona?.ci}</strong> - {p.persona?.nombre} {p.persona?.apellido}
+                      </li>
+                    ))
+                  )}
+                </ul>
+              )}
             </div>
           </div>
         )}
@@ -121,22 +158,6 @@ export default function PostulacionFormPage() {
           <div className="card-body">
             <form onSubmit={handleSubmit}>
               <div className="row g-3">
-                {/* Selector de postulante: solo visible cuando no viene preseleccionado por URL */}
-                {!preselectedId && (
-                  <div className="col-12">
-                    <label className="form-label">Postulante</label>
-                    <select name="postulante_id" className="form-select" value={form.postulante_id} onChange={handleChange} required>
-                      <option value="">-- Seleccionar --</option>
-                      {postulantes.map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {p.ci} - {p.nombre} {p.apellido}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-
-                {/* Primera opción de carrera (obligatorio) */}
                 <div className="col-md-6">
                   <label className="form-label">Primera Opción</label>
                   <select name="primera_opcion_id" className="form-select" value={form.primera_opcion_id} onChange={handleChange} required>
@@ -147,7 +168,6 @@ export default function PostulacionFormPage() {
                   </select>
                 </div>
 
-                {/* Segunda opción de carrera (opcional), excluye la carrera seleccionada en primera opción */}
                 <div className="col-md-6">
                   <label className="form-label">Segunda Opción (opcional)</label>
                   <select name="segunda_opcion_id" className="form-select" value={form.segunda_opcion_id} onChange={handleChange}>
@@ -158,8 +178,7 @@ export default function PostulacionFormPage() {
                   </select>
                 </div>
 
-                {/* Turno al que postula (mañana, tarde, noche) */}
-                <div className="col-md-4">
+                <div className="col-md-6">
                   <label className="form-label">Turno</label>
                   <select name="turno_id" className="form-select" value={form.turno_id} onChange={handleChange} required>
                     <option value="">-- Seleccionar --</option>
@@ -169,24 +188,12 @@ export default function PostulacionFormPage() {
                   </select>
                 </div>
 
-                {/* Semestre académico en el que se postula */}
-                <div className="col-md-4">
+                <div className="col-md-6">
                   <label className="form-label">Semestre</label>
                   <select name="semestre_id" className="form-select" value={form.semestre_id} onChange={handleChange} required>
                     <option value="">-- Seleccionar --</option>
                     {semestres.map((s) => (
                       <option key={s.id} value={s.id}>{s.semestre} - {s.anio}</option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Admisión activa a la que se asocia la postulación (opcional) */}
-                <div className="col-md-4">
-                  <label className="form-label">Admisión (opcional)</label>
-                  <select name="admision_id" className="form-select" value={form.admision_id} onChange={handleChange}>
-                    <option value="">-- Seleccionar --</option>
-                    {admisiones.map((a) => (
-                      <option key={a.id} value={a.id}>{a.nro} - {a.gestion}</option>
                     ))}
                   </select>
                 </div>

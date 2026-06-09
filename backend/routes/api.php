@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AdmisionProcesoController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CatalogoController;
 use App\Http\Controllers\Api\DashboardController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\Api\HorarioController;
 use App\Http\Controllers\Api\PagoController;
 use App\Http\Controllers\Api\PostulacionController;
 use App\Http\Controllers\Api\PostulanteController;
+use App\Http\Controllers\Api\PromedioController;
 use App\Http\Controllers\Api\ReporteController;
 use App\Http\Controllers\Api\RequisitoController;
 use App\Http\Controllers\Api\RindeController;
@@ -68,11 +70,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/horarios', [HorarioController::class, 'index']);
     Route::get('/horarios/{horario}', [HorarioController::class, 'show']);
 
+    // --- Promedios (accesible según rol: postulante solo el suyo, admin todos, docente los suyos) ---
+    Route::get('/postulaciones/{postulacion}/promedios', [PromedioController::class, 'show']);
+
     // --- Rindes / Notas (postulante ve las suyas, admin ve todas; docente registra) ---
     Route::get('/rindes', [RindeController::class, 'index']);
     Route::get('/rindes/{rinde}', [RindeController::class, 'show']);
     Route::get('/rindes/postulacion/{postulacion}', [RindeController::class, 'postulacion']);
     Route::post('/rindes', [RindeController::class, 'store']); // admin + docente (validado en controller)
+    Route::put('/rindes/{rinde}', [RindeController::class, 'update']); // admin + docente
 
     // --- Reportes (según el rol del usuario) ---
     Route::get('/reportes/admision', [ReporteController::class, 'admision']);
@@ -106,11 +112,12 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::post('/pagos', [PagoController::class, 'store']);
     Route::put('/pagos/{pago}/confirmar', [PagoController::class, 'confirmar']);
 
-    // --- Docentes (escritura: CRUD + contratar) ---
+    // --- Docentes (escritura: CRUD + contratar + disponibilidad) ---
     Route::post('/docentes', [DocenteController::class, 'store']);
     Route::put('/docentes/{docente}', [DocenteController::class, 'update']);
     Route::delete('/docentes/{docente}', [DocenteController::class, 'destroy']);
     Route::put('/docentes/{docente}/contratar', [DocenteController::class, 'contratar']);
+    Route::get('/docentes/disponibilidad', [DocenteController::class, 'disponibilidad']);
 
     // --- Grupos (escritura: CRUD) ---
     Route::post('/grupos', [GrupoController::class, 'store']);
@@ -130,6 +137,15 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
 
     // --- Rindes / Notas (escritura: eliminar registro) ---
     Route::delete('/rindes/{rinde}', [RindeController::class, 'destroy']);
+
+    // --- Admisión (procesar admisión, generar grupos, consultar cupos) ---
+    Route::post('/admisiones/{admision}/procesar', [AdmisionProcesoController::class, 'procesar']);
+    Route::post('/admisiones/{admision}/generar-grupos', [AdmisionProcesoController::class, 'generarGrupos']);
+    Route::get('/admisiones/{admision}/cupos', [AdmisionProcesoController::class, 'cupos']);
+    Route::get('/admisiones/{admision}/postulantes-cupo', [AdmisionProcesoController::class, 'listarPostulantesCupo']);
+
+    // --- Promedios (recalcular manualmente) ---
+    Route::post('/postulaciones/{postulacion}/recalcular-promedios', [PromedioController::class, 'recalcular']);
 
     // --- Usuarios (gestión completa de usuarios del sistema) ---
     Route::apiResource('users', UserController::class);

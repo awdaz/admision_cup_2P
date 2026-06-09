@@ -180,4 +180,12 @@ class DocenteController extends Controller
 
         return response()->json(['message' => 'Docente contratado correctamente.', 'docente' => $docente->load('persona')]);
     }
+
+    // Retorna la disponibilidad de docentes usando la vista vw_docentes_asignacion.
+    // Muestra cuántos grupos tiene asignados cada docente y cuántos disponibles le quedan (max 4).
+    public function disponibilidad(): JsonResponse
+    {
+        $data = DB::select("SELECT * FROM vw_docentes_asignacion ORDER BY grupos_disponibles DESC, docente");
+        return response()->json($data);
+    }
 }

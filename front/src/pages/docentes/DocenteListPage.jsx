@@ -9,12 +9,14 @@ import DataTable from '../../components/ui/DataTable';
 // Acceso: Administradores
 export default function DocenteListPage() {
   const navigate = useNavigate();
-  const { getDocentes, deleteDocente, loading } = useDocentes();
-  const [docentes, setDocentes] = useState([]);          // Lista de docentes desde la API
-  const [pagination, setPagination] = useState(null);     // Datos de paginación
-  const [page, setPage] = useState(1);                    // Página actual
-  const [searchQuery, setSearchQuery] = useState('');     // Término de búsqueda efectivo (se aplica al hacer submit)
-  const [searchInput, setSearchInput] = useState('');     // Valor del input de búsqueda (cambio inmediato)
+  const { getDocentes, deleteDocente, getDisponibilidad, loading } = useDocentes();
+  const [docentes, setDocentes] = useState([]);
+  const [pagination, setPagination] = useState(null);
+  const [page, setPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchInput, setSearchInput] = useState('');
+  const [showDisponibilidad, setShowDisponibilidad] = useState(false);
+  const [disponibilidad, setDisponibilidad] = useState([]);
 
   // Carga los docentes desde la API con paginación y filtro de búsqueda
   const load = useCallback(async (p, s) => {
@@ -72,6 +74,17 @@ export default function DocenteListPage() {
     setSearchQuery(searchInput);
   };
 
+  const toggleDisponibilidad = async () => {
+    if (!showDisponibilidad) {
+      try {
+        const data = await getDisponibilidad();
+        const list = Array.isArray(data) ? data : (data?.data || []);
+        setDisponibilidad(list);
+      } catch (err) { toast.error(err.message); }
+    }
+    setShowDisponibilidad(!showDisponibilidad);
+  };
+
   // Configuración de columnas para la tabla de docentes
   const columns = [
     { key: 'cod_docente', label: 'Código', render: (row) => row.cod_docente || '-' },
@@ -121,8 +134,56 @@ export default function DocenteListPage() {
           <button className="btn btn-outline-secondary" type="submit">
             <i className="bi bi-search"></i>
           </button>
+          <button className={"btn " + (showDisponibilidad ? 'btn-info' : 'btn-outline-info')} type="button" onClick={toggleDisponibilidad}>
+            <i className="bi bi-bar-chart me-1"></i>Disponibilidad
+          </button>
         </div>
       </form>
+
+      {/* Tabla de disponibilidad */}
+      {showDisponibilidad && (
+        <div className="card shadow-sm mb-3">
+          <div className="card-header"><strong>Disponibilidad de Docentes</strong></div>
+          <div className="table-responsive">
+            <table className="table table-hover table-striped align-middle table-sm">
+              <thead className="table-light">
+                <tr>
+                  <th>Docente</th>
+                  <th>Codigo</th>
+                  <th>Contratado</th>
+                  <th>Grupos Asignados</th>
+                  <th>Grupos Disponibles</th>
+                  <th>Disponibilidad</th>
+                </tr>
+              </thead>
+              <tbody>
+                {disponibilidad.map((d) => {
+                  const pct = 4 > 0 ? Math.round(((d.grupos_asignados || 0) / 4) * 100) : 0;
+                  return (
+                    <tr key={d.docente_id}>
+                      <td>{d.docente}</td>
+                      <td>{d.cod_docente}</td>
+                      <td>{d.contratado ? <span className="badge bg-success">Si</span> : <span className="badge bg-secondary">No</span>}</td>
+                      <td>{d.grupos_asignados || 0}</td>
+                      <td>{d.grupos_disponibles || 0}</td>
+                      <td style={{ width: 150 }}>
+                        <div className="progress" style={{ height: 16 }}>
+                          <div className={"progress-bar " + (pct >= 100 ? 'bg-danger' : pct >= 75 ? 'bg-warning' : 'bg-success')} style={{ width: pct + '%' }}>
+                            {d.grupos_asignados || 0}/4
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+                {disponibilidad.length === 0 && (
+                  <tr><td colSpan="6" className="text-center text-muted">No hay datos</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       <div className="card shadow-sm">
         <div className="card-body p-0">

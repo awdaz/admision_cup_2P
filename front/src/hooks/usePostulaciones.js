@@ -27,6 +27,8 @@ export default function usePostulaciones() {
     if (filters.estado) params.append('estado', filters.estado);
     if (filters.admision_id) params.append('admision_id', filters.admision_id);
     if (filters.postulante_id) params.append('postulante_id', filters.postulante_id);
+    if (filters.search) params.append('search', filters.search);
+    if (filters.per_page) params.append('per_page', filters.per_page);
     const qs = params.toString();
     return exec(() => cliente.get(`/postulaciones${qs ? '?' + qs : ''}`));
   }, [exec]);

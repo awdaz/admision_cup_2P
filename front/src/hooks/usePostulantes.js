@@ -21,10 +21,11 @@ export default function usePostulantes() {
     }
   }, []);
 
-  const getPostulantes = useCallback((page = 1, search = '') => {
+  const getPostulantes = useCallback((page = 1, search = '', perPage = null) => {
     const params = new URLSearchParams();
     if (page) params.append('page', page);
     if (search) params.append('search', search);
+    if (perPage) params.append('per_page', perPage);
     const qs = params.toString();
     return exec(() => cliente.get(`/postulantes${qs ? '?' + qs : ''}`));
   }, [exec]);
