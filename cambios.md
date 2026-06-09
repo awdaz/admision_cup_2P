@@ -1,10 +1,3 @@
-# Control Admision
-[] cambiar nombre -> Admisiones
-
-## Layout
-[] Responsive layout on mobile (esconder sidebar)
-[] colores barra info (100% verde)
-
 ## Estructurar modulo Control de Admision y Cupos
 [x] Vista incial
 - por defecto seleccionará la gestion actual si hay una

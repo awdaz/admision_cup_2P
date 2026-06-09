@@ -1,86 +1,202 @@
-# Comandos Utilizados en la Creación del Proyecto CUP - FICCT
+# Comandos del Proyecto CUP - FICCT
 
-## 1. Base de Datos (Docker + PostgreSQL)
+*Ejecutar desde la raíz del proyecto (`D:\proyecto-cup`) a menos que se indique lo contrario.*
+
+---
+
+## Docker (Base de datos PostgreSQL 18)
 
 ```bash
-# Iniciar contenedor PostgreSQL (desde la carpeta db/)
+# Inicializar contenedor (primer plano)
+docker compose up
+
+# Inicializar contenedor (segundo plano)
 docker compose up -d
 
-# Detener y eliminar volúmenes
+# Detener contenedor
+docker compose down
+
+# Eliminar contenedor y volúmenes (borra todos los datos)
 docker compose down -v
+
+# Ver logs del contenedor
+docker compose logs -f
 
 # Verificar que el contenedor esté corriendo
 docker ps
 ```
 
-**Credenciales:**
+> Las tablas se crean automáticamente al iniciar el contenedor mediante
+> `db/cup_uagrm.sql` (esquema) y `db/cup_uagrm_datos.sql` (datos de ejemplo).
+> Ambos están montados como scripts de inicialización en `docker-compose.yml`.
+
+**Credenciales BD:**
 - Host: `localhost` | Puerto: `5433`
 - Usuario: `admin_test` | Password: `cup_pass_2026`
 - Base de datos: `cup_uagrm`
 
 ---
 
-## 2. Backend - Laravel
+## Backend (Laravel 12)
+
+### Comandos básicos
 
 ```bash
-# Crear proyecto Laravel (versión 12 por compatibilidad con PHP 8.2)
-composer create-project laravel/laravel backend --no-interaction
-
-# Ingresar al directorio del backend
+# Instalar dependencias de PHP (primera vez)
 cd backend
-
-# Instalar Laravel Sanctum para autenticación API
-composer require laravel/sanctum --no-interaction
-
-# Publicar configuración y migraciones de Sanctum
-php artisan vendor:publish --provider="Laravel\Sanctum\SanctumServiceProvider" --no-interaction
-
-# Generar clave de aplicación
-php artisan key:generate
-
-# Verificar rutas registradas
-php artisan route:list --path=api
+composer install
 
 # Iniciar servidor de desarrollo
+cd backend
 php artisan serve
 
-# Generar tablas
+# Iniciar en un puerto específico
+cd backend
+php artisan serve --port=9000
+
+# Generar clave de aplicación (solo primera vez)
+cd backend
+php artisan key:generate
+
+# Crear enlaces simbólicos para storage
+cd backend
+php artisan storage:link
+
+# Verificar rutas registradas
+cd backend
+php artisan route:list --path=api
+```
+
+### Base de datos y migraciones
+
+```bash
+# Ejecutar migraciones de Laravel (tablas internas)
+cd backend
 php artisan migrate
 
-# Refrescar tablas
+# Revertir todas las migraciones y volver a ejecutarlas
+cd backend
 php artisan migrate:fresh
 
-# Correr seeders
+# Poblar datos de prueba (catálogos + usuarios de prueba)
+cd backend
 php artisan db:seed
 ```
 
----
+### Seeders disponibles
 
-## 3. Frontend - Vite + React
+| Seeder | Qué crea |
+|---|---|
+| `CatalogoSeeder` | carreras, turnos, semestres, admisiones, materias, requisitos, aulas |
+| `AdminUserSeeder` | admin / admin123 |
+| `TestUserSeeder` | docente.prueba / docente456, postulante.prueba / postulante789 |
+
+> Los seeders usan `firstOrCreate` / `insertOrIgnore`, por lo que son **idempotentes**:
+> se pueden ejecutar múltiples veces sin duplicar datos.
+
+> **Nota**: Las tablas del dominio (persona, postulante, usuario, postulacion, etc.)
+> se crean mediante `db/cup_uagrm.sql` al iniciar Docker (montado como script init),
+> NO con migraciones de Laravel. Las migraciones de Laravel solo crean tablas
+> internas (cache, jobs, personal_access_tokens, etc.).
+
+### Tinker (Shell interactiva)
 
 ```bash
-# Crear proyecto Vite con template React
-npm create vite@latest front -- --template react
+cd backend
+php artisan tinker
+```
 
-# Ingresar al directorio del frontend
-cd front
+```php
+// Crear un usuario administrador manualmente
+User::create([
+    'username' => 'admin',
+    'email' => 'admin@cup.uagrm.edu.bo',
+    'password_hash' => Hash::make('admin123'),
+    'tipo' => 'admin',
+    'persona_id' => 1,
+    'activo' => true,
+]);
 
-# Instalar dependencias del proyecto
-npm install
+// Ver todos los usuarios
+User::with('persona')->get();
 
-# Instalar dependencias adicionales
-npm install react-router-dom zustand bootstrap bootstrap-icons
-
-# Construir para producción
-npm run build
-
-# Iniciar servidor de desarrollo
-npm run dev
+// Verificar contraseña
+Hash::check('admin123', User::first()->password_hash);
 ```
 
 ---
 
-## 4. Estructura Final del Proyecto
+## Frontend (React + Vite)
+
+```bash
+# Instalar dependencias (primera vez)
+cd front
+npm install
+
+# Iniciar servidor de desarrollo
+cd front
+npm run dev
+
+# Construir para producción
+cd front
+npm run build
+
+# Vista previa de la build de producción
+cd front
+npm run preview
+
+# Linter
+cd front
+npm run lint
+
+# Linter con auto-fix
+cd front
+npm run lint:fix
+```
+
+---
+
+## Credenciales de prueba
+
+| Rol | Usuario | Contraseña | Origen |
+|---|---|---|---|
+| **Administrador** | `admin` | `admin123` | Docker SQL + Laravel seeder |
+| **Docente** | `docente.prueba` | `docente456` | Laravel seeder |
+| **Docente** (30) | `roberto.mendez`, `carmen.rios`, etc. | `docente456` | Docker SQL |
+| **Postulante** | `postulante.prueba` | `postulante789` | Laravel seeder |
+| **Postulante** (1000) | `juan.perez1`, `maria.garcia2`, etc. | `postulante789` | Docker SQL |
+
+> Los docentes y postulantes del Docker SQL usan como username el campo `username`
+> de la tabla `usuario`. El email se genera como `{username}@uagrm.edu.bo`.
+
+---
+
+## Flujo de inicio rápido
+
+```bash
+# 1. Iniciar base de datos
+docker compose up -d
+
+# 2. Instalar dependencias e iniciar backend
+cd backend
+composer install
+php artisan key:generate
+php artisan serve
+# Backend en http://localhost:8000
+
+# 3. En otra terminal, iniciar frontend
+cd front
+npm install
+npm run dev
+# Frontend en http://localhost:5173
+
+# 4. Abrir http://localhost:5173 en el navegador
+# 5. Iniciar sesión con admin / admin123
+```
+
+---
+
+## Estructura del proyecto
 
 ```
 D:\proyecto-cup\
@@ -93,11 +209,10 @@ D:\proyecto-cup\
 │   ├── app/
 │   │   ├── Models/              # 19 modelos Eloquent
 │   │   ├── Http/
-│   │   │   ├── Controllers/Api/ # 6 controladores
-│   │   │   └── Requests/        # 3 form requests
+│   │   │   ├── Controllers/Api/ # Controladores
+│   │   │   └── Requests/        # Form requests
 │   │   └── ...
-│   ├── routes/api.php           # 23 rutas API
-│   ├── config/sanctum.php
+│   ├── routes/api.php           # Rutas API
 │   └── .env                     # Conexión PostgreSQL
 └── front/                       # Vite + React + Bootstrap
     ├── src/
@@ -113,45 +228,25 @@ D:\proyecto-cup\
 
 ---
 
-## 5. Cómo Ejecutar el Proyecto
-
-### Terminal 1 - Base de Datos
-```bash
-cd db
-docker compose up -d
-```
-
-### Terminal 2 - Backend (Laravel)
-```bash
-cd backend
-php artisan serve
-# Servidor en: http://localhost:8000
-```
-
-### Terminal 3 - Frontend (React)
-```bash
-cd front
-npm run dev
-# Servidor en: http://localhost:5173
-```
-
----
-
-## 6. Dependencias Instaladas
+## Dependencias
 
 ### Backend (Composer)
+
 | Paquete | Versión | Propósito |
-|---------|---------|-----------|
+|---|---|---|
 | `laravel/framework` | ^12.0 | Framework PHP |
 | `laravel/sanctum` | ^4.3 | Autenticación API con tokens |
 
 ### Frontend (npm)
+
 | Paquete | Propósito |
-|---------|-----------|
+|---|---|
 | `react` ^19 | Framework UI |
 | `react-dom` ^19 | Renderizado DOM |
-| `react-router-dom` ^6 | Enrutamiento SPA |
-| `zustand` | Gestión de estado global |
+| `react-router-dom` ^7 | Enrutamiento SPA |
+| `zustand` ^5 | Gestión de estado global |
 | `bootstrap` ^5.3 | Framework CSS |
 | `bootstrap-icons` | Iconos |
-| `vite` | Bundler y dev server |
+| `sonner` | Notificaciones |
+| `standard` | Linter |
+| `vite` ^8 | Bundler y dev server |
