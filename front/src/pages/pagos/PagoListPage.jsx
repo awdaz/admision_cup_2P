@@ -5,6 +5,7 @@ import usePagos from '../../hooks/usePagos';
 import useList from '../../hooks/useList';
 import DataTable from '../../components/ui/DataTable';
 import HeaderBar from '../../components/ui/HeaderBar';
+import BadgeStatus from '../../components/ui/BadgeStatus';
 import Pagination from '../../components/ui/Pagination';
 
 export default function PagoListPage() {
@@ -63,7 +64,7 @@ export default function PagoListPage() {
       key: 'estado', label: 'Estado',
       render: (row) => {
         const map = { pendiente: 'warning', confirmado: 'success', rechazado: 'danger' };
-        return <span className={`badge bg-${map[row.estado] || 'secondary'}`}>{row.estado || '-'}</span>;
+        return <BadgeStatus value={row.estado || '-'} colors={map} />;
       },
     },
     {

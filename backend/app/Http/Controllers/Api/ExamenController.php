@@ -104,10 +104,19 @@ class ExamenController extends Controller
     {
         $examen = Examen::with([
             'rindes.postulacion.postulante.persona',
+            'grupo',
         ])->find($id);
 
         if (!$examen) {
             return response()->json(['message' => 'Examen no encontrado.'], 404);
+        }
+
+        $user = request()->user();
+        if ($user->tipo === 'docente') {
+            $docente = \App\Models\Docente::where('persona_id', $user->persona_id)->first();
+            if (!$docente || $examen->grupo->docente_id !== $docente->id) {
+                return response()->json(['message' => 'No autorizado: este examen no pertenece a tus grupos.'], 403);
+            }
         }
 
         return response()->json($examen);

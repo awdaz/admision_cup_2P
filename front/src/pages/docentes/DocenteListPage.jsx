@@ -5,6 +5,7 @@ import useDocentes from '../../hooks/useDocentes';
 import useList from '../../hooks/useList';
 import DataTable from '../../components/ui/DataTable';
 import ProgressBar from '../../components/ui/ProgressBar';
+import BadgeStatus from '../../components/ui/BadgeStatus';
 import HeaderBar from '../../components/ui/HeaderBar';
 import Pagination from '../../components/ui/Pagination';
 
@@ -70,8 +71,8 @@ export default function DocenteListPage() {
     {
       key: 'profesional_area', label: 'Prof. Área',
       render: (row) => row.es_profesional_area
-        ? <span className="badge bg-success">Sí</span>
-        : <span className="badge bg-secondary">No</span>,
+        ? <BadgeStatus value="Sí" colors={{ Sí: 'success' }} />
+        : <BadgeStatus value="No" />,
     },
     {
       key: 'contratado', label: 'Contratado',
@@ -123,7 +124,7 @@ export default function DocenteListPage() {
                     <tr key={d.docente_id}>
                       <td>{d.docente}</td>
                       <td>{d.cod_docente}</td>
-                      <td>{d.contratado ? <span className="badge bg-success">Si</span> : <span className="badge bg-secondary">No</span>}</td>
+                      <td>{d.contratado ? <BadgeStatus value="Si" colors={{ Si: 'success' }} /> : <BadgeStatus value="No" />}</td>
                       <td>{d.grupos_asignados || 0}</td>
                       <td>{d.grupos_disponibles || 0}</td>
                       <td style={{ width: 150 }}>

@@ -65,6 +65,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // --- Exámenes (lectura: todos los autenticados) ---
     Route::get('/examenes', [ExamenController::class, 'index']);
     Route::get('/examenes/{examen}', [ExamenController::class, 'show']);
+    Route::get('/examenes/{examen}/rindes', [ExamenController::class, 'rindes']);
 
     // --- Horarios (lectura: todos los autenticados) ---
     Route::get('/horarios', [HorarioController::class, 'index']);
@@ -124,11 +125,10 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::put('/grupos/{grupo}', [GrupoController::class, 'update']);
     Route::delete('/grupos/{grupo}', [GrupoController::class, 'destroy']);
 
-    // --- Exámenes (escritura: CRUD + consulta de rindes) ---
+    // --- Exámenes (escritura: CRUD) ---
     Route::post('/examenes', [ExamenController::class, 'store']);
     Route::put('/examenes/{examen}', [ExamenController::class, 'update']);
     Route::delete('/examenes/{examen}', [ExamenController::class, 'destroy']);
-    Route::get('/examenes/{examen}/rindes', [ExamenController::class, 'rindes']);
 
     // --- Horarios (escritura: CRUD) ---
     Route::post('/horarios', [HorarioController::class, 'store']);

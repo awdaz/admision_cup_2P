@@ -35,7 +35,12 @@ Sistema web para la gestión del proceso de admisión de la carrera de Ingenier�
 ├── backend/       → Laravel API
 ├── front/         → React SPA
 ├── db/            → SQL, Docker, diagramas
-└── *.md           → documentos del proyecto
+├── *.md           → documentos del proyecto
+│   ├── AGENTS.md            → Este archivo (visión general)
+│   ├── COMANDOS_PROYECTO.md → Comandos útiles
+│   ├── front/AGENTS.md      → Frontend (componentes, hooks, páginas)
+│   ├── backend/AGENTS.md    → Backend (controladores, rutas)
+│   └── db/AGENTS.md         → Base de datos (esquema, triggers)
 ```
 
 ## Convenciones generales

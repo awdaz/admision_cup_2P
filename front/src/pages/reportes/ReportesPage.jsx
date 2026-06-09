@@ -6,6 +6,7 @@ import usePromedios from '../../hooks/usePromedios';
 import useAdmisiones from '../../hooks/useAdmisiones';
 import ProgressBar from '../../components/ui/ProgressBar';
 import StatCard from '../../components/ui/StatCard';
+import BadgeStatus from '../../components/ui/BadgeStatus';
 import FormCard from '../../components/ui/FormCard';
 
 export default function ReportesPage() {
@@ -246,9 +247,7 @@ function ReportePostulante() {
             <div key={post.id} className="mb-4 p-3 border rounded">
               <div className="d-flex justify-content-between align-items-center mb-3">
                 <strong>Postulacion #{post.id}</strong>
-                <span className={"badge bg-" + (post.estado === 'admitido' ? 'success' : post.estado === 'inscrito' ? 'info' : post.estado === 'pendiente' ? 'warning' : 'secondary')}>
-                  {post.estado}
-                </span>
+                <BadgeStatus value={post.estado} />
               </div>
               <div className="row mb-3">
                   <div className="col-md-4"><strong>1ra Opcion:</strong> {post.primeraOpcion?.nombre || '-'}</div>
@@ -277,7 +276,7 @@ function ReportePostulante() {
                             <td>{r.examen?.grupo?.materia?.nombre || '-'}</td>
                             <td>{r.examen?.nro || '-'}</td>
                             <td><strong>{r.nota ?? '-'}</strong></td>
-                            <td>{r.nota >= 60 ? <span className="badge bg-success">Aprobado</span> : <span className="badge bg-danger">Reprobado</span>}</td>
+                            <td>{r.nota >= 60 ? <BadgeStatus value="Aprobado" colors={{ Aprobado: 'success' }} /> : <BadgeStatus value="Reprobado" colors={{ Reprobado: 'danger' }} />}</td>
                           </tr>
                         ))}
                       </tbody>

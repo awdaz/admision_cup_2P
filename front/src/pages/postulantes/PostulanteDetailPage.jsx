@@ -167,9 +167,7 @@ export default function PostulanteDetailPage() {
                         <strong>Bs. {pago.monto}</strong>
                         <small className="d-block text-muted">{pago.metodo_pago} - {pago.fecha || pago.created_at}</small>
                       </div>
-                      <span className={`badge bg-${pago.estado === 'confirmado' ? 'success' : 'warning'}`}>
-                        {pago.estado}
-                      </span>
+                      <BadgeStatus value={pago.estado} colors={{ rechazado: 'warning' }} />
                     </li>
                   ))}
                 </ul>

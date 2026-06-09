@@ -6,6 +6,7 @@ import useList from '../../hooks/useList';
 import DataTable from '../../components/ui/DataTable';
 import HeaderBar from '../../components/ui/HeaderBar';
 import FilterSelect from '../../components/ui/FilterSelect';
+import BadgeStatus from '../../components/ui/BadgeStatus';
 import Pagination from '../../components/ui/Pagination';
 
 const roles = [
@@ -63,15 +64,13 @@ export default function UserListPage() {
       key: 'tipo', label: 'Rol',
       render: (row) => {
         const map = { admin: 'Administrador', postulante: 'Postulante', docente: 'Docente' };
-        return <span className="badge bg-secondary">{map[row.tipo] || row.tipo}</span>;
+        return <BadgeStatus value={map[row.tipo] || row.tipo} />;
       },
     },
     {
       key: 'activo', label: 'Estado',
       render: (row) => (
-        <span className={`badge bg-${row.activo ? 'success' : 'danger'}`}>
-          {row.activo ? 'Activo' : 'Inactivo'}
-        </span>
+        <BadgeStatus value={row.activo ? 'Activo' : 'Inactivo'} colors={{ Activo: 'success', Inactivo: 'danger' }} />
       ),
     },
   ];

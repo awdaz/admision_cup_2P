@@ -31,7 +31,7 @@ db/
 
 | Tabla | Propósito |
 |---|---|
-| `persona` | Datos personales (CI, nombre, apellido, etc.) |
+| `persona` | Datos personales (CI, nombre, apellido, email, teléfono) |
 | `postulante` | Postulante (hereda de persona vía `persona_id`) |
 | `postulacion` | Postulación central con carreras, turno, semestre, promedios |
 | `carrera` | Catálogo de carreras |
@@ -49,7 +49,7 @@ db/
 | `postulante_requisito` | Cumplimiento de requisitos por postulante |
 | `horario` | Horarios de grupos (día, hora, aula) |
 | `aula` | Aulas disponibles |
-| `user` | Usuarios del sistema (autenticación) |
+| `user` | Usuarios del sistema (autenticación Sanctum) |
 
 ### Promedios
 

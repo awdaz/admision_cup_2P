@@ -5,6 +5,7 @@ import useList from '../../hooks/useList';
 import DataTable from '../../components/ui/DataTable';
 import HeaderBar from '../../components/ui/HeaderBar';
 import SearchBar from '../../components/ui/SearchBar';
+import BadgeStatus from '../../components/ui/BadgeStatus';
 import Pagination from '../../components/ui/Pagination';
 
 export default function PostulanteListPage() {
@@ -63,7 +64,7 @@ export default function PostulanteListPage() {
       key: 'estado', label: 'Estado',
       render: (row) => {
         const estado = row.postulacion?.estado || row.estado;
-        if (!estado) return <span className="badge bg-secondary">-</span>;
+        if (!estado) return <BadgeStatus value="-" />;
         const map = {
           pendiente: 'warning',
           inscrito: 'info',
@@ -71,17 +72,17 @@ export default function PostulanteListPage() {
           rechazado: 'danger',
           cancelado: 'secondary',
         };
-        return <span className={`badge bg-${map[estado] || 'secondary'}`}>{estado}</span>;
+        return <BadgeStatus value={estado} colors={map} />;
       },
     },
     {
       key: 'aprobado', label: 'Aprobado',
       render: (row) => {
         const aprobado = row.postulacion?.aprobado;
-        if (aprobado === null || aprobado === undefined) return <span className="badge bg-secondary">-</span>;
+        if (aprobado === null || aprobado === undefined) return <BadgeStatus value="-" />;
         return aprobado
-          ? <span className="badge bg-success">Sí</span>
-          : <span className="badge bg-danger">No</span>;
+          ? <BadgeStatus value="Sí" colors={{ Sí: 'success' }} />
+          : <BadgeStatus value="No" colors={{ No: 'danger' }} />;
       },
     },
   ];

@@ -42,10 +42,12 @@ function TablaNotas({ estudiantes, notas, onEditNota, onSeleccionarEstudiante })
                     {notas[postId] != null ? notas[postId] : post?.promedio_general != null
                       ? <span>{post.promedio_general} <small className="text-muted">(prom)</small></span>
                       : <span className="text-muted">—</span>}
-                    <button className="btn btn-sm btn-outline-primary py-0 px-1"
-                      onClick={(e) => { e.stopPropagation(); onEditNota?.(post); }} title="Editar nota">
-                      <i className="bi bi-pencil"></i>
-                    </button>
+                    {notas[postId] != null && (
+                      <button className="btn btn-sm btn-outline-primary py-0 px-1"
+                        onClick={(e) => { e.stopPropagation(); onEditNota?.(post); }} title="Editar nota">
+                        <i className="bi bi-pencil"></i>
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>
@@ -315,24 +317,31 @@ function DocenteNotas() {
     setSavingModal(true);
     try {
       const notaVal = Number(modalNotaValue);
+      let saved = false;
       if (modalRinde.id) {
         await updateRinde(modalRinde.id, { nota: notaVal });
+        saved = true;
       } else if (selectedExamen) {
         await storeRinde({ postulacion_id: modalRinde.postulacion_id, examen_id: Number(selectedExamen), nota: notaVal });
+        saved = true;
       }
-      toast.success('Nota actualizada correctamente');
       setModalRinde(null);
-      if (selectedPostulacion) {
-        const data = await getRindesByPostulacion(selectedPostulacion.id);
-        setStudentRindes(data?.rindes || []);
-      } else if (selectedExamen) {
-        const exam = await getExamenRindes(selectedExamen);
-        if (exam) {
-          const m1 = {}; const m2 = {};
-          (exam.rindes || []).forEach((r) => { m1[r.postulacion_id] = r.nota; m2[r.postulacion_id] = r.id; });
-          setNotas(m1);
-          setRindesIds(m2);
+      if (saved) {
+        toast.success('Nota actualizada correctamente');
+        if (selectedPostulacion) {
+          const data = await getRindesByPostulacion(selectedPostulacion.id);
+          setStudentRindes(data?.rindes || []);
+        } else if (selectedExamen) {
+          const exam = await getExamenRindes(selectedExamen);
+          if (exam) {
+            const m1 = {}; const m2 = {};
+            (exam.rindes || []).forEach((r) => { m1[r.postulacion_id] = r.nota; m2[r.postulacion_id] = r.id; });
+            setNotas(m1);
+            setRindesIds(m2);
+          }
         }
+      } else {
+        toast.error('Seleccione un examen para registrar la nota');
       }
     } catch (err) {
       toast.error(err.message);
@@ -746,24 +755,31 @@ function AdminNotas() {
     setSavingModal(true);
     try {
       const notaVal = Number(modalNotaValue);
+      let saved = false;
       if (modalRinde.id) {
         await updateRinde(modalRinde.id, { nota: notaVal });
+        saved = true;
       } else if (selectedExamen) {
         await storeRinde({ postulacion_id: modalRinde.postulacion_id, examen_id: Number(selectedExamen), nota: notaVal });
+        saved = true;
       }
-      toast.success('Nota actualizada correctamente');
       setModalRinde(null);
-      if (selectedPostulacion) {
-        const data = await getRindesByPostulacion(selectedPostulacion.id);
-        setStudentRindes(data?.rindes || []);
-      } else if (selectedExamen) {
-        const exam = await getExamenRindes(selectedExamen);
-        if (exam) {
-          const m1 = {}; const m2 = {};
-          (exam.rindes || []).forEach((r) => { m1[r.postulacion_id] = r.nota; m2[r.postulacion_id] = r.id; });
-          setNotas(m1);
-          setRindesIds(m2);
+      if (saved) {
+        toast.success('Nota actualizada correctamente');
+        if (selectedPostulacion) {
+          const data = await getRindesByPostulacion(selectedPostulacion.id);
+          setStudentRindes(data?.rindes || []);
+        } else if (selectedExamen) {
+          const exam = await getExamenRindes(selectedExamen);
+          if (exam) {
+            const m1 = {}; const m2 = {};
+            (exam.rindes || []).forEach((r) => { m1[r.postulacion_id] = r.nota; m2[r.postulacion_id] = r.id; });
+            setNotas(m1);
+            setRindesIds(m2);
+          }
         }
+      } else {
+        toast.error('Seleccione un examen para registrar la nota');
       }
     } catch (err) {
       toast.error(err.message);
