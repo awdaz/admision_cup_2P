@@ -9,6 +9,7 @@ SPA para el sistema CUP-FICCT. Consume la API REST de Laravel con autenticación
 - Zustand 5 (estado global)
 - Bootstrap 5 + bootstrap-icons
 - sonner (notificaciones)
+- standard (linter, sin configuración)
 - Fetch API (cliente HTTP propio en `api/cliente.js`)
 
 ## Estructura
@@ -61,8 +62,7 @@ src/
 │   ├── postulaciones/          → PostulacionFormPage
 │   ├── grupos/                 → GrupoListPage, GrupoFormPage
 │   ├── examenes/               → ExamenListPage, ExamenFormPage
-│   ├── notas/                  → NotasPage (DocenteNotas, AdminNotas, PostulanteNotas)
-│   ├── promedios/              → PromediosPage
+│   ├── notas/                  → NotasPage (AdminNotas, DocenteNotas, EstudianteNotas)
 │   ├── horarios/               → HorarioListPage, HorarioFormPage
 │   ├── docentes/               → DocenteListPage, DocenteFormPage
 │   ├── pagos/                  → PagoListPage, PagoFormPage
@@ -85,7 +85,7 @@ src/
 | **BadgeStatus** | `value`, `colors`, `className` | NotasPage, PromediosPage, PostulanteDetailPage, UserListPage, DocenteListPage, PostulanteListPage, PagoListPage, ReportesPage |
 | **CancelButton** | `to` (ruta o -1) | Todas las form pages |
 | **EmptyState** | `message`, `icon` | PostulanteDetailPage, PromediosPage |
-| **FilterSelect** | `value`, `onChange`, `options`, `allLabel`, `mapOption` | GrupoListPage, ExamenListPage, HorarioListPage, UserListPage, AdmisionListPage |
+| **FilterSelect** | `value`, `onChange`, `options`, `placeholder`, `mapOption` | GrupoListPage, ExamenListPage, HorarioListPage, UserListPage, AdmisionListPage |
 | **FormCard** | `title`, `children`, `actions`, `disabled`, `className` | PostulacionFormPage, PagoFormPage, PostulanteDetailPage, ReportesPage, DashboardPage |
 | **FormPageLayout** | `maxWidth` | Todas las form pages |
 | **HeaderBar** | `createLabel`, `onCreate` (sin `title`) | PostulanteListPage, DocenteListPage, GrupoListPage, ExamenListPage, HorarioListPage, PagoListPage, UserListPage |
@@ -131,11 +131,13 @@ src/
 - **Títulos de página** se eliminaron; la navegación (sidebar + navbar) ya indica ubicación.
 - **FormCard** con `disabled={true}` aplica `opacity: 0.6` + `pointer-events: none`.
 - **useList** refactoriza páginas de listado eliminando ~15-20 líneas de boilerplate; acepta `fetchFn(page, ...params)` y `watchParams`.
+- **Optional chaining (`?.`)** obligatorio al acceder propiedades de objetos, llamar funciones opcionales, o acceder elementos de array por índice. Nunca asumir que una propiedad anidada existe. Ej: `obj?.prop?.subprop`, `arr?.[i]`, `fn?.()`. Esto incluye accesos a relaciones de Laravel (`r.examen?.grupo?.materia?.nombre`), props opcionales, y cualquier valor que pueda ser null/undefined.
 
 ## Comandos
 
 ```bash
 npm run dev        # Desarrollo
 npm run build      # Producción
-npm run lint       # ESLint
+npm run lint       # Standard
+npm run lint:fix   # Standard --fix
 ```

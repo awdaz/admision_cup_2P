@@ -1,53 +1,57 @@
-import { useState, useCallback } from 'react';
-import cliente from '../api/cliente';
+import { useState, useCallback } from 'react'
+import cliente from '../api/cliente'
 
-export default function useGrupos() {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+export default function useGrupos () {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
   const exec = useCallback(async (fn) => {
-    setLoading(true);
-    setError(null);
+    setLoading(true)
+    setError(null)
     try {
-      const result = await fn();
-      return result;
+      const result = await fn()
+      return result
     } catch (err) {
-      setError(err.message);
-      throw err;
+      setError(err.message)
+      throw err
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  }, []);
+  }, [])
 
   const getGrupos = useCallback((page = 1, params = {}) => {
-    const qs = new URLSearchParams();
-    qs.append('page', page);
-    if (params.materia_id) qs.append('materia_id', params.materia_id);
-    if (params.turno_id) qs.append('turno_id', params.turno_id);
-    if (params.per_page) qs.append('per_page', params.per_page);
-    const query = qs.toString();
-    return exec(() => cliente.get(`/grupos${query ? '?' + query : ''}`));
-  }, [exec]);
+    const qs = new URLSearchParams()
+    qs.append('page', page)
+    if (params.materia_id) qs.append('materia_id', params.materia_id)
+    if (params.turno_id) qs.append('turno_id', params.turno_id)
+    if (params.per_page) qs.append('per_page', params.per_page)
+    const query = qs.toString()
+    return exec(() => cliente.get(`/grupos${query ? '?' + query : ''}`))
+  }, [exec])
 
   const getGrupo = useCallback((id) => {
-    return exec(() => cliente.get(`/grupos/${id}`));
-  }, [exec]);
+    return exec(() => cliente.get(`/grupos/${id}`))
+  }, [exec])
 
   const createGrupo = useCallback((data) => {
-    return exec(() => cliente.post('/grupos', data));
-  }, [exec]);
+    return exec(() => cliente.post('/grupos', data))
+  }, [exec])
 
   const updateGrupo = useCallback((id, data) => {
-    return exec(() => cliente.put(`/grupos/${id}`, data));
-  }, [exec]);
+    return exec(() => cliente.put(`/grupos/${id}`, data))
+  }, [exec])
 
   const deleteGrupo = useCallback((id) => {
-    return exec(() => cliente.del(`/grupos/${id}`));
-  }, [exec]);
+    return exec(() => cliente.del(`/grupos/${id}`))
+  }, [exec])
 
   return {
-    loading, error,
-    getGrupos, getGrupo,
-    createGrupo, updateGrupo, deleteGrupo,
-  };
+    loading,
+    error,
+    getGrupos,
+    getGrupo,
+    createGrupo,
+    updateGrupo,
+    deleteGrupo
+  }
 }

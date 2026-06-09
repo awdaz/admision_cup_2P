@@ -1,124 +1,129 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
-import useHorarios from '../../hooks/useHorarios';
-import useGrupos from '../../hooks/useGrupos';
-import HeaderBar from '../../components/ui/HeaderBar';
-import FilterSelect from '../../components/ui/FilterSelect';
+import { useState, useEffect, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { toast } from 'sonner'
+import { confirmDialog } from '../../utils/confirmDialog'
+import useHorarios from '../../hooks/useHorarios'
+import useGrupos from '../../hooks/useGrupos'
+import HeaderBar from '../../components/ui/HeaderBar'
+import FilterSelect from '../../components/ui/FilterSelect'
 
 // Días de la semana disponibles para horarios
-const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
 
-export default function HorarioListPage() {
-  const navigate = useNavigate();
-  const { getHorarios, deleteHorario, loading } = useHorarios();
-  const { getGrupos } = useGrupos();
-  const [horarios, setHorarios] = useState([]);          // Lista de horarios desde la API
-  const [grupos, setGrupos] = useState([]);              // Lista de grupos para el filtro
-  const [filtroGrupo, setFiltroGrupo] = useState('');     // Filtro por grupo
-  const [filtroDia, setFiltroDia] = useState('');         // Filtro por día de la semana
+export default function HorarioListPage () {
+  const navigate = useNavigate()
+  const { getHorarios, deleteHorario, loading } = useHorarios()
+  const { getGrupos } = useGrupos()
+  const [horarios, setHorarios] = useState([]) // Lista de horarios desde la API
+  const [grupos, setGrupos] = useState([]) // Lista de grupos para el filtro
+  const [filtroGrupo, setFiltroGrupo] = useState('') // Filtro por grupo
+  const [filtroDia, setFiltroDia] = useState('') // Filtro por día de la semana
 
   // Carga la lista de grupos para el selector de filtro al montar
   useEffect(() => {
     (async () => {
-      const d = await getGrupos(1);
-      if (d) setGrupos(d.data || d.grupos || []);
-    })();
-  }, [getGrupos]);
+      const d = await getGrupos(1)
+      if (d) setGrupos(d.data || d.grupos || [])
+    })()
+  }, [getGrupos])
 
   // Carga los horarios aplicando los filtros seleccionados
   const load = useCallback(async () => {
     try {
-      const params = {};
-      if (filtroGrupo) params.grupo_id = filtroGrupo;
-      if (filtroDia) params.dia = filtroDia;
-      const data = await getHorarios(params);
+      const params = {}
+      if (filtroGrupo) params.grupo_id = filtroGrupo
+      if (filtroDia) params.dia = filtroDia
+      const data = await getHorarios(params)
       if (data) {
-        setHorarios(Array.isArray(data) ? data : data.data || data.horarios || []);
+        setHorarios(Array.isArray(data) ? data : data.data || data.horarios || [])
       }
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.message)
     }
-  }, [getHorarios, filtroGrupo, filtroDia]);
+  }, [getHorarios, filtroGrupo, filtroDia])
 
   // Recarga al cambiar filtros
   useEffect(() => {
-    load();
-  }, [load]);
+    load()
+  }, [load])
 
   // Elimina un horario previa confirmación y recarga la lista
   const handleDelete = async (row) => {
-    if (!window.confirm(`¿Eliminar horario de ${row.dia} ${row.hora_inicio}-${row.hora_fin}?`)) return;
+    if (!await confirmDialog(`¿Eliminar horario de ${row.dia} ${row.hora_inicio}-${row.hora_fin}?`)) return
     try {
-      await deleteHorario(row.id);
-      load();
+      await deleteHorario(row.id)
+      load()
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.message)
     }
-  };
+  }
 
   return (
     <div>
-      <HeaderBar createLabel="Nuevo Horario" onCreate={() => navigate('/horarios/nuevo')} />
+      <HeaderBar createLabel='Nuevo Horario' onCreate={() => navigate('/horarios/nuevo')} />
 
       {/* Filtros de búsqueda: grupo y día de la semana */}
-      <div className="row g-2 mb-3">
-        <div className="col-auto">
-          <FilterSelect value={filtroGrupo} onChange={(e) => setFiltroGrupo(e.target.value)} options={grupos} allLabel="Todos los grupos" mapOption={(g) => `${g.codigo} - ${g.materia?.nombre}`} />
+      <div className='row g-2 mb-3'>
+        <div className='col-auto'>
+          <FilterSelect value={filtroGrupo} onChange={(e) => setFiltroGrupo(e.target.value)} options={grupos} mapOption={(g) => `${g.codigo} - ${g.materia?.nombre}`} />
         </div>
-        <div className="col-auto">
-          <FilterSelect value={filtroDia} onChange={(e) => setFiltroDia(e.target.value)} options={DIAS} allLabel="Todos los días" mapOption={(d) => d} />
+        <div className='col-auto'>
+          <FilterSelect value={filtroDia} onChange={(e) => setFiltroDia(e.target.value)} options={DIAS} mapOption={(d) => d} />
         </div>
-        <div className="col-auto">
-          <button className="btn btn-outline-secondary" onClick={load}><i className="bi bi-funnel"></i> Filtrar</button>
+        <div className='col-auto'>
+          <button className='btn btn-outline-secondary' onClick={load}><i className='bi bi-funnel' /> Filtrar</button>
         </div>
       </div>
 
       {/* Tabla de horarios con indicador de carga y estado vacío */}
-      {loading ? (
-        <div className="text-center py-5">
-          <div className="spinner-border text-primary"></div>
-        </div>
-      ) : horarios.length === 0 ? (
-        <div className="alert alert-info">No hay horarios registrados.</div>
-      ) : (
-        <div className="table-responsive">
-          <table className="table table-hover table-striped align-middle">
-            <thead className="table-light">
-              <tr>
-                <th>Día</th>
-                <th>Inicio</th>
-                <th>Fin</th>
-                <th>Grupo</th>
-                <th>Materia</th>
-                <th>Aula</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {horarios.map((h) => (
-                <tr key={h.id}>
-                  <td>{h.dia}</td>
-                  <td>{h.hora_inicio}</td>
-                  <td>{h.hora_fin}</td>
-                  <td>{h.grupo?.codigo || '-'}</td>
-                  <td>{h.grupo?.materia?.nombre || '-'}</td>
-                  <td>{h.aula?.nombre || '-'}</td>
-                  <td>
-                    {/* Botones de acción: editar y eliminar */}
-                    <button className="btn btn-sm btn-outline-primary me-1" onClick={() => navigate(`/horarios/${h.id}/editar`)}>
-                      <i className="bi bi-pencil"></i>
-                    </button>
-                    <button className="btn btn-sm btn-outline-danger" onClick={() => handleDelete(h)}>
-                      <i className="bi bi-trash"></i>
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      {loading
+        ? (
+          <div className='text-center py-5'>
+            <div className='spinner-border text-primary' />
+          </div>
+          )
+        : horarios.length === 0
+          ? (
+            <div className='alert alert-info'>No hay horarios registrados.</div>
+            )
+          : (
+            <div className='table-responsive'>
+              <table className='table table-hover table-striped align-middle'>
+                <thead className='table-light'>
+                  <tr>
+                    <th>Día</th>
+                    <th>Inicio</th>
+                    <th>Fin</th>
+                    <th>Grupo</th>
+                    <th>Materia</th>
+                    <th>Aula</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {horarios.map((h) => (
+                    <tr key={h.id}>
+                      <td>{h.dia}</td>
+                      <td>{h.hora_inicio}</td>
+                      <td>{h.hora_fin}</td>
+                      <td>{h.grupo?.codigo || '-'}</td>
+                      <td>{h.grupo?.materia?.nombre || '-'}</td>
+                      <td>{h.aula?.nombre || '-'}</td>
+                      <td>
+                        {/* Botones de acción: editar y eliminar */}
+                        <button className='btn btn-sm btn-outline-primary me-1' onClick={() => navigate(`/horarios/${h.id}/editar`)}>
+                          <i className='bi bi-pencil' />
+                        </button>
+                        <button className='btn btn-sm btn-outline-danger' onClick={() => handleDelete(h)}>
+                          <i className='bi bi-trash' />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            )}
     </div>
-  );
+  )
 }

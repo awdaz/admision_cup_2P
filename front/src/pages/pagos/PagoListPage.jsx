@@ -1,84 +1,90 @@
-import { useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
-import usePagos from '../../hooks/usePagos';
-import useList from '../../hooks/useList';
-import DataTable from '../../components/ui/DataTable';
-import HeaderBar from '../../components/ui/HeaderBar';
-import BadgeStatus from '../../components/ui/BadgeStatus';
-import Pagination from '../../components/ui/Pagination';
+import { useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { toast } from 'sonner'
+import { confirmDialog } from '../../utils/confirmDialog'
+import usePagos from '../../hooks/usePagos'
+import useList from '../../hooks/useList'
+import DataTable from '../../components/ui/DataTable'
+import HeaderBar from '../../components/ui/HeaderBar'
+import BadgeStatus from '../../components/ui/BadgeStatus'
+import Pagination from '../../components/ui/Pagination'
 
-export default function PagoListPage() {
-  const navigate = useNavigate();
-  const { getPagos, confirmarPago, loading: loadingHook } = usePagos();
+export default function PagoListPage () {
+  const navigate = useNavigate()
+  const { getPagos, confirmarPago, loading: loadingHook } = usePagos()
 
   const { items: pagos, pagination, page, setPage, loading, load } = useList(
     (p) => getPagos(p),
     []
-  );
+  )
 
   const totalPages = useMemo(() =>
     Math.ceil((pagination?.total || 1) / (pagination?.per_page || 10)),
-    [pagination]
-  );
+  [pagination]
+  )
 
   const handleConfirmar = async (row) => {
-    if (!window.confirm(`¿Confirmar pago de Bs. ${row.monto}?`)) return;
+    if (!await confirmDialog(`¿Confirmar pago de Bs. ${row.monto}?`, 'Confirmar')) return
     try {
-      await confirmarPago(row.id);
-      toast.success('Pago confirmado correctamente');
-      load(page);
+      await confirmarPago(row.id)
+      toast.success('Pago confirmado correctamente')
+      load(page)
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.message)
     }
-  };
+  }
 
   const columns = [
     { key: 'numero_recibo', label: 'Recibo', render: (row) => row.numero_recibo || row.id || '-' },
     {
-      key: 'postulante', label: 'Postulante',
+      key: 'postulante',
+      label: 'Postulante',
       render: (row) => {
-        const nombre = row.postulante_nombre || row.postulante?.nombre || '';
-        const apellido = row.postulante_apellido || row.postulante?.apellido || '';
-        return `${nombre} ${apellido}`.trim() || '-';
-      },
+        const nombre = row.postulante_nombre || row.postulante?.nombre || ''
+        const apellido = row.postulante_apellido || row.postulante?.apellido || ''
+        return `${nombre} ${apellido}`.trim() || '-'
+      }
     },
     {
-      key: 'monto', label: 'Monto',
-      render: (row) => `Bs. ${row.monto || 0}`,
+      key: 'monto',
+      label: 'Monto',
+      render: (row) => `Bs. ${row.monto || 0}`
     },
     {
-      key: 'metodo_pago', label: 'Método',
+      key: 'metodo_pago',
+      label: 'Método',
       render: (row) => {
         const map = {
           efectivo: 'Efectivo',
           transferencia: 'Transferencia',
           tarjeta: 'Tarjeta',
           qr: 'QR',
-          pasarela: 'Pasarela',
-        };
-        return map[row.metodo_pago] || row.metodo_pago || '-';
-      },
+          pasarela: 'Pasarela'
+        }
+        return map[row.metodo_pago] || row.metodo_pago || '-'
+      }
     },
     {
-      key: 'estado', label: 'Estado',
+      key: 'estado',
+      label: 'Estado',
       render: (row) => {
-        const map = { pendiente: 'warning', confirmado: 'success', rechazado: 'danger' };
-        return <BadgeStatus value={row.estado || '-'} colors={map} />;
-      },
+        const map = { pendiente: 'warning', confirmado: 'success', rechazado: 'danger' }
+        return <BadgeStatus value={row.estado || '-'} colors={map} />
+      }
     },
     {
-      key: 'fecha', label: 'Fecha',
-      render: (row) => row.fecha || row.created_at || '-',
-    },
-  ];
+      key: 'fecha',
+      label: 'Fecha',
+      render: (row) => row.fecha || row.created_at || '-'
+    }
+  ]
 
   return (
     <div>
-      <HeaderBar createLabel="Nuevo Pago" onCreate={() => navigate('/pagos/nuevo')} />
+      <HeaderBar createLabel='Nuevo Pago' onCreate={() => navigate('/pagos/nuevo')} />
 
-      <div className="card shadow-sm">
-        <div className="card-body p-0">
+      <div className='card shadow-sm'>
+        <div className='card-body p-0'>
           <DataTable
             columns={columns}
             data={pagos}
@@ -90,5 +96,5 @@ export default function PagoListPage() {
 
       <Pagination page={page} totalPages={totalPages} setPage={setPage} simple />
     </div>
-  );
+  )
 }

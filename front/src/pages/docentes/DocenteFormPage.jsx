@@ -1,20 +1,20 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { toast } from 'sonner';
-import useDocentes from '../../hooks/useDocentes';
-import Loader from '../../components/ui/Loader';
-import FormPageLayout from '../../components/ui/FormPageLayout';
-import SubmitButton from '../../components/ui/SubmitButton';
-import CancelButton from '../../components/ui/CancelButton';
+import { useState, useEffect } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import { toast } from 'sonner'
+import useDocentes from '../../hooks/useDocentes'
+import Loader from '../../components/ui/Loader'
+import FormPageLayout from '../../components/ui/FormPageLayout'
+import SubmitButton from '../../components/ui/SubmitButton'
+import CancelButton from '../../components/ui/CancelButton'
 
 // Página de formulario para crear o editar un docente
 // Ruta: /docentes/nuevo | /docentes/:id/editar
 // Acceso: Administradores
-export default function DocenteFormPage() {
-  const { id } = useParams();
-  const isEdit = Boolean(id); // true si estamos editando, false si es creación
-  const navigate = useNavigate();
-  const { getDocente, createDocente, updateDocente, loading } = useDocentes();
+export default function DocenteFormPage () {
+  const { id } = useParams()
+  const isEdit = Boolean(id) // true si estamos editando, false si es creación
+  const navigate = useNavigate()
+  const { getDocente, createDocente, updateDocente } = useDocentes()
 
   // Datos del formulario con todos los campos del docente
   const [form, setForm] = useState({
@@ -30,19 +30,19 @@ export default function DocenteFormPage() {
     cod_docente: '',
     es_profesional_area: false,
     tiene_maestria: false,
-    tiene_diplomado_edu_sup: false,
-  });
-  const [submitting, setSubmitting] = useState(false); // Estado de envío del formulario
-  const [pageLoading, setPageLoading] = useState(isEdit); // Carga inicial solo en edición
+    tiene_diplomado_edu_sup: false
+  })
+  const [submitting, setSubmitting] = useState(false) // Estado de envío del formulario
+  const [pageLoading, setPageLoading] = useState(isEdit) // Carga inicial solo en edición
 
   // Si es edición, carga los datos del docente existente desde la API
   useEffect(() => {
     if (isEdit) {
       (async () => {
         try {
-          const data = await getDocente(id);
+          const data = await getDocente(id)
           if (data) {
-            const p = data.persona || data;
+            const p = data.persona || data
             setForm({
               ci: p.ci || '',
               nombre: p.nombre || '',
@@ -56,124 +56,124 @@ export default function DocenteFormPage() {
               cod_docente: data.cod_docente || '',
               es_profesional_area: data.es_profesional_area ?? false,
               tiene_maestria: data.tiene_maestria ?? false,
-              tiene_diplomado_edu_sup: data.tiene_diplomado_edu_sup ?? false,
-            });
+              tiene_diplomado_edu_sup: data.tiene_diplomado_edu_sup ?? false
+            })
           }
         } catch (err) {
-          toast.error(err.message);
+          toast.error(err.message)
         } finally {
-          setPageLoading(false);
+          setPageLoading(false)
         }
-      })();
+      })()
     }
-  }, [id, isEdit, getDocente]);
+  }, [id, isEdit, getDocente])
 
   // Maneja cambios en inputs y checkboxes: para checkboxes usa el valor "checked"
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setForm({ ...form, [name]: type === 'checkbox' ? checked : value });
-  };
+    const { name, value, type, checked } = e.target
+    setForm({ ...form, [name]: type === 'checkbox' ? checked : value })
+  }
 
   // Envía el formulario: crea o actualiza según isEdit, luego redirige al listado
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setSubmitting(true);
+    e.preventDefault()
+    setSubmitting(true)
     try {
       if (isEdit) {
-        await updateDocente(id, form);
+        await updateDocente(id, form)
       } else {
-        await createDocente(form);
+        await createDocente(form)
       }
-      const msg = isEdit ? 'Docente actualizado correctamente' : 'Docente creado correctamente';
-      toast.success(msg);
-      navigate('/docentes');
+      const msg = isEdit ? 'Docente actualizado correctamente' : 'Docente creado correctamente'
+      toast.success(msg)
+      navigate('/docentes')
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.message)
     } finally {
-      setSubmitting(false);
+      setSubmitting(false)
     }
-  };
+  }
 
-  if (pageLoading) return <Loader />;
+  if (pageLoading) return <Loader />
 
   return (
     <FormPageLayout>
       <form onSubmit={handleSubmit}>
-              {/* Sección de información personal básica */}
-              <h6 className="text-muted mb-3">Datos Personales</h6>
-              <div className="row g-3">
-                <div className="col-md-4">
-                  <label className="form-label">CI</label>
-                  <input name="ci" className="form-control" value={form.ci} onChange={handleChange} required />
-                </div>
-                <div className="col-md-4">
-                  <label className="form-label">Nombre</label>
-                  <input name="nombre" className="form-control" value={form.nombre} onChange={handleChange} required />
-                </div>
-                <div className="col-md-4">
-                  <label className="form-label">Apellido</label>
-                  <input name="apellido" className="form-control" value={form.apellido} onChange={handleChange} required />
-                </div>
-                <div className="col-md-4">
-                  <label className="form-label">Fecha Nacimiento</label>
-                  <input name="fecha_nac" type="date" className="form-control" value={form.fecha_nac} onChange={handleChange} />
-                </div>
-                <div className="col-md-4">
-                  <label className="form-label">Sexo</label>
-                  <select name="sexo" className="form-select" value={form.sexo} onChange={handleChange}>
-                    <option value="">Seleccionar...</option>
-                    <option value="Masculino">Masculino</option>
-                    <option value="Femenino">Femenino</option>
-                    <option value="Otro">Otro</option>
-                  </select>
-                </div>
-                <div className="col-md-4">
-                  <label className="form-label">Email</label>
-                  <input name="email" type="email" className="form-control" value={form.email} onChange={handleChange} required />
-                </div>
-                <div className="col-md-4">
-                  <label className="form-label">Teléfono</label>
-                  <input name="telefono" className="form-control" value={form.telefono} onChange={handleChange} />
-                </div>
-                <div className="col-md-4">
-                  <label className="form-label">Ciudad</label>
-                  <input name="ciudad" className="form-control" value={form.ciudad} onChange={handleChange} />
-                </div>
-                <div className="col-12">
-                  <label className="form-label">Dirección</label>
-                  <textarea name="direccion" className="form-control" rows="2" value={form.direccion} onChange={handleChange}></textarea>
-                </div>
-              </div>
+        {/* Sección de información personal básica */}
+        <h6 className='text-muted mb-3'>Datos Personales</h6>
+        <div className='row g-3'>
+          <div className='col-md-4'>
+            <label className='form-label'>CI</label>
+            <input name='ci' className='form-control' value={form.ci} onChange={handleChange} required />
+          </div>
+          <div className='col-md-4'>
+            <label className='form-label'>Nombre</label>
+            <input name='nombre' className='form-control' value={form.nombre} onChange={handleChange} required />
+          </div>
+          <div className='col-md-4'>
+            <label className='form-label'>Apellido</label>
+            <input name='apellido' className='form-control' value={form.apellido} onChange={handleChange} required />
+          </div>
+          <div className='col-md-4'>
+            <label className='form-label'>Fecha Nacimiento</label>
+            <input name='fecha_nac' type='date' className='form-control' value={form.fecha_nac} onChange={handleChange} />
+          </div>
+          <div className='col-md-4'>
+            <label className='form-label'>Sexo</label>
+            <select name='sexo' className='form-select' value={form.sexo} onChange={handleChange}>
+              <option value=''>Seleccionar...</option>
+              <option value='Masculino'>Masculino</option>
+              <option value='Femenino'>Femenino</option>
+              <option value='Otro'>Otro</option>
+            </select>
+          </div>
+          <div className='col-md-4'>
+            <label className='form-label'>Email</label>
+            <input name='email' type='email' className='form-control' value={form.email} onChange={handleChange} required />
+          </div>
+          <div className='col-md-4'>
+            <label className='form-label'>Teléfono</label>
+            <input name='telefono' className='form-control' value={form.telefono} onChange={handleChange} />
+          </div>
+          <div className='col-md-4'>
+            <label className='form-label'>Ciudad</label>
+            <input name='ciudad' className='form-control' value={form.ciudad} onChange={handleChange} />
+          </div>
+          <div className='col-12'>
+            <label className='form-label'>Dirección</label>
+            <textarea name='direccion' className='form-control' rows='2' value={form.direccion} onChange={handleChange} />
+          </div>
+        </div>
 
-              {/* Sección de información laboral del docente */}
-              <hr className="my-4" />
-              <h6 className="text-muted mb-3">Datos Laborales</h6>
-              <div className="row g-3">
-                <div className="col-md-6">
-                  <label className="form-label">Código Docente</label>
-                  <input name="cod_docente" className="form-control" value={form.cod_docente} onChange={handleChange} required />
-                </div>
-                <div className="col-12">
-                  <div className="form-check">
-                    <input className="form-check-input" type="checkbox" name="es_profesional_area" id="es_profesional_area" checked={form.es_profesional_area} onChange={handleChange} />
-                    <label className="form-check-label" htmlFor="es_profesional_area">Es profesional del área</label>
-                  </div>
-                  <div className="form-check">
-                    <input className="form-check-input" type="checkbox" name="tiene_maestria" id="tiene_maestria" checked={form.tiene_maestria} onChange={handleChange} />
-                    <label className="form-check-label" htmlFor="tiene_maestria">Tiene maestría</label>
-                  </div>
-                  <div className="form-check">
-                    <input className="form-check-input" type="checkbox" name="tiene_diplomado_edu_sup" id="tiene_diplomado_edu_sup" checked={form.tiene_diplomado_edu_sup} onChange={handleChange} />
-                    <label className="form-check-label" htmlFor="tiene_diplomado_edu_sup">Tiene diplomado en educación superior</label>
-                  </div>
-                </div>
-              </div>
+        {/* Sección de información laboral del docente */}
+        <hr className='my-4' />
+        <h6 className='text-muted mb-3'>Datos Laborales</h6>
+        <div className='row g-3'>
+          <div className='col-md-6'>
+            <label className='form-label'>Código Docente</label>
+            <input name='cod_docente' className='form-control' value={form.cod_docente} onChange={handleChange} required />
+          </div>
+          <div className='col-12'>
+            <div className='form-check'>
+              <input className='form-check-input' type='checkbox' name='es_profesional_area' id='es_profesional_area' checked={form.es_profesional_area} onChange={handleChange} />
+              <label className='form-check-label' htmlFor='es_profesional_area'>Es profesional del área</label>
+            </div>
+            <div className='form-check'>
+              <input className='form-check-input' type='checkbox' name='tiene_maestria' id='tiene_maestria' checked={form.tiene_maestria} onChange={handleChange} />
+              <label className='form-check-label' htmlFor='tiene_maestria'>Tiene maestría</label>
+            </div>
+            <div className='form-check'>
+              <input className='form-check-input' type='checkbox' name='tiene_diplomado_edu_sup' id='tiene_diplomado_edu_sup' checked={form.tiene_diplomado_edu_sup} onChange={handleChange} />
+              <label className='form-check-label' htmlFor='tiene_diplomado_edu_sup'>Tiene diplomado en educación superior</label>
+            </div>
+          </div>
+        </div>
 
-              <div className="mt-4 d-flex gap-2">
-                <SubmitButton loading={submitting} />
-                <CancelButton to="/docentes" />
-              </div>
-            </form>
+        <div className='mt-4 d-flex gap-2'>
+          <SubmitButton loading={submitting} />
+          <CancelButton to='/docentes' />
+        </div>
+      </form>
     </FormPageLayout>
-  );
+  )
 }

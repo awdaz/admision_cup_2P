@@ -1,42 +1,46 @@
-import { useState, useCallback } from 'react';
-import cliente from '../api/cliente';
+import { useState, useCallback } from 'react'
+import cliente from '../api/cliente'
 
-export default function usePagos() {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+export default function usePagos () {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
   const exec = useCallback(async (fn) => {
-    setLoading(true);
-    setError(null);
+    setLoading(true)
+    setError(null)
     try {
-      const result = await fn();
-      return result;
+      const result = await fn()
+      return result
     } catch (err) {
-      setError(err.message);
-      throw err;
+      setError(err.message)
+      throw err
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  }, []);
+  }, [])
 
   const getPagos = useCallback((page = 1) => {
-    return exec(() => cliente.get(`/pagos?page=${page}`));
-  }, [exec]);
+    return exec(() => cliente.get(`/pagos?page=${page}`))
+  }, [exec])
 
   const getPago = useCallback((id) => {
-    return exec(() => cliente.get(`/pagos/${id}`));
-  }, [exec]);
+    return exec(() => cliente.get(`/pagos/${id}`))
+  }, [exec])
 
   const createPago = useCallback((data) => {
-    return exec(() => cliente.post('/pagos', data));
-  }, [exec]);
+    return exec(() => cliente.post('/pagos', data))
+  }, [exec])
 
   const confirmarPago = useCallback((id) => {
-    return exec(() => cliente.put(`/pagos/${id}/confirmar`));
-  }, [exec]);
+    return exec(() => cliente.put(`/pagos/${id}/confirmar`))
+  }, [exec])
 
   return {
-    loading, error,
-    getPagos, getPago, createPago, confirmarPago,
-  };
+    loading,
+    error,
+    getPagos,
+    getPago,
+    createPago,
+    confirmarPago
+  }
 }

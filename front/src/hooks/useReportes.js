@@ -1,38 +1,41 @@
-import { useState, useCallback } from 'react';
-import cliente from '../api/cliente';
+import { useState, useCallback } from 'react'
+import cliente from '../api/cliente'
 
-export default function useReportes() {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+export default function useReportes () {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
   const exec = useCallback(async (fn) => {
-    setLoading(true);
-    setError(null);
+    setLoading(true)
+    setError(null)
     try {
-      const result = await fn();
-      return result;
+      const result = await fn()
+      return result
     } catch (err) {
-      setError(err.message);
-      throw err;
+      setError(err.message)
+      throw err
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  }, []);
+  }, [])
 
   const getReporteAdmision = useCallback(() => {
-    return exec(() => cliente.get('/reportes/admision'));
-  }, [exec]);
+    return exec(() => cliente.get('/reportes/admision'))
+  }, [exec])
 
   const getReporteDocenteMisGrupos = useCallback(() => {
-    return exec(() => cliente.get('/reportes/docente/mis-grupos'));
-  }, [exec]);
+    return exec(() => cliente.get('/reportes/docente/mis-grupos'))
+  }, [exec])
 
   const getReportePostulanteMisNotas = useCallback(() => {
-    return exec(() => cliente.get('/reportes/postulante/mis-notas'));
-  }, [exec]);
+    return exec(() => cliente.get('/reportes/postulante/mis-notas'))
+  }, [exec])
 
   return {
-    loading, error,
-    getReporteAdmision, getReporteDocenteMisGrupos, getReportePostulanteMisNotas,
-  };
+    loading,
+    error,
+    getReporteAdmision,
+    getReporteDocenteMisGrupos,
+    getReportePostulanteMisNotas
+  }
 }

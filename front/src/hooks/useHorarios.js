@@ -1,50 +1,55 @@
-import { useState, useCallback } from 'react';
-import cliente from '../api/cliente';
+import { useState, useCallback } from 'react'
+import cliente from '../api/cliente'
 
-export default function useHorarios() {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+export default function useHorarios () {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
   const exec = useCallback(async (fn) => {
-    setLoading(true);
-    setError(null);
+    setLoading(true)
+    setError(null)
     try {
-      const result = await fn();
-      return result;
+      const result = await fn()
+      return result
     } catch (err) {
-      setError(err.message);
-      throw err;
+      setError(err.message)
+      throw err
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  }, []);
+  }, [])
 
   const getHorarios = useCallback((params = {}) => {
-    const qs = new URLSearchParams();
-    if (params.grupo_id) qs.append('grupo_id', params.grupo_id);
-    if (params.dia) qs.append('dia', params.dia);
-    const query = qs.toString();
-    return exec(() => cliente.get(`/horarios${query ? '?' + query : ''}`));
-  }, [exec]);
+    const qs = new URLSearchParams()
+    if (params.grupo_id) qs.append('grupo_id', params.grupo_id)
+    if (params.dia) qs.append('dia', params.dia)
+    const query = qs.toString()
+    return exec(() => cliente.get(`/horarios${query ? '?' + query : ''}`))
+  }, [exec])
 
   const getHorario = useCallback((id) => {
-    return exec(() => cliente.get(`/horarios/${id}`));
-  }, [exec]);
+    return exec(() => cliente.get(`/horarios/${id}`))
+  }, [exec])
 
   const createHorario = useCallback((data) => {
-    return exec(() => cliente.post('/horarios', data));
-  }, [exec]);
+    return exec(() => cliente.post('/horarios', data))
+  }, [exec])
 
   const updateHorario = useCallback((id, data) => {
-    return exec(() => cliente.put(`/horarios/${id}`, data));
-  }, [exec]);
+    return exec(() => cliente.put(`/horarios/${id}`, data))
+  }, [exec])
 
   const deleteHorario = useCallback((id) => {
-    return exec(() => cliente.del(`/horarios/${id}`));
-  }, [exec]);
+    return exec(() => cliente.del(`/horarios/${id}`))
+  }, [exec])
 
   return {
-    loading, error,
-    getHorarios, getHorario, createHorario, updateHorario, deleteHorario,
-  };
+    loading,
+    error,
+    getHorarios,
+    getHorario,
+    createHorario,
+    updateHorario,
+    deleteHorario
+  }
 }

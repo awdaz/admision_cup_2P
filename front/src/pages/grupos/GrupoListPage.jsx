@@ -1,96 +1,102 @@
-import { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import useGrupos from '../../hooks/useGrupos';
-import useCatalogos from '../../hooks/useCatalogos';
-import useList from '../../hooks/useList';
-import DataTable from '../../components/ui/DataTable';
-import HeaderBar from '../../components/ui/HeaderBar';
-import FilterSelect from '../../components/ui/FilterSelect';
-import Pagination from '../../components/ui/Pagination';
+import { useState, useEffect, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { confirmDialog } from '../../utils/confirmDialog'
+import useGrupos from '../../hooks/useGrupos'
+import useCatalogos from '../../hooks/useCatalogos'
+import useList from '../../hooks/useList'
+import DataTable from '../../components/ui/DataTable'
+import HeaderBar from '../../components/ui/HeaderBar'
+import FilterSelect from '../../components/ui/FilterSelect'
+import Pagination from '../../components/ui/Pagination'
 
-export default function GrupoListPage() {
-  const navigate = useNavigate();
-  const { getGrupos, deleteGrupo, loading: loadingHook } = useGrupos();
-  const { getMaterias, getTurnos, materias, turnos } = useCatalogos();
+export default function GrupoListPage () {
+  const navigate = useNavigate()
+  const { getGrupos, deleteGrupo, loading: loadingHook } = useGrupos()
+  const { getMaterias, getTurnos, materias, turnos } = useCatalogos()
 
-  const [filtroMateria, setFiltroMateria] = useState('');
-  const [filtroTurno, setFiltroTurno] = useState('');
+  const [filtroMateria, setFiltroMateria] = useState('')
+  const [filtroTurno, setFiltroTurno] = useState('')
 
   useEffect(() => {
-    getMaterias();
-    getTurnos();
-  }, [getMaterias, getTurnos]);
+    getMaterias()
+    getTurnos()
+  }, [getMaterias, getTurnos])
 
   const { items: grupos, pagination, page, setPage, loading, load } = useList(
     (p, matId, turnId) => getGrupos(p, { materia_id: matId, turno_id: turnId }),
     [filtroMateria, filtroTurno]
-  );
+  )
 
   const totalPages = useMemo(() =>
     Math.ceil((pagination?.total || 1) / (pagination?.per_page || 15)),
-    [pagination]
-  );
+  [pagination]
+  )
 
   const handleDelete = async (row) => {
-    if (!window.confirm(`¿Eliminar grupo ${row.codigo}?`)) return;
+    if (!await confirmDialog(`¿Eliminar grupo ${row.codigo}?`)) return
     try {
-      await deleteGrupo(row.id);
-      load(page, filtroMateria, filtroTurno);
-    } catch (err) {
+      await deleteGrupo(row.id)
+      load(page, filtroMateria, filtroTurno)
+    } catch {
       /* toast handled by hook */
     }
-  };
+  }
 
   const handleFiltrar = (e) => {
-    e.preventDefault();
-    setPage(1);
-  };
+    e.preventDefault()
+    setPage(1)
+  }
 
   const columns = [
     { key: 'codigo', label: 'Código' },
     {
-      key: 'nombre', label: 'Nombre',
+      key: 'nombre',
+      label: 'Nombre',
       render: (row) => (
         <span
-          className="text-primary text-decoration-none"
+          className='text-primary text-decoration-none'
           style={{ cursor: 'pointer' }}
           onClick={() => navigate(`/grupos/${row.id}`)}
         >
           {row.nombre || '-'}
         </span>
-      ),
+      )
     },
     { key: 'materia', label: 'Materia', render: (row) => row.materia?.nombre || '-' },
-    { key: 'docente', label: 'Docente', render: (row) => {
-      const p = row.docente?.persona;
-      return p ? `${p.nombre} ${p.apellido}` : '-';
-    }},
+    {
+      key: 'docente',
+      label: 'Docente',
+      render: (row) => {
+        const p = row.docente?.persona
+        return p ? `${p?.nombre ?? ''} ${p?.apellido ?? ''}`.trim() || '-' : '-'
+      }
+    },
     { key: 'cupo', label: 'Cupo' },
-    { key: 'turno', label: 'Turno', render: (row) => row.turno?.nombre || '-' },
-  ];
+    { key: 'turno', label: 'Turno', render: (row) => row.turno?.nombre || '-' }
+  ]
 
   return (
     <div>
-      <HeaderBar createLabel="Nuevo Grupo" onCreate={() => navigate('/grupos/nuevo')} />
+      <HeaderBar createLabel='Nuevo Grupo' onCreate={() => navigate('/grupos/nuevo')} />
 
-      <form onSubmit={handleFiltrar} className="mb-3">
-        <div className="row g-2">
-          <div className="col-md-4">
-            <FilterSelect value={filtroMateria} onChange={(e) => setFiltroMateria(e.target.value)} options={materias} allLabel="Todas las materias" />
+      <form onSubmit={handleFiltrar} className='mb-3'>
+        <div className='row g-2'>
+          <div className='col-md-4'>
+            <FilterSelect value={filtroMateria} onChange={(e) => setFiltroMateria(e.target.value)} options={materias} />
           </div>
-          <div className="col-md-3">
-            <FilterSelect value={filtroTurno} onChange={(e) => setFiltroTurno(e.target.value)} options={turnos} allLabel="Todos los turnos" />
+          <div className='col-md-3'>
+            <FilterSelect value={filtroTurno} onChange={(e) => setFiltroTurno(e.target.value)} options={turnos} />
           </div>
-          <div className="col-md-2">
-            <button className="btn btn-outline-secondary w-100" type="submit">
-              <i className="bi bi-funnel me-1"></i>Filtrar
+          <div className='col-md-2'>
+            <button className='btn btn-outline-secondary w-100' type='submit'>
+              <i className='bi bi-funnel me-1' />Filtrar
             </button>
           </div>
         </div>
       </form>
 
-      <div className="card shadow-sm">
-        <div className="card-body p-0">
+      <div className='card shadow-sm'>
+        <div className='card-body p-0'>
           <DataTable
             columns={columns}
             data={grupos}
@@ -103,5 +109,5 @@ export default function GrupoListPage() {
 
       <Pagination page={page} totalPages={totalPages} setPage={setPage} />
     </div>
-  );
+  )
 }
