@@ -1,6 +1,4 @@
 ## Estructurar modulo Control de Admision y Cupos
-[x] Vista incial
-- por defecto seleccionará la gestion actual si hay una
 - boton procesar admision (no es un trigger?)
 - boton generar cupos  (crea grupos de max 70 estudiantes por materia×turno, asigna docentes round-robin)
  - deberia estar en modulo grupos?
