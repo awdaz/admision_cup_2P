@@ -19,10 +19,9 @@ import ExamenListPage from '../pages/examenes/ExamenListPage'
 import ExamenFormPage from '../pages/examenes/ExamenFormPage'
 import HorarioListPage from '../pages/horarios/HorarioListPage'
 import HorarioFormPage from '../pages/horarios/HorarioFormPage'
-import NotasPage from '../pages/notas/NotasPage'
-import ReportesPage from '../pages/reportes/ReportesPage'
+import EstudiantesPage from '../pages/estudiantes/EstudiantesPage'
+import MisNotasPage from '../pages/estudiantes/MisNotasPage'
 import RequisitosPage from '../pages/requisitos/RequisitosPage'
-import PostulacionFormPage from '../pages/postulaciones/PostulacionFormPage'
 import PagoListPage from '../pages/pagos/PagoListPage'
 import PagoFormPage from '../pages/pagos/PagoFormPage'
 import UserListPage from '../pages/usuarios/UserListPage'
@@ -62,8 +61,6 @@ export default function AppRouter () {
           <Route path='/postulantes/:id/editar' element={<PostulanteFormPage />} />
           <Route path='/postulantes/:id/requisitos' element={<RequisitosPage />} />
 
-          <Route path='/postulaciones/nueva' element={<PostulacionFormPage />} />
-
           {/* CRUD de docentes */}
           <Route path='/docentes' element={<DocenteListPage />} />
           <Route path='/docentes/nuevo' element={<DocenteFormPage />} />
@@ -85,9 +82,9 @@ export default function AppRouter () {
           <Route path='/horarios/nuevo' element={<HorarioFormPage />} />
           <Route path='/horarios/:id/editar' element={<HorarioFormPage />} />
 
-          <Route path='/notas' element={<NotasPage />} />
+          <Route path='/estudiantes' element={<EstudiantesPage />} />
+          <Route path='/mis-notas' element={<MisNotasPage />} />
           <Route path='/admisiones' element={<AdmisionListPage />} />
-          <Route path='/reportes' element={<ReportesPage />} />
 
           {/* CRUD de pagos */}
           <Route path='/pagos' element={<PagoListPage />} />

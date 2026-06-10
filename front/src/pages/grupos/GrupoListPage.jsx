@@ -79,20 +79,16 @@ export default function GrupoListPage () {
     <div>
       <HeaderBar createLabel='Nuevo Grupo' onCreate={() => navigate('/grupos/nuevo')} />
 
-      <form onSubmit={handleFiltrar} className='mb-3'>
-        <div className='row g-2'>
-          <div className='col-md-4'>
-            <FilterSelect value={filtroMateria} onChange={(e) => setFiltroMateria(e.target.value)} options={materias} />
-          </div>
-          <div className='col-md-3'>
-            <FilterSelect value={filtroTurno} onChange={(e) => setFiltroTurno(e.target.value)} options={turnos} />
-          </div>
-          <div className='col-md-2'>
-            <button className='btn btn-outline-secondary w-100' type='submit'>
-              <i className='bi bi-funnel me-1' />Filtrar
-            </button>
-          </div>
+      <form onSubmit={handleFiltrar} className='d-flex flex-wrap gap-2 mb-3'>
+        <div style={{ flex: '0 1 clamp(160px, 25%, 300px)' }}>
+          <FilterSelect value={filtroMateria} onChange={(e) => setFiltroMateria(e.target.value)} options={materias} />
         </div>
+        <div style={{ flex: '0 1 clamp(120px, 18%, 200px)' }}>
+          <FilterSelect value={filtroTurno} onChange={(e) => setFiltroTurno(e.target.value)} options={turnos} />
+        </div>
+        <button className='btn btn-outline-secondary' type='submit'>
+          <i className='bi bi-funnel me-1' />Filtrar
+        </button>
       </form>
 
       <div className='card shadow-sm'>

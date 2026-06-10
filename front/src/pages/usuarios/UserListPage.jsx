@@ -71,9 +71,13 @@ export default function UserListPage () {
     <div>
       <HeaderBar createLabel='Nuevo Usuario' onCreate={() => navigate('/usuarios/nuevo')} />
 
-      <div className='input-group mb-3'>
-        <input className='form-control' placeholder='Buscar por username o email...' value={search} onChange={(e) => setSearch(e.target.value)} />
-        <FilterSelect value={filtroTipo} onChange={(e) => setFiltroTipo(e.target.value)} options={roles} />
+      <div className='d-flex flex-wrap gap-2 mb-3'>
+        <div style={{ flex: '1 1 clamp(200px, 30%, 350px)' }}>
+          <input className='form-control form-control-sm' placeholder='Buscar por username o email...' value={search} onChange={(e) => setSearch(e.target.value)} />
+        </div>
+        <div style={{ flex: '0 1 clamp(140px, 15%, 220px)' }}>
+          <FilterSelect value={filtroTipo} onChange={(e) => setFiltroTipo(e.target.value)} options={roles} />
+        </div>
       </div>
 
       <div className='card shadow-sm'>

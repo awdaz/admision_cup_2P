@@ -56,8 +56,10 @@ export default function ExamenListPage () {
     <div>
       <HeaderBar createLabel='Nuevo Examen' onCreate={() => navigate('/examenes/nuevo')} />
 
-      <div className='mb-3'>
-        <FilterSelect value={filtroGrupo} onChange={(e) => { setPage(1); setFiltroGrupo(e.target.value) }} options={grupos} mapOption={(g) => `${g.codigo} - ${g.materia?.nombre}`} />
+      <div className='d-flex flex-wrap gap-2 mb-3'>
+        <div style={{ flex: '0 1 clamp(200px, 30%, 400px)' }}>
+          <FilterSelect value={filtroGrupo} onChange={(e) => { setPage(1); setFiltroGrupo(e.target.value) }} options={grupos} mapOption={(g) => `${g.codigo} - ${g.materia?.nombre}`} />
+        </div>
       </div>
 
       <div className='card shadow-sm'>

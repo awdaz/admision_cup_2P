@@ -63,16 +63,14 @@ export default function HorarioListPage () {
       <HeaderBar createLabel='Nuevo Horario' onCreate={() => navigate('/horarios/nuevo')} />
 
       {/* Filtros de búsqueda: grupo y día de la semana */}
-      <div className='row g-2 mb-3'>
-        <div className='col-auto'>
+      <div className='d-flex flex-wrap gap-2 mb-3'>
+        <div style={{ flex: '0 1 clamp(200px, 30%, 400px)' }}>
           <FilterSelect value={filtroGrupo} onChange={(e) => setFiltroGrupo(e.target.value)} options={grupos} mapOption={(g) => `${g.codigo} - ${g.materia?.nombre}`} />
         </div>
-        <div className='col-auto'>
+        <div style={{ flex: '0 1 clamp(120px, 15%, 200px)' }}>
           <FilterSelect value={filtroDia} onChange={(e) => setFiltroDia(e.target.value)} options={DIAS} mapOption={(d) => d} />
         </div>
-        <div className='col-auto'>
-          <button className='btn btn-outline-secondary' onClick={load}><i className='bi bi-funnel' /> Filtrar</button>
-        </div>
+        <button className='btn btn-outline-secondary' onClick={load}><i className='bi bi-funnel' /> Filtrar</button>
       </div>
 
       {/* Tabla de horarios con indicador de carga y estado vacío */}

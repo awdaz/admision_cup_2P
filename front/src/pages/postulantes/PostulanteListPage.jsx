@@ -8,6 +8,7 @@ import HeaderBar from '../../components/ui/HeaderBar'
 import SearchBar from '../../components/ui/SearchBar'
 import BadgeStatus from '../../components/ui/BadgeStatus'
 import Pagination from '../../components/ui/Pagination'
+import NuevaPostulacionModal from '../../components/postulantes/NuevaPostulacionModal'
 
 export default function PostulanteListPage () {
   const navigate = useNavigate()
@@ -15,6 +16,7 @@ export default function PostulanteListPage () {
 
   const [searchQuery, setSearchQuery] = useState('')
   const [searchInput, setSearchInput] = useState('')
+  const [showModal, setShowModal] = useState(false)
 
   const { items: postulantes, pagination, page, setPage, loading, load } = useList(
     (p, q) => getPostulantes(p, q),
@@ -94,15 +96,22 @@ export default function PostulanteListPage () {
 
   return (
     <div>
-      <HeaderBar createLabel='Nuevo Postulante' onCreate={() => navigate('/postulantes/nuevo')} />
+      <HeaderBar createLabel='Nuevo Postulante' onCreate={() => navigate('/postulantes/nuevo')}>
+        <button className='btn btn-success' onClick={() => setShowModal(true)}>
+          <i className='bi bi-plus-lg me-1' />Nueva Postulación
+        </button>
+      </HeaderBar>
 
-      <SearchBar
-        placeholder='Buscar por CI o nombre...'
-        value={searchInput}
-        onChange={(e) => setSearchInput(e.target.value)}
-        onSearch={handleSearch}
-        className='mb-3'
-      />
+      <div className='d-flex flex-wrap gap-2 mb-3'>
+        <div style={{ flex: '1 1 clamp(250px, 35%, 500px)' }}>
+          <SearchBar
+            placeholder='Buscar por CI o nombre...'
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            onSearch={handleSearch}
+          />
+        </div>
+      </div>
 
       <div className='card shadow-sm'>
         <div className='card-body p-0'>
@@ -117,6 +126,12 @@ export default function PostulanteListPage () {
       </div>
 
       <Pagination page={page} totalPages={totalPages} setPage={setPage} />
+
+      <NuevaPostulacionModal
+        show={showModal}
+        onClose={() => setShowModal(false)}
+        onSuccess={() => load(page, searchQuery)}
+      />
     </div>
   )
 }

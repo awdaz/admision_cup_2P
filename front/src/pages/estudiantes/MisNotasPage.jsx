@@ -5,7 +5,7 @@ import usePromedios from '../../hooks/usePromedios'
 import BadgeStatus from '../../components/ui/BadgeStatus'
 import { toast } from 'sonner'
 
-export default function EstudianteNotasPage () {
+export default function MisNotasPage () {
   const { user } = useAuthStore()
   const { getRindesByPostulacion } = useRindes()
   const { getPromedios } = usePromedios()

@@ -1,6 +1,6 @@
-import NotasView from '../../components/notas/NotasView'
+import NotasView from '../../components/estudiantes/NotasView'
 
-export default function AdminNotasPage () {
+export default function AdminEstudiantes () {
   return (
     <NotasView
       grupoSelectWidth={360}

@@ -7,30 +7,24 @@ const adminLinks = [
   { to: '/grupos', label: 'Grupos', icon: 'bi-layers' },
   { to: '/examenes', label: 'Exámenes', icon: 'bi-file-text' },
   { to: '/horarios', label: 'Horarios', icon: 'bi-calendar-week' },
-  { to: '/notas', label: 'Notas', icon: 'bi-clipboard-data' },
-  { to: '/postulaciones/nueva', label: 'Nueva Postulación', icon: 'bi-file-earmark-plus' },
+  { to: '/estudiantes', label: 'Estudiantes', icon: 'bi-clipboard-data' },
   { to: '/pagos', label: 'Pagos', icon: 'bi-credit-card' },
   { to: '/admisiones', label: 'Admisiones', icon: 'bi-check2-circle' },
-  { to: '/reportes', label: 'Reportes', icon: 'bi-bar-chart' },
   { to: '/usuarios', label: 'Usuarios', icon: 'bi-shield-lock' }
 ]
 
 const postulanteLinks = [
   { to: '/postulantes', label: 'Mis Datos', icon: 'bi-person' },
-  { to: '/postulaciones/nueva', label: 'Nueva Postulación', icon: 'bi-file-earmark-plus' },
-  { to: '/notas', label: 'Mis Notas', icon: 'bi-clipboard-data' },
-  { to: '/pagos', label: 'Mis Pagos', icon: 'bi-credit-card' },
-  { to: '/reportes', label: 'Mis Reportes', icon: 'bi-bar-chart' }
+  { to: '/mis-notas', label: 'Mis Notas', icon: 'bi-clipboard-data' },
+  { to: '/pagos', label: 'Mis Pagos', icon: 'bi-credit-card' }
 ]
 
 const docenteLinks = [
   { to: '/docentes', label: 'Mis Grupos', icon: 'bi-mortarboard' },
   { to: '/examenes', label: 'Exámenes', icon: 'bi-file-text' },
   { to: '/horarios', label: 'Horarios', icon: 'bi-calendar-week' },
-  { to: '/notas', label: 'Registrar Notas', icon: 'bi-clipboard-data' },
-  { to: '/postulantes', label: 'Postulantes', icon: 'bi-people' },
-  { to: '/postulaciones/nueva', label: 'Nueva Postulación', icon: 'bi-file-earmark-plus' },
-  { to: '/reportes', label: 'Reportes', icon: 'bi-bar-chart' }
+  { to: '/estudiantes', label: 'Estudiantes', icon: 'bi-clipboard-data' },
+  { to: '/postulantes', label: 'Postulantes', icon: 'bi-people' }
 ]
 
 const roleLinks = { admin: adminLinks, postulante: postulanteLinks, docente: docenteLinks }

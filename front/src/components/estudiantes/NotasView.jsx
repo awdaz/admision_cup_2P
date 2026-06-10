@@ -268,32 +268,30 @@ export default function NotasView ({ grupoSelectWidth, renderGrupoOption }) {
 
   const turnosDisponibles = selectedPostulacion ? turnosStudent : turnosGrupo
 
-  const filterSelectStyle = (width) => ({ width })
-
   return (
     <div>
-      <div className='d-flex flex-wrap gap-2 mb-2'>
-        <div className='input-group' style={{ minWidth: 250 }} ref={searchRef}>
+      <div className='d-flex flex-wrap gap-2 mb-2 w-100'>
+        <div className='input-group input-group-sm' ref={searchRef} style={{ flex: '1 1 clamp(250px, 25%, 400px)' }}>
           <input
-            type='text' className='form-control form-control-sm' placeholder='Agregar Alumno — CI, nombre o apellido...'
+            type='text' className='form-control' placeholder='Buscar por CI, nombre o apellido...'
             value={busqueda} onChange={(e) => setBusqueda(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleBuscar()}
           />
-          <button className='btn btn-sm btn-outline-primary' onClick={handleBuscar} disabled={buscando}>
+          <button className='btn btn-outline-primary' onClick={handleBuscar} disabled={buscando}>
             {buscando ? <span className='spinner-border spinner-border-sm' /> : <i className='bi bi-search' />}
           </button>
-          <button className='btn btn-sm btn-outline-secondary' onClick={handleLimpiar} title='Limpiar filtros'>
+          <button className='btn btn-outline-secondary' onClick={handleLimpiar} title='Limpiar filtros'>
             <i className='bi bi-x-lg' />
           </button>
         </div>
-        <select className='form-select form-select-sm' style={filterSelectStyle(220)} value={selectedMateria || ''} onChange={(e) => handleMateriaChange(e.target.value)}>
+        <select className='form-select form-select-sm' style={{ flex: '0 1 clamp(140px, 12%, 220px)' }} value={selectedMateria || ''} onChange={(e) => handleMateriaChange(e.target.value)}>
           <option value=''>{selectedMateria ? 'Quitar filtro' : 'Materia'}</option>
           {materias.map((m) => (
             <option key={m.id} value={m.id}>{m.nombre}</option>
           ))}
         </select>
         <select
-          className='form-select form-select-sm' style={filterSelectStyle(grupoSelectWidth)} value={selectedGrupo || ''} onChange={(e) => handleGrupoChange(e.target.value)}
+          className='form-select form-select-sm' style={{ flex: '0 1 clamp(180px, 18%, 360px)' }} value={selectedGrupo || ''} onChange={(e) => handleGrupoChange(e.target.value)}
           disabled={!selectedPostulacion && (!selectedMateria || gruposFiltrados.length === 0)}
         >
           <option value=''>{selectedGrupo ? 'Quitar filtro' : 'Grupo'}</option>
@@ -306,7 +304,7 @@ export default function NotasView ({ grupoSelectWidth, renderGrupoOption }) {
             ))}
         </select>
         <select
-          className='form-select form-select-sm' style={filterSelectStyle(160)} value={selectedTurno || ''} onChange={(e) => handleTurnoChange(e.target.value)}
+          className='form-select form-select-sm' style={{ flex: '0 1 clamp(100px, 8%, 160px)' }} value={selectedTurno || ''} onChange={(e) => handleTurnoChange(e.target.value)}
           disabled={!selectedPostulacion && (!selectedMateria || turnosDisponibles.length === 0)}
         >
           <option value=''>{selectedTurno ? 'Quitar filtro' : 'Turno'}</option>
@@ -315,7 +313,7 @@ export default function NotasView ({ grupoSelectWidth, renderGrupoOption }) {
           ))}
         </select>
         <select
-          className='form-select form-select-sm' style={filterSelectStyle(320)} value={selectedExamen || ''} onChange={(e) => setSelectedExamen(e.target.value)}
+          className='form-select form-select-sm' style={{ flex: '0 1 clamp(180px, 22%, 320px)' }} value={selectedExamen || ''} onChange={(e) => setSelectedExamen(e.target.value)}
           disabled={!selectedPostulacion && (!selectedMateria || examenes.length === 0)}
         >
           <option value=''>{selectedExamen ? 'Quitar filtro' : 'Examen'}</option>

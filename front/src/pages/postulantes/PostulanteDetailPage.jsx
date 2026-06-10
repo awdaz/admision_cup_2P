@@ -7,6 +7,7 @@ import Loader from '../../components/ui/Loader'
 import Alert from '../../components/ui/Alert'
 import BadgeStatus from '../../components/ui/BadgeStatus'
 import FormCard from '../../components/ui/FormCard'
+import NuevaPostulacionModal from '../../components/postulantes/NuevaPostulacionModal'
 
 // Página de detalle de un postulante
 // Ruta: "/postulantes/:id" — Acceso: Usuarios autenticados
@@ -25,13 +26,15 @@ export default function PostulanteDetailPage () {
   const [loading, setLoading] = useState(true)
   // Mensaje de error si la carga falla
   const [error, setError] = useState('')
+  // Modal de nueva postulación
+  const [showModal, setShowModal] = useState(false)
 
   // Al montar, carga los datos del postulante desde el backend
   useEffect(() => {
     (async () => {
       try {
         const data = await getPostulante(id)
-        setPostulante(data.postulante || data.persona || data)
+        setPostulante(data?.postulante || data?.persona || data)
       } catch (err) {
         setError(err.message)
       } finally {
@@ -45,7 +48,7 @@ export default function PostulanteDetailPage () {
     (async () => {
       try {
         const reqs = await cliente.get(`/postulantes/${id}/requisitos`)
-        setRequisitos(Array.isArray(reqs) ? reqs : reqs.data || reqs.requisitos || [])
+        setRequisitos(Array.isArray(reqs) ? reqs : reqs?.data || reqs?.requisitos || [])
       } catch {
         // Si falla, los requisitos simplemente no se muestran
       }
@@ -57,7 +60,7 @@ export default function PostulanteDetailPage () {
     (async () => {
       try {
         const pags = await cliente.get(`/pagos?postulante_id=${id}`)
-        setPagos(Array.isArray(pags) ? pags : pags.data || pags.pagos || [])
+        setPagos(Array.isArray(pags) ? pags : pags?.data || pags?.pagos || [])
       } catch {
         // Si falla, los pagos simplemente no se muestran
       }
@@ -95,7 +98,7 @@ export default function PostulanteDetailPage () {
           <button className='btn btn-outline-info' onClick={() => navigate(`/postulantes/${id}/requisitos`)}>
             <i className='bi bi-check-square me-1' />Gestionar Requisitos
           </button>
-          <button className='btn btn-outline-warning' onClick={() => navigate(`/postulaciones/nueva?postulante_id=${id}`)}>
+          <button className='btn btn-outline-warning' onClick={() => setShowModal(true)}>
             <i className='bi bi-file-earmark-plus me-1' />Postular
           </button>
           <button className='btn btn-outline-success' onClick={() => navigate(`/pagos/nuevo?postulante_id=${id}`)}>
@@ -125,7 +128,7 @@ export default function PostulanteDetailPage () {
 
         <div className='col-md-6'>
           <FormCard title='Postulación' className='h-100'>
-            {postulante.postulacion
+            {postulante?.postulacion
               ? (
                 <table className='table table-hover table-striped align-middle table-sm table-borderless'>
                   <tbody>
@@ -184,6 +187,13 @@ export default function PostulanteDetailPage () {
           </FormCard>
         </div>
       </div>
+
+      <NuevaPostulacionModal
+        show={showModal}
+        preselectedId={id}
+        onClose={() => setShowModal(false)}
+        onSuccess={() => { setShowModal(false); (async () => { try { const data = await getPostulante(id); setPostulante(data?.postulante || data?.persona || data) } catch { /* ignore */ } })() }}
+      />
     </div>
   )
 }

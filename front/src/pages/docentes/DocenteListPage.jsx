@@ -90,22 +90,14 @@ export default function DocenteListPage () {
     <div>
       <HeaderBar createLabel='Nuevo Docente' onCreate={() => navigate('/docentes/nuevo')} />
 
-      <form onSubmit={handleSearch} className='mb-3'>
-        <div className='input-group'>
-          <input
-            type='text'
-            className='form-control'
-            placeholder='Buscar por CI, nombre o código...'
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-          />
-          <button className='btn btn-outline-secondary' type='submit'>
-            <i className='bi bi-search' />
-          </button>
-          <button className={'btn ' + (showDisponibilidad ? 'btn-info' : 'btn-outline-info')} type='button' onClick={toggleDisponibilidad}>
-            <i className='bi bi-bar-chart me-1' />Disponibilidad
-          </button>
+      <form onSubmit={handleSearch} className='d-flex flex-wrap gap-2 mb-3'>
+        <div className='input-group input-group-sm' style={{ flex: '1 1 clamp(280px, 40%, 500px)' }}>
+          <input type='text' className='form-control' placeholder='Buscar por CI, nombre o código...' value={searchInput} onChange={(e) => setSearchInput(e.target.value)} />
+          <button className='btn btn-outline-secondary' type='submit'><i className='bi bi-search' /></button>
         </div>
+        <button className={'btn btn-sm ' + (showDisponibilidad ? 'btn-info' : 'btn-outline-info')} type='button' onClick={toggleDisponibilidad}>
+          <i className='bi bi-bar-chart me-1' />Disponibilidad
+        </button>
       </form>
 
       {showDisponibilidad && (

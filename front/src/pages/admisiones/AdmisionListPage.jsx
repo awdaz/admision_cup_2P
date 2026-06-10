@@ -73,17 +73,15 @@ export default function AdmisionListPage () {
 
   return (
     <div>
-      <div className='row g-3 mb-4'>
-        <div className='col-md-4'>
+      <div className='d-flex flex-wrap gap-2 mb-3'>
+        <div style={{ flex: '0 1 clamp(140px, 20%, 250px)' }}>
           <FilterSelect value={selectedGestion} onChange={(e) => setSelectedGestion(e.target.value)} options={gestiones} />
         </div>
-        <div className='col-md d-flex align-items-center'>
-          {selectedAdmision && (
-            <span className={`badge fs-6 bg-${selectedAdmision.estado === 'activo' ? 'success' : selectedAdmision.estado === 'finalizada' ? 'secondary' : 'warning'}`}>
-              {selectedAdmision.estado}
-            </span>
-          )}
-        </div>
+        {selectedAdmision && (
+          <span className={`badge fs-6 bg-${selectedAdmision.estado === 'activo' ? 'success' : selectedAdmision.estado === 'finalizada' ? 'secondary' : 'warning'}`}>
+            {selectedAdmision.estado}
+          </span>
+        )}
       </div>
 
       {cupos && (

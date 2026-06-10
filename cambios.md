@@ -14,4 +14,19 @@
 [] Editar
 [] Soft delete?
 
+## initial fetch
+[] Admisiones
+[] Docentes
+[] Examenes
+[] Grupos
+[] Horarios
+[x] Notas
+[] Pagos
+[] Postulantes
+[] Reportes (es igual a inicio)
+[] Usuarios
+
+
+
+
 
