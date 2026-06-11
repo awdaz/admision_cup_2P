@@ -4,7 +4,9 @@ import useRindes from '../../hooks/useRindes'
 import usePromedios from '../../hooks/usePromedios'
 import BadgeStatus from '../../components/ui/BadgeStatus'
 import { toast } from 'sonner'
+import { APROBACION, str } from '../../constants'
 
+// Caso de Uso: CU16 — Consultar nota
 export default function MisNotasPage () {
   const { user } = useAuthStore()
   const { getRindesByPostulacion } = useRindes()
@@ -47,7 +49,7 @@ export default function MisNotasPage () {
                   <div className='card-body text-center py-2'>
                     <small className='text-muted d-block'>{m.label}</small>
                     <strong className={'fs-5 ' + (val >= 60 ? 'text-success' : 'text-danger')}>{promedios[m.key] ?? '-'}</strong>
-                    {val >= 60 ? <BadgeStatus value='aprobado' /> : <BadgeStatus value='reprobado' />}
+                    {val >= 60 ? <BadgeStatus value={str(APROBACION.APROBADO)} /> : <BadgeStatus value={str(APROBACION.REPROBADO)} />}
                   </div>
                 </div>
               </div>
@@ -57,8 +59,8 @@ export default function MisNotasPage () {
             <div className='d-flex align-items-center gap-3 p-2 bg-light rounded'>
               <strong className='fs-5'>Promedio General: {promedios.promedio_general ?? '-'}</strong>
               {promedios.todas_aprobadas
-                ? <BadgeStatus value='aprobado' />
-                : <BadgeStatus value='reprobado' />}
+                ? <BadgeStatus value={str(APROBACION.APROBADO)} />
+                : <BadgeStatus value={str(APROBACION.REPROBADO)} />}
             </div>
           </div>
         </div>
@@ -79,7 +81,7 @@ export default function MisNotasPage () {
                     <td>{r.examen?.grupo?.materia?.nombre || '-'}</td>
                     <td>{r.examen?.nro || '-'}</td>
                     <td><strong>{r.nota ?? '-'}</strong></td>
-                    <td>{r.nota >= 60 ? <BadgeStatus value='aprobado' /> : <BadgeStatus value='reprobado' />}</td>
+                    <td>{r.nota >= 60 ? <BadgeStatus value={str(APROBACION.APROBADO)} /> : <BadgeStatus value={str(APROBACION.REPROBADO)} />}</td>
                   </tr>
                 ))}
               </tbody>

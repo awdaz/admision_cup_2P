@@ -17,7 +17,6 @@ db/
 ├── cup_uagrm_consultas.sql    → Consultas de ejemplo/reporte
 ├── docker-compose.yml         → Entorno PostgreSQL local
 ├── comandos_docker.md         → Comandos útiles de Docker
-├── comandos_proyecto.md       → Comandos generales del proyecto
 ├── diseño_clases.sql          → Diseño de clases (alternativo)
 ├── cup_uagrm.puml             → Diagrama PlantUML
 ├── base_cup.mdj               → Proyecto StarUML
@@ -49,7 +48,7 @@ db/
 | `postulante_requisito` | Cumplimiento de requisitos por postulante |
 | `horario` | Horarios de grupos (día, hora, aula) |
 | `aula` | Aulas disponibles |
-| `user` | Usuarios del sistema (autenticación Sanctum) |
+| `usuario` | Usuarios del sistema (autenticación Sanctum) |
 
 ### Promedios
 
@@ -59,12 +58,8 @@ Los promedios se calculan automáticamente mediante:
 2. **Función** `fn_actualizar_promedios_postulacion(p_postulacion_id)` — persiste los promedios en la tabla `postulacion`.
 3. **Trigger** `trg_after_rinde` — se dispara después de INSERT/UPDATE/DELETE en `rinde` y actualiza los promedios automáticamente.
 
-Las columnas de promedio en `postulacion`:
-- `promedio_matematicas` (decimal 4,2)
-- `promedio_fisica` (decimal 4,2)
-- `promedio_computacion` (decimal 4,2)
-- `promedio_ingles` (decimal 4,2)
-- `promedio_general` (decimal 4,2)
+Columnas de promedio en `postulacion`:
+- `promedio_matematicas`, `promedio_fisica`, `promedio_computacion`, `promedio_ingles`, `promedio_general` (decimal 4,2)
 - `aprobado` (boolean)
 
 ### Docker
@@ -78,5 +73,5 @@ docker compose down     # Detener
 
 - Nombres de tablas y columnas en `snake_case`.
 - Triggers con prefijo `trg_`, funciones con `fn_`, procedimientos con `sp_`.
-- Las relaciones se definen con foreign keys explícitas.
-- Los catálogos se cargan desde `cup_uagrm_datos.sql`.
+- Relaciones con foreign keys explícitas.
+- Catálogos cargados desde `cup_uagrm_datos.sql`.

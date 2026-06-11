@@ -1,5 +1,6 @@
 import { Fragment } from 'react'
 import BadgeStatus from '../ui/BadgeStatus'
+import { APROBACION, str } from '../../constants'
 
 export default function StudentRindesTable ({ studentRindesFiltrados, selectedMateria, rindesPorMateria, promedioFiltrado, handleEditStart, loadingStudent }) {
   if (loadingStudent) {
@@ -33,14 +34,14 @@ export default function StudentRindesTable ({ studentRindesFiltrados, selectedMa
                           </button>
                         </div>
                       </td>
-                      <td>{r.nota >= 60 ? <BadgeStatus value='aprobado' /> : <BadgeStatus value='reprobado' />}</td>
+                      <td>{r.nota >= 60 ? <BadgeStatus value={str(APROBACION.APROBADO)} /> : <BadgeStatus value={str(APROBACION.REPROBADO)} />}</td>
                     </tr>
                   ))}
                   {promedioFiltrado != null && (
                     <tr className='table-active fw-bold'>
                       <td colSpan='3'>Promedio</td>
                       <td>{promedioFiltrado.toFixed(2)}</td>
-                      <td>{promedioFiltrado >= 60 ? <BadgeStatus value='aprobado' /> : <BadgeStatus value='reprobado' />}</td>
+                      <td>{promedioFiltrado >= 60 ? <BadgeStatus value={str(APROBACION.APROBADO)} /> : <BadgeStatus value={str(APROBACION.REPROBADO)} />}</td>
                     </tr>
                   )}
                 </>
@@ -60,13 +61,13 @@ export default function StudentRindesTable ({ studentRindesFiltrados, selectedMa
                           </button>
                         </div>
                       </td>
-                      <td>{r.nota >= 60 ? <BadgeStatus value='aprobado' /> : <BadgeStatus value='reprobado' />}</td>
+                      <td>{r.nota >= 60 ? <BadgeStatus value={str(APROBACION.APROBADO)} /> : <BadgeStatus value={str(APROBACION.REPROBADO)} />}</td>
                     </tr>
                   ))}
                   <tr className='table-active fw-bold'>
                     <td colSpan='3'>Promedio {grupo?.nombre ?? ''}</td>
                     <td>{grupo?.promedio?.toFixed(2) ?? '-'}</td>
-                    <td>{grupo?.promedio >= 60 ? <BadgeStatus value='aprobado' /> : <BadgeStatus value='reprobado' />}</td>
+                    <td>{grupo?.promedio >= 60 ? <BadgeStatus value={str(APROBACION.APROBADO)} /> : <BadgeStatus value={str(APROBACION.REPROBADO)} />}</td>
                   </tr>
                 </Fragment>
               ))}

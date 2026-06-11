@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 
 // Controlador para la administración de usuarios del sistema.
 // Proporciona CRUD de usuarios, activación/desactivación y cambio de contraseña.
+// Caso de Uso: CU17 — Gestionar usuario
 class UserController extends Controller
 {
     // Lista todos los usuarios paginados (15 por página) con su relación 'persona'.

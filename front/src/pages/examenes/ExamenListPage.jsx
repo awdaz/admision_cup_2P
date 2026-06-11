@@ -9,6 +9,7 @@ import HeaderBar from '../../components/ui/HeaderBar'
 import FilterSelect from '../../components/ui/FilterSelect'
 import Pagination from '../../components/ui/Pagination'
 
+// Caso de Uso: CU08 — Registrar notas
 export default function ExamenListPage () {
   const navigate = useNavigate()
   const { getExamenes, deleteExamen, loading: loadingHook } = useExamenes()
@@ -18,7 +19,7 @@ export default function ExamenListPage () {
 
   useEffect(() => {
     (async () => {
-      const d = await getGrupos(1)
+      const d = await getGrupos(1, { per_page: 500 })
       if (d) setGrupos(d.data || d.grupos || [])
     })()
   }, [getGrupos])

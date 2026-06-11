@@ -3,7 +3,10 @@ import usePostulaciones from '../../hooks/usePostulaciones'
 import useCatalogos from '../../hooks/useCatalogos'
 import { toast } from 'sonner'
 import usePostulantes from '../../hooks/usePostulantes'
+
+// Caso de Uso: CU06 — Realizar postulación
 import SubmitButton from '../../components/ui/SubmitButton'
+import { TECLA, str } from '../../constants'
 
 export default function NuevaPostulacionModal ({ show, onClose, onSuccess, preselectedId }) {
   const { createPostulacion } = usePostulaciones()
@@ -91,7 +94,7 @@ export default function NuevaPostulacionModal ({ show, onClose, onSuccess, prese
     if (!q) return
     setSearching(true)
     try {
-      const res = await getPostulantes(1, q, 50)
+      const res = await getPostulantes(1, q, { per_page: 50 })
       setPostulantes(res?.data || [])
     } catch (err) {
       toast.error(err.message)
@@ -101,7 +104,7 @@ export default function NuevaPostulacionModal ({ show, onClose, onSuccess, prese
   }
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
+    if (e.key === str(TECLA.ENTER)) {
       e.preventDefault()
       handleSearch()
     }

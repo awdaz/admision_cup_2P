@@ -31,6 +31,10 @@ class HorarioController extends Controller
             $query->where('dia', $request->dia);
         }
 
+        if ($request->filled('materia_id')) {
+            $query->whereHas('grupo', fn($q) => $q->where('materia_id', $request->materia_id));
+        }
+
         return response()->json($query->get());
     }
 

@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Docente;
+use App\Models\Grupo;
+use App\Models\Materia;
 use App\Models\Pago;
 use App\Models\Postulacion;
 use App\Models\Postulante;
@@ -11,6 +14,7 @@ use Illuminate\Http\Request;
 
 // Controlador para el dashboard con estadísticas generales.
 // Muestra métricas de postulantes, pagos y postulaciones según el rol del usuario.
+// Caso de Uso: CU13 — Visualizar dashboard
 class DashboardController extends Controller
 {
     // Devuelve estadísticas del dashboard.
@@ -59,6 +63,9 @@ class DashboardController extends Controller
         $pagosPendientes = Pago::where('estado', 'pendiente')->count();
         $pagosConfirmados = Pago::where('estado', 'confirmado')->count();
         $postulacionesInscritas = Postulacion::where('estado', 'inscrito')->count();
+        $totalGrupos = Grupo::count();
+        $totalDocentes = Docente::count();
+        $totalMaterias = Materia::count();
 
         return response()->json([
             'total_postulantes' => $totalPostulantes,
@@ -66,6 +73,9 @@ class DashboardController extends Controller
             'pagos_pendientes' => $pagosPendientes,
             'pagos_confirmados' => $pagosConfirmados,
             'postulaciones_inscritas' => $postulacionesInscritas,
+            'total_grupos' => $totalGrupos,
+            'total_docentes' => $totalDocentes,
+            'total_materias' => $totalMaterias,
             '_role' => $user->tipo,
         ]);
     }

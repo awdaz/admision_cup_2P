@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 import useReportes from '../../hooks/useReportes'
 import BadgeStatus from '../../components/ui/BadgeStatus'
+import { APROBACION, ESTADOS, str } from '../../constants'
 
+// Caso de Uso: CU16 — Consultar nota
 export default function PostulanteDashboard () {
   const { getReportePostulanteMisNotas, loading } = useReportes()
   const [data, setData] = useState(null)
@@ -44,6 +46,20 @@ export default function PostulanteDashboard () {
                     <div className='col-md-4'><strong>Promedio General:</strong> {promValue ?? '-'}</div>
                   </div>
 
+                  {post.postulacion_grupos && post.postulacion_grupos.length > 0 && (
+                    <div className='mt-2'>
+                      <h6 className='text-muted'>Grupos Asignados</h6>
+                      <div className='d-flex flex-wrap gap-2'>
+                        {post.postulacion_grupos.map((pg) => (
+                          <span key={pg.id} className='badge bg-info'>
+                            {pg.grupo?.materia?.nombre || pg.materia?.nombre || '-'}: {pg.grupo?.codigo || '-'}
+                            {pg.grupo?.turno ? ` (${pg.grupo.turno.nombre})` : ''}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   {post.rindes && post.rindes.length > 0 && (
                     <>
                       <h6 className='text-muted'>Notas</h6>
@@ -62,7 +78,7 @@ export default function PostulanteDashboard () {
                               <td>{r.examen?.grupo?.materia?.nombre || '-'}</td>
                               <td>{r.examen?.nro || '-'}</td>
                               <td><strong>{r.nota ?? '-'}</strong></td>
-                              <td>{r.nota >= 60 ? <BadgeStatus value='Aprobado' colors={{ Aprobado: 'success' }} /> : <BadgeStatus value='Reprobado' colors={{ Reprobado: 'danger' }} />}</td>
+                              <td>{r.nota >= 60 ? <BadgeStatus value={str(APROBACION.APROBADO)} colors={{ [str(APROBACION.APROBADO)]: 'success' }} /> : <BadgeStatus value={str(APROBACION.REPROBADO)} colors={{ [str(APROBACION.REPROBADO)]: 'danger' }} />}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -74,7 +90,7 @@ export default function PostulanteDashboard () {
                     <div className='mt-2'>
                       <h6 className='text-muted'>Pagos</h6>
                       {post.pagos.map((p) => (
-                        <span key={p.id} className={'badge me-1 ' + (p.estado === 'confirmado' ? 'bg-success' : 'bg-warning')}>
+                        <span key={p.id} className={'badge me-1 ' + (p.estado === str(ESTADOS.PAGO.CONFIRMADO) ? 'bg-success' : 'bg-warning')}>
                           ${p.monto} - {p.estado}
                         </span>
                       ))}

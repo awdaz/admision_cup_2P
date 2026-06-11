@@ -2,7 +2,9 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { toast } from 'sonner'
 import cliente from '../api/cliente'
+import { SEXO, str } from '../constants'
 
+// Caso de Uso: CU04 — Auto-Registro de postulante
 // Página de registro de nuevo postulante
 // Ruta: "/registro" — Acceso: Público (cualquier persona)
 // Formulario completo con datos personales y de acceso; al enviar llama a POST /register
@@ -111,9 +113,9 @@ export default function RegistroPage () {
                       <label className='form-label'>Sexo</label>
                       <select name='sexo' className='form-select' value={form.sexo} onChange={handleChange} required>
                         <option value=''>Seleccionar...</option>
-                        <option value='Masculino'>Masculino</option>
-                        <option value='Femenino'>Femenino</option>
-                        <option value='Otro'>Otro</option>
+                        <option value={str(SEXO.MASCULINO)}>Masculino</option>
+                        <option value={str(SEXO.FEMENINO)}>Femenino</option>
+                        <option value={str(SEXO.OTRO)}>Otro</option>
                       </select>
                     </div>
                     <div className='col-md-4'>

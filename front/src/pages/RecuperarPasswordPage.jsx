@@ -1,14 +1,16 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import cliente from '../api/cliente'
 import Alert from '../components/ui/Alert'
 
+// Caso de Uso: CU03 — Recuperar Contraseña
 // Página para solicitar recuperación de contraseña
 // Ruta: "/recuperar-password" — Acceso: Público (sin autenticación)
-// Envía un correo electrónico con instrucciones o muestra un token en modo prueba
+// Envía un código de 6 dígitos al correo del usuario
 export default function RecuperarPasswordPage () {
-  // Correo electrónico ingresado por el usuario
-  const [email, setEmail] = useState('')
+  const navigate = useNavigate()
+  // Nombre de usuario ingresado
+  const [username, setUsername] = useState('')
   // Estado de carga mientras se envía la solicitud
   const [loading, setLoading] = useState(false)
   // Mensaje de éxito para mostrar al usuario
@@ -16,18 +18,15 @@ export default function RecuperarPasswordPage () {
   // Mensaje de error si la solicitud falla
   const [error, setError] = useState('')
 
-  // Envía el email al backend para solicitar el token de recuperación
+  // Envía el username al backend; busca el email asociado y envía código de recuperación
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
     setMessage('')
     setLoading(true)
     try {
-      const data = await cliente.post('/forgot-password', { email })
-      setMessage('Si el correo está registrado, recibirá las instrucciones.')
-      if (data?.token) {
-        setMessage(`Token de recuperación (modo prueba): ${data.token}`)
-      }
+      const res = await cliente.post('/forgot-password', { username })
+      navigate(`/restablecer-password?email=${encodeURIComponent(res.email)}`)
     } catch (err) {
       setError(err.message)
     } finally {
@@ -42,7 +41,7 @@ export default function RecuperarPasswordPage () {
           <div className='text-center mb-4'>
             <i className='bi bi-shield-lock' style={{ fontSize: '3rem', color: 'var(--primary)' }} />
             <h3 className='mt-2'>Recuperar Contraseña</h3>
-            <p className='text-muted'>Ingrese su correo electrónico registrado</p>
+            <p className='text-muted'>Ingrese su nombre de usuario</p>
           </div>
 
           <Alert type='danger' message={error} />
@@ -50,14 +49,14 @@ export default function RecuperarPasswordPage () {
 
           <form onSubmit={handleSubmit}>
             <div className='mb-4'>
-              <label className='form-label'>Correo Electrónico</label>
+              <label className='form-label'>Nombre de Usuario</label>
               <div className='input-group'>
-                <span className='input-group-text'><i className='bi bi-envelope' /></span>
+                <span className='input-group-text'><i className='bi bi-person' /></span>
                 <input
-                  type='email'
+                  type='text'
                   className='form-control'
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   required
                   autoFocus
                 />

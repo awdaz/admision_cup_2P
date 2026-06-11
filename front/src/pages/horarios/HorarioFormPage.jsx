@@ -7,9 +7,9 @@ import Loader from '../../components/ui/Loader'
 import FormPageLayout from '../../components/ui/FormPageLayout'
 import SubmitButton from '../../components/ui/SubmitButton'
 import CancelButton from '../../components/ui/CancelButton'
+import { DIAS_SEMANA, str } from '../../constants'
 
-// Días de la semana disponibles para horarios
-const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+const DIAS = DIAS_SEMANA.map(str)
 
 export default function HorarioFormPage () {
   const { id } = useParams()

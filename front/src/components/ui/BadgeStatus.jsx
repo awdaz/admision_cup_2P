@@ -12,6 +12,7 @@ const defaultColors = {
 
 export default function BadgeStatus ({ value, colors = defaultColors, className = '' }) {
   if (!value) return null
-  const bg = colors[value] || 'secondary'
-  return <span className={`badge bg-${bg} ${className}`}>{value}</span>
+  const key = value?.description ?? value
+  const bg = colors[key] ?? 'secondary'
+  return <span className={`badge bg-${bg} ${className}`}>{key}</span>
 }

@@ -1,3 +1,4 @@
+// Caso de Uso: CU17 — Gestionar usuario
 // Página de formulario para crear o editar un usuario
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -7,6 +8,7 @@ import Loader from '../../components/ui/Loader'
 import FormPageLayout from '../../components/ui/FormPageLayout'
 import SubmitButton from '../../components/ui/SubmitButton'
 import CancelButton from '../../components/ui/CancelButton'
+import { ROLES, str } from '../../constants'
 
 export default function UserFormPage () {
   const navigate = useNavigate()
@@ -18,7 +20,7 @@ export default function UserFormPage () {
     username: '',
     email: '',
     password: '',
-    tipo: 'postulante',
+    tipo: str(ROLES.POSTULANTE),
     persona_id: '',
     activo: true
   })
@@ -38,7 +40,7 @@ export default function UserFormPage () {
           username: user.username || '',
           email: user.email || '',
           password: '',
-          tipo: user.tipo || 'postulante',
+          tipo: user.tipo || str(ROLES.POSTULANTE),
           persona_id: user.persona_id || '',
           activo: user.activo ?? true
         })
@@ -121,9 +123,9 @@ export default function UserFormPage () {
           <div className='col-md-6'>
             <label className='form-label'>Rol</label>
             <select name='tipo' className='form-select' value={form.tipo} onChange={handleChange} required>
-              <option value='admin'>Administrador</option>
-              <option value='docente'>Docente</option>
-              <option value='postulante'>Postulante</option>
+              <option value={str(ROLES.ADMIN)}>Administrador</option>
+              <option value={str(ROLES.DOCENTE)}>Docente</option>
+              <option value={str(ROLES.POSTULANTE)}>Postulante</option>
             </select>
           </div>
 

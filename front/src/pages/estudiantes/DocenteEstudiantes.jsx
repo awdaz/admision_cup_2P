@@ -1,5 +1,6 @@
 import NotasView from '../../components/estudiantes/NotasView'
 
+// Casos de Uso: CU08 (Registrar notas), CU09 (Editar notas)
 export default function DocenteEstudiantes () {
   return (
     <NotasView

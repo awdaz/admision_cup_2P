@@ -9,12 +9,14 @@ import StudentRindesTable from './StudentRindesTable'
 import TablaNotas from './TablaNotas'
 import EditarNotaModal from './EditarNotaModal'
 import { toast } from 'sonner'
+import { TECLA, str } from '../../constants'
 
+// Casos de Uso: CU08 (Registrar notas), CU09 (Editar notas)
 export default function NotasView ({ grupoSelectWidth, renderGrupoOption }) {
   const { getGrupos, getGrupo } = useGrupos()
   const { getExamenes, getExamenRindes } = useExamenes()
   const { storeRinde, updateRinde, getRindesByPostulacion } = useRindes()
-  const { getPostulaciones } = usePostulaciones()
+  const { getPostulaciones, getPostulacion } = usePostulaciones()
   const { getMaterias } = useCatalogos()
   const [materias, setMaterias] = useState([])
   const [grupos, setGrupos] = useState([])
@@ -31,6 +33,7 @@ export default function NotasView ({ grupoSelectWidth, renderGrupoOption }) {
   const [filtroSinNota, setFiltroSinNota] = useState(false)
   const [selectedPostulacion, setSelectedPostulacion] = useState(null)
   const [studentRindes, setStudentRindes] = useState([])
+  const [studentGrupos, setStudentGrupos] = useState([])
   const [loadingStudent, setLoadingStudent] = useState(false)
   const searchRef = useRef(null)
   const [modalRinde, setModalRinde] = useState(null)
@@ -57,35 +60,56 @@ export default function NotasView ({ grupoSelectWidth, renderGrupoOption }) {
   }, [grupos])
 
   const gruposStudent = useMemo(() => {
-    if (!studentRindes.length) return []
-    let r = studentRindes
-    if (selectedMateria) r = r.filter((x) => String(x.examen?.grupo?.materia_id) === String(selectedMateria))
-    if (selectedTurno) r = r.filter((x) => String(x.examen?.grupo?.turno_id) === String(selectedTurno))
-    const map = {}
-    r.forEach((x) => { if (x.examen?.grupo) map[x.examen.grupo.id] = x.examen.grupo })
-    return Object.values(map)
-  }, [studentRindes, selectedMateria, selectedTurno])
+    if (studentRindes.length > 0) {
+      let r = studentRindes
+      if (selectedMateria) r = r.filter((x) => String(x.examen?.grupo?.materia_id) === String(selectedMateria))
+      if (selectedTurno) r = r.filter((x) => String(x.examen?.grupo?.turno_id) === String(selectedTurno))
+      const map = {}
+      r.forEach((x) => { if (x.examen?.grupo) map[x.examen.grupo.id] = x.examen.grupo })
+      return Object.values(map)
+    }
+    if (studentGrupos.length > 0) {
+      let g = studentGrupos
+      if (selectedMateria) g = g.filter((x) => String(x.grupo?.materia_id) === String(selectedMateria))
+      if (selectedTurno) g = g.filter((x) => String(x.grupo?.turno_id) === String(selectedTurno))
+      return g.map((pg) => pg.grupo).filter(Boolean)
+    }
+    return []
+  }, [studentRindes, studentGrupos, selectedMateria, selectedTurno])
 
   const turnosStudent = useMemo(() => {
-    if (!studentRindes.length) return []
-    let r = studentRindes
-    if (selectedMateria) r = r.filter((x) => String(x.examen?.grupo?.materia_id) === String(selectedMateria))
-    if (selectedGrupo) r = r.filter((x) => String(x.examen?.grupo_id) === String(selectedGrupo))
-    const map = {}
-    r.forEach((x) => { if (x.examen?.grupo?.turno) map[x.examen.grupo.turno.id] = x.examen.grupo.turno })
-    return Object.values(map)
-  }, [studentRindes, selectedMateria, selectedGrupo])
+    if (studentRindes.length > 0) {
+      let r = studentRindes
+      if (selectedMateria) r = r.filter((x) => String(x.examen?.grupo?.materia_id) === String(selectedMateria))
+      if (selectedGrupo) r = r.filter((x) => String(x.examen?.grupo_id) === String(selectedGrupo))
+      const map = {}
+      r.forEach((x) => { if (x.examen?.grupo?.turno) map[x.examen.grupo.turno.id] = x.examen.grupo.turno })
+      return Object.values(map)
+    }
+    if (studentGrupos.length > 0) {
+      let g = studentGrupos
+      if (selectedMateria) g = g.filter((x) => String(x.grupo?.materia_id) === String(selectedMateria))
+      if (selectedGrupo) g = g.filter((x) => String(x.grupo_id) === String(selectedGrupo))
+      const map = {}
+      g.forEach((x) => { if (x.grupo?.turno) map[x.grupo.turno.id] = x.grupo.turno })
+      return Object.values(map)
+    }
+    return []
+  }, [studentRindes, studentGrupos, selectedMateria, selectedGrupo])
 
   const examenesStudent = useMemo(() => {
-    if (!studentRindes.length) return []
-    let r = studentRindes
-    if (selectedMateria) r = r.filter((x) => String(x.examen?.grupo?.materia_id) === String(selectedMateria))
-    if (selectedGrupo) r = r.filter((x) => String(x.examen?.grupo_id) === String(selectedGrupo))
-    if (selectedTurno) r = r.filter((x) => String(x.examen?.grupo?.turno_id) === String(selectedTurno))
-    const map = {}
-    r.forEach((x) => { if (x.examen) map[x.examen.id] = x.examen })
-    return Object.values(map)
-  }, [studentRindes, selectedMateria, selectedGrupo, selectedTurno])
+    if (studentRindes.length > 0) {
+      let r = studentRindes
+      if (selectedMateria) r = r.filter((x) => String(x.examen?.grupo?.materia_id) === String(selectedMateria))
+      if (selectedGrupo) r = r.filter((x) => String(x.examen?.grupo_id) === String(selectedGrupo))
+      if (selectedTurno) r = r.filter((x) => String(x.examen?.grupo?.turno_id) === String(selectedTurno))
+      const map = {}
+      r.forEach((x) => { if (x.examen) map[x.examen.id] = x.examen })
+      return Object.values(map)
+    }
+    if (selectedGrupo) return examenes
+    return []
+  }, [studentRindes, selectedMateria, selectedGrupo, selectedTurno, examenes])
 
   const studentRindesFiltrados = useMemo(() => {
     if (!studentRindes.length) return []
@@ -137,11 +161,19 @@ export default function NotasView ({ grupoSelectWidth, renderGrupoOption }) {
   const handleGrupoChange = async (grupoId) => {
     setSelectedGrupo(grupoId)
     if (selectedPostulacion) {
-      setSelectedExamen(''); setEstudiantes([]); setNotas({})
+      setSelectedExamen(''); setNotas({})
+      if (grupoId) {
+        try {
+          const d = await getExamenes(1, grupoId)
+          setExamenes(d?.data || [])
+        } catch (err) { toast.error(err.message) }
+      } else {
+        setExamenes([])
+      }
       return
     }
     setSelectedPostulacion(null)
-    setStudentRindes([])
+    setStudentRindes([]); setStudentGrupos([])
     setSelectedExamen(''); setEstudiantes([]); setNotas({})
     if (!grupoId) return
     try {
@@ -159,7 +191,7 @@ export default function NotasView ({ grupoSelectWidth, renderGrupoOption }) {
     setBusqueda('')
     setResultadosBusqueda([])
     setSelectedPostulacion(null)
-    setStudentRindes([])
+    setStudentRindes([]); setStudentGrupos([])
     setSelectedMateria('')
     setSelectedTurno('')
     setSelectedGrupo('')
@@ -193,13 +225,22 @@ export default function NotasView ({ grupoSelectWidth, renderGrupoOption }) {
     setNotas({})
     setLoadingStudent(true)
     try {
-      const data = await getRindesByPostulacion(postulacion.id)
-      setStudentRindes(data?.rindes || [])
+      const [rindesData, postulacionData] = await Promise.all([
+        getRindesByPostulacion(postulacion.id),
+        getPostulacion(postulacion.id)
+      ])
+      setStudentRindes(rindesData?.rindes || [])
+      const grupos = postulacionData?.postulacion_grupos || []
+      setStudentGrupos(grupos)
+      if (grupos.length > 0 && !selectedMateria) {
+        const materiaId = grupos[0]?.grupo?.materia_id
+        if (materiaId) setSelectedMateria(String(materiaId))
+      }
     } catch (err) { toast.error(err.message) } finally { setLoadingStudent(false) }
   }
 
   const handleEditStart = (rindeOrPost) => {
-    if (selectedPostulacion) {
+    if (selectedPostulacion && !selectedExamen) {
       setModalRinde(rindeOrPost)
       setModalNotaValue(rindeOrPost.nota ?? '')
     } else {
@@ -275,7 +316,7 @@ export default function NotasView ({ grupoSelectWidth, renderGrupoOption }) {
           <input
             type='text' className='form-control' placeholder='Buscar por CI, nombre o apellido...'
             value={busqueda} onChange={(e) => setBusqueda(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleBuscar()}
+            onKeyDown={(e) => e.key === str(TECLA.ENTER) && handleBuscar()}
           />
           <button className='btn btn-outline-primary' onClick={handleBuscar} disabled={buscando}>
             {buscando ? <span className='spinner-border spinner-border-sm' /> : <i className='bi bi-search' />}
@@ -285,7 +326,7 @@ export default function NotasView ({ grupoSelectWidth, renderGrupoOption }) {
           </button>
         </div>
         <select className='form-select form-select-sm' style={{ flex: '0 1 clamp(140px, 12%, 220px)' }} value={selectedMateria || ''} onChange={(e) => handleMateriaChange(e.target.value)}>
-          <option value=''>{selectedMateria ? 'Quitar filtro' : 'Materia'}</option>
+          <option value=''>Materia</option>
           {materias.map((m) => (
             <option key={m.id} value={m.id}>{m.nombre}</option>
           ))}
@@ -294,7 +335,7 @@ export default function NotasView ({ grupoSelectWidth, renderGrupoOption }) {
           className='form-select form-select-sm' style={{ flex: '0 1 clamp(180px, 18%, 360px)' }} value={selectedGrupo || ''} onChange={(e) => handleGrupoChange(e.target.value)}
           disabled={!selectedPostulacion && (!selectedMateria || gruposFiltrados.length === 0)}
         >
-          <option value=''>{selectedGrupo ? 'Quitar filtro' : 'Grupo'}</option>
+          <option value=''>Grupo</option>
           {selectedPostulacion
             ? gruposStudent.map((g) => (
               <option key={g.id} value={g.id}>{renderGrupoOption(g)}</option>
@@ -307,7 +348,7 @@ export default function NotasView ({ grupoSelectWidth, renderGrupoOption }) {
           className='form-select form-select-sm' style={{ flex: '0 1 clamp(100px, 8%, 160px)' }} value={selectedTurno || ''} onChange={(e) => handleTurnoChange(e.target.value)}
           disabled={!selectedPostulacion && (!selectedMateria || turnosDisponibles.length === 0)}
         >
-          <option value=''>{selectedTurno ? 'Quitar filtro' : 'Turno'}</option>
+          <option value=''>Turno</option>
           {turnosDisponibles.map((t) => (
             <option key={t.id} value={t.id}>{t.nombre}</option>
           ))}
@@ -316,14 +357,12 @@ export default function NotasView ({ grupoSelectWidth, renderGrupoOption }) {
           className='form-select form-select-sm' style={{ flex: '0 1 clamp(180px, 22%, 320px)' }} value={selectedExamen || ''} onChange={(e) => setSelectedExamen(e.target.value)}
           disabled={!selectedPostulacion && (!selectedMateria || examenes.length === 0)}
         >
-          <option value=''>{selectedExamen ? 'Quitar filtro' : 'Examen'}</option>
-          {selectedPostulacion
-            ? examenesStudent.map((e) => (
-              <option key={e.id} value={e.id}>{e.nro} - {e.descripcion || 'Examen #' + e.nro}</option>
-            ))
-            : examenes.map((e) => (
-              <option key={e.id} value={e.id}>{e.nro} - {e.descripcion || ('Examen #' + e.nro)} ({e.fecha ? new Date(e.fecha).toLocaleDateString() : ''}) - {e.porcentaje}%</option>
-            ))}
+          <option value=''>Examen</option>
+          {(selectedPostulacion && selectedGrupo ? examenes : selectedPostulacion ? examenesStudent : examenes).map((e) => (
+            <option key={e.id} value={e.id}>
+              {e.nro} - {e.descripcion || ('Examen #' + e.nro)}{selectedPostulacion ? '' : ` (${e.fecha ? new Date(e.fecha).toLocaleDateString() : ''}) - ${e.porcentaje}%`}
+            </option>
+          ))}
         </select>
       </div>
       {resultadosBusqueda.length > 0 && (
@@ -349,20 +388,24 @@ export default function NotasView ({ grupoSelectWidth, renderGrupoOption }) {
                 </div>
               </div>
             )}
-            {selectedPostulacion
+            {selectedPostulacion && selectedGrupo && selectedExamen
               ? (
-                <StudentRindesTable
-                  studentRindesFiltrados={studentRindesFiltrados}
-                  selectedMateria={selectedMateria}
-                  rindesPorMateria={rindesPorMateria}
-                  promedioFiltrado={promedioFiltrado}
-                  handleEditStart={handleEditStart}
-                  loadingStudent={loadingStudent}
-                />
+                <TablaNotas estudiantes={[selectedPostulacion]} notas={notas} onEditNota={handleEditStart} />
                 )
-              : (
-                <TablaNotas estudiantes={estudiantesFiltrados} notas={notas} onEditNota={handleEditStart} onSeleccionarEstudiante={handleSeleccionarEstudiante} />
-                )}
+              : selectedPostulacion
+                ? (
+                  <StudentRindesTable
+                    studentRindesFiltrados={studentRindesFiltrados}
+                    selectedMateria={selectedMateria}
+                    rindesPorMateria={rindesPorMateria}
+                    promedioFiltrado={promedioFiltrado}
+                    handleEditStart={handleEditStart}
+                    loadingStudent={loadingStudent}
+                  />
+                  )
+                : (
+                  <TablaNotas estudiantes={estudiantesFiltrados} notas={notas} onEditNota={handleEditStart} />
+                  )}
           </>
           )
         : (

@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 // Controlador para la gestión de notas (rindes) de postulantes en exámenes.
 // Permite listar, registrar, consultar y eliminar notas.
 // Incluye lógica de autorización para docentes y postulantes.
+// Casos de Uso: CU08 (Registrar notas), CU09 (Editar notas)
 class RindeController extends Controller
 {
     // Lista todas las notas con paginación (50 por página).

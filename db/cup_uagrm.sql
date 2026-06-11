@@ -1074,3 +1074,123 @@ GROUP BY d.id, d.cod_docente, per.nombre, per.apellido,
          d.es_profesional_area, d.tiene_maestria,
          d.tiene_diplomado_edu_sup, d.contratado;
 
+-- ============================================================
+-- PROCEDIMIENTO: Asignar postulantes a grupos
+-- ============================================================
+-- Parámetros:
+--   p_admision_id (INTEGER): ID de la admisión a procesar.
+-- Lógica:
+--   1. Itera todas las postulaciones de la admisión donde:
+--      - El postulante tiene requisitos verificados
+--      - Existe al menos un pago confirmado
+--      - Estado no es 'cancelado' ni 'pendiente'
+--   2. Para cada postulación, asigna a las 4 materias (MAT, FIS, COM, ING)
+--      buscando un grupo del mismo turno con cupo disponible.
+--   3. Si no hay grupo con cupo, omite esa materia y emite advertencia.
+
+CREATE PROCEDURE sp_asignar_postulantes_grupos(
+    p_admision_id INTEGER
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    r RECORD;
+    v_materia RECORD;
+    v_grupo_id INTEGER;
+    v_docente_id INTEGER;
+    v_nuevo_codigo VARCHAR;
+    v_ultimo_id INTEGER;
+    v_total_asignados INTEGER := 0;
+    v_total_omitidos INTEGER := 0;
+BEGIN
+    FOR r IN
+        SELECT p.id AS postulacion_id, p.turno_id,
+               per.nombre || ' ' || per.apellido AS postulante
+        FROM postulacion p
+        JOIN postulante po ON po.id = p.postulante_id
+        JOIN persona per ON per.id = po.persona_id
+        WHERE p.admision_id = p_admision_id
+          AND p.estado NOT IN ('cancelado', 'pendiente')
+          AND po.requisitos_verificado = TRUE
+          AND EXISTS (
+              SELECT 1 FROM pago pg
+              WHERE pg.postulacion_id = p.id
+                AND pg.estado = 'confirmado'
+          )
+        ORDER BY p.id
+    LOOP
+        FOR v_materia IN
+            SELECT id FROM materia ORDER BY id
+        LOOP
+            -- Evitar duplicados (skip si ya tiene grupo para esta materia)
+            IF EXISTS (
+                SELECT 1 FROM postulacion_grupo
+                WHERE postulacion_id = r.postulacion_id
+                  AND materia_id = v_materia.id
+            ) THEN
+                CONTINUE;
+            END IF;
+
+            -- Buscar grupo con cupo disponible
+            SELECT g.id INTO v_grupo_id
+            FROM grupo g
+            WHERE g.materia_id = v_materia.id
+              AND g.turno_id = r.turno_id
+              AND (
+                  SELECT COUNT(*) FROM postulacion_grupo pg
+                  WHERE pg.grupo_id = g.id
+              ) < g.cupo
+            LIMIT 1;
+
+            IF v_grupo_id IS NOT NULL THEN
+                BEGIN
+                    INSERT INTO postulacion_grupo (postulacion_id, grupo_id, materia_id)
+                    VALUES (r.postulacion_id, v_grupo_id, v_materia.id);
+                    v_total_asignados := v_total_asignados + 1;
+                EXCEPTION WHEN unique_violation THEN
+                    NULL;
+                END;
+            ELSE
+                -- Crear grupo nuevo con docente aleatorio (< 4 grupos)
+                SELECT d.id INTO v_docente_id
+                FROM docente d
+                WHERE d.contratado = TRUE
+                  AND (
+                      SELECT COUNT(*) FROM grupo g WHERE g.docente_id = d.id
+                  ) < 4
+                ORDER BY RANDOM()
+                LIMIT 1;
+
+                IF v_docente_id IS NOT NULL THEN
+                    SELECT COALESCE(MAX(id), 0) + 1 INTO v_ultimo_id FROM grupo;
+                    v_nuevo_codigo := 'G' || v_ultimo_id || '-' || v_materia.id || '-' || r.turno_id || '-A';
+
+                    INSERT INTO grupo (codigo, nombre, cupo, materia_id, docente_id, turno_id)
+                    VALUES (
+                        v_nuevo_codigo,
+                        'Grupo A - Materia ' || v_materia.id || ' (Turno ' || r.turno_id || ')',
+                        70,
+                        v_materia.id,
+                        v_docente_id,
+                        r.turno_id
+                    );
+
+                    SELECT id INTO v_grupo_id FROM grupo WHERE codigo = v_nuevo_codigo;
+
+                    INSERT INTO postulacion_grupo (postulacion_id, grupo_id, materia_id)
+                    VALUES (r.postulacion_id, v_grupo_id, v_materia.id);
+                    v_total_asignados := v_total_asignados + 1;
+                ELSE
+                    RAISE WARNING 'Postulacion % (%): No hay grupo ni docente disponible para materia %',
+                                  r.postulacion_id, r.postulante, v_materia.id;
+                    v_total_omitidos := v_total_omitidos + 1;
+                END IF;
+            END IF;
+        END LOOP;
+    END LOOP;
+
+    RAISE NOTICE 'Asignación completada: % asignaciones, % materias sin grupo disponible',
+                 v_total_asignados, v_total_omitidos;
+END;
+$$;
+

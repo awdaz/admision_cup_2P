@@ -1,16 +1,22 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { toast } from 'sonner'
+import { confirmDialog } from '../../utils/confirmDialog'
 import useAdmisiones from '../../hooks/useAdmisiones'
 import FilterSelect from '../../components/ui/FilterSelect'
 import StatCard from '../../components/ui/StatCard'
 import ProgressBar from '../../components/ui/ProgressBar'
+import { ESTADOS, str } from '../../constants'
+
+// Casos de Uso: CU11 (Controlar cupos), CU12 (Asignar grupos)
+import ExportButtons from '../../components/ui/ExportButtons'
 
 export default function AdmisionListPage () {
-  const { getAdmisiones, getCupos } = useAdmisiones()
+  const { getAdmisiones, getCupos, asignarGrupos, procesarAdmision, generarGrupos } = useAdmisiones()
   const [admisiones, setAdmisiones] = useState([])
   const [selectedId, setSelectedId] = useState(null)
   const [selectedGestion, setSelectedGestion] = useState('')
   const [cupos, setCupos] = useState(null)
+  const [asignando, setAsignando] = useState(false)
 
   const loadAdmisiones = useCallback(async () => {
     try {
@@ -71,16 +77,78 @@ export default function AdmisionListPage () {
 
   const r = cupos?.resumen || {}
 
+  const exportColumns = [
+    { key: 'nombre', label: 'Carrera' },
+    { key: 'cupo', label: 'Cupo Total' },
+    { key: 'admitidos', label: 'Admitidos' },
+    { key: 'vacantes', label: 'Vacantes' },
+    { label: 'Ocupación', render: (c) => c.cupo > 0 ? Math.round((c.admitidos / c.cupo) * 100) + '%' : '0%' }
+  ]
+
   return (
     <div>
-      <div className='d-flex flex-wrap gap-2 mb-3'>
+      <div className='d-flex flex-wrap gap-2 mb-3 align-items-center'>
         <div style={{ flex: '0 1 clamp(140px, 20%, 250px)' }}>
           <FilterSelect value={selectedGestion} onChange={(e) => setSelectedGestion(e.target.value)} options={gestiones} />
         </div>
         {selectedAdmision && (
-          <span className={`badge fs-6 bg-${selectedAdmision.estado === 'activo' ? 'success' : selectedAdmision.estado === 'finalizada' ? 'secondary' : 'warning'}`}>
+          <span className={`badge fs-6 bg-${selectedAdmision.estado === str(ESTADOS.ADMISION.ACTIVO) ? 'success' : selectedAdmision.estado === str(ESTADOS.ADMISION.FINALIZADA) ? 'secondary' : 'warning'}`}>
             {selectedAdmision.estado}
           </span>
+        )}
+        {cupos && <ExportButtons columns={exportColumns} data={cupos?.carreras} title='Cupos-Admision' />}
+        {selectedAdmision?.estado === str(ESTADOS.ADMISION.ACTIVO) && (
+          <div className='d-flex flex-wrap gap-2 ms-auto'>
+            <button
+              className='btn btn-outline-primary btn-sm'
+              onClick={async () => {
+                if (!await confirmDialog('¿Procesar admisión? Esto asignará carreras según promedios y cupos.', 'Procesar')) return
+                try {
+                  await procesarAdmision(selectedAdmision.id)
+                  toast.success('Admisión procesada correctamente')
+                  loadCupos(selectedAdmision.id)
+                } catch (err) {
+                  toast.error(err.message)
+                }
+              }}
+            >
+              <i className='bi bi-gear me-1' />Procesar Admisión
+            </button>
+            <button
+              className='btn btn-outline-info btn-sm'
+              onClick={async () => {
+                if (!await confirmDialog('¿Generar grupos? Se crearán grupos por materia y turno.', 'Generar')) return
+                try {
+                  await generarGrupos(selectedAdmision.id)
+                  toast.success('Grupos generados correctamente')
+                } catch (err) {
+                  toast.error(err.message)
+                }
+              }}
+            >
+              <i className='bi bi-people me-1' />Generar Grupos
+            </button>
+            <button
+              className='btn btn-success btn-sm'
+              disabled={asignando}
+              onClick={async () => {
+                if (!await confirmDialog('¿Asignar postulantes a grupos? Se asignarán los que cumplen requisitos y pagaron.', 'Asignar')) return
+                setAsignando(true)
+                try {
+                  const res = await asignarGrupos(selectedAdmision.id)
+                  toast.success(`Asignación completada: ${res?.total ?? 0} asignaciones`)
+                } catch (err) {
+                  toast.error(err.message)
+                } finally {
+                  setAsignando(false)
+                }
+              }}
+            >
+              {asignando
+                ? <><span className='spinner-border spinner-border-sm me-1' role='status' />Asignando...</>
+                : <><i className='bi bi-check2-all me-1' />Asignar a Grupos</>}
+            </button>
+          </div>
         )}
       </div>
 

@@ -3,6 +3,7 @@ import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { toast } from 'sonner'
 import useAuthStore from '../store/authStore'
 
+// Caso de Uso: CU01 — Iniciar Sesión
 // Página de inicio de sesión
 // Ruta: "/login" — Acceso: Público (usuarios no autenticados)
 // Permite al usuario ingresar con username y contraseña, redirige al dashboard

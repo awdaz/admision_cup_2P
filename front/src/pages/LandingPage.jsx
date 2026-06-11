@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 
-// Página de aterrizaje (Landing Page)
+// Página pública de aterrizaje (Landing Page) — sin CU asociado
 // Ruta: "/" — Acceso: Público (sin autenticación)
 // Muestra la pantalla de bienvenida del sistema CUP - FICCT con enlaces a login y registro
 export default function LandingPage () {

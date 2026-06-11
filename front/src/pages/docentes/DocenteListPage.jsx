@@ -9,7 +9,9 @@ import ProgressBar from '../../components/ui/ProgressBar'
 import BadgeStatus from '../../components/ui/BadgeStatus'
 import HeaderBar from '../../components/ui/HeaderBar'
 import Pagination from '../../components/ui/Pagination'
+import { SI_NO, str } from '../../constants'
 
+// Caso de Uso: CU15 — Gestionar docentes
 export default function DocenteListPage () {
   const navigate = useNavigate()
   const { getDocentes, deleteDocente, getDisponibilidad, loading: loadingHook } = useDocentes()
@@ -74,8 +76,8 @@ export default function DocenteListPage () {
       key: 'profesional_area',
       label: 'Prof. Área',
       render: (row) => row.es_profesional_area
-        ? <BadgeStatus value='Sí' colors={{ Sí: 'success' }} />
-        : <BadgeStatus value='No' />
+        ? <BadgeStatus value={str(SI_NO.SI)} colors={{ [str(SI_NO.SI)]: 'success' }} />
+        : <BadgeStatus value={str(SI_NO.NO)} />
     },
     {
       key: 'contratado',
@@ -120,7 +122,7 @@ export default function DocenteListPage () {
                   <tr key={d.docente_id}>
                     <td>{d.docente}</td>
                     <td>{d.cod_docente}</td>
-                    <td>{d.contratado ? <BadgeStatus value='Si' colors={{ Si: 'success' }} /> : <BadgeStatus value='No' />}</td>
+                    <td>{d.contratado ? <BadgeStatus value={str(SI_NO.SI)} colors={{ [str(SI_NO.SI)]: 'success' }} /> : <BadgeStatus value={str(SI_NO.NO)} />}</td>
                     <td>{d.grupos_asignados || 0}</td>
                     <td>{d.grupos_disponibles || 0}</td>
                     <td style={{ width: 150 }}>

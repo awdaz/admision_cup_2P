@@ -19,11 +19,13 @@ export default function usePostulantes () {
     }
   }, [])
 
-  const getPostulantes = useCallback((page = 1, search = '', perPage = null) => {
+  const getPostulantes = useCallback((page = 1, search = '', extra = {}) => {
     const params = new URLSearchParams()
     if (page) params.append('page', page)
     if (search) params.append('search', search)
-    if (perPage) params.append('per_page', perPage)
+    if (extra.per_page) params.append('per_page', extra.per_page)
+    if (extra.aprobado !== undefined && extra.aprobado !== '') params.append('aprobado', extra.aprobado)
+    if (extra.estado_postulacion) params.append('estado_postulacion', extra.estado_postulacion)
     const qs = params.toString()
     return exec(() => cliente.get(`/postulantes${qs ? '?' + qs : ''}`))
   }, [exec])

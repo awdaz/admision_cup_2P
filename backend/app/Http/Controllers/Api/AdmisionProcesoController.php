@@ -10,6 +10,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+// Casos de Uso: CU11 (Controlar cupos), CU12 (Asignar grupos)
 class AdmisionProcesoController extends Controller
 {
     public function procesar($admisionId): JsonResponse
@@ -120,5 +121,31 @@ class AdmisionProcesoController extends Controller
             ->get();
 
         return response()->json($postulantes);
+    }
+
+    public function asignarGrupos($admisionId): JsonResponse
+    {
+        $admision = Admision::find($admisionId);
+        if (!$admision) {
+            return response()->json(['message' => 'Admisión no encontrada.'], 404);
+        }
+
+        try {
+            DB::select("CALL sp_asignar_postulantes_grupos(?)", [$admisionId]);
+
+            $asignaciones = \App\Models\PostulacionGrupo::with([
+                'postulacion.postulante.persona',
+                'grupo.materia',
+            ])->whereHas('postulacion', fn($q) => $q->where('admision_id', $admisionId))
+                ->get();
+
+            return response()->json([
+                'message' => 'Postulantes asignados a grupos correctamente.',
+                'total' => $asignaciones->count(),
+                'asignaciones' => $asignaciones,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al asignar grupos.', 'error' => $e->getMessage()], 500);
+        }
     }
 }

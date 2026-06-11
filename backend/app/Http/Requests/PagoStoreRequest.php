@@ -13,12 +13,17 @@ class PagoStoreRequest extends FormRequest
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'postulacion_id' => 'required|exists:postulacion,id',
-            'postulante_id' => 'required|exists:postulante,id',
             'monto' => 'required|numeric|min:0.01',
-            'metodo_pago' => 'required|string|in:efectivo,transferencia,tarjeta,qr,pasarela',
+            'metodo_pago' => 'required|string|in:pasarela',
         ];
+
+        if ($this->user() && $this->user()->tipo === 'admin') {
+            $rules['postulante_id'] = 'required|exists:postulante,id';
+        }
+
+        return $rules;
     }
 
     public function messages(): array
@@ -31,7 +36,6 @@ class PagoStoreRequest extends FormRequest
             'monto.required' => 'El monto es obligatorio.',
             'monto.min' => 'El monto debe ser mayor a cero.',
             'metodo_pago.required' => 'El método de pago es obligatorio.',
-            'metodo_pago.in' => 'El método de pago no es válido.',
         ];
     }
 }

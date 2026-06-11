@@ -1,5 +1,5 @@
 // Componente de tabla reutilizable con soporte para carga, columnas personalizadas y acciones
-export default function DataTable ({ columns, data, loading, onEdit, onDelete }) {
+export default function DataTable ({ columns, data, loading, onView, onEdit, onDelete }) {
   // Muestra spinner mientras se cargan los datos
   if (loading) {
     return (
@@ -30,7 +30,7 @@ export default function DataTable ({ columns, data, loading, onEdit, onDelete })
               <th key={col.key}>{col.label}</th>
             ))}
             {/* Columna de acciones visible si hay callbacks onEdit u onDelete */}
-            {(onEdit || onDelete) && <th style={{ width: '120px' }}>Acciones</th>}
+            {(onView || onEdit || onDelete) && <th style={{ width: '140px' }}>Acciones</th>}
           </tr>
         </thead>
         <tbody>
@@ -43,9 +43,14 @@ export default function DataTable ({ columns, data, loading, onEdit, onDelete })
                 </td>
               ))}
               {/* Botones de editar y/o eliminar por fila */}
-              {(onEdit || onDelete) && (
+              {(onView || onEdit || onDelete) && (
                 <td>
                   <div className='btn-group btn-group-sm'>
+                    {onView && (
+                      <button className='btn btn-outline-info' onClick={() => onView(row)} title='Ver'>
+                        <i className='bi bi-eye' />
+                      </button>
+                    )}
                     {onEdit && (
                       <button className='btn btn-outline-primary' onClick={() => onEdit(row)} title='Editar'>
                         <i className='bi bi-pencil' />

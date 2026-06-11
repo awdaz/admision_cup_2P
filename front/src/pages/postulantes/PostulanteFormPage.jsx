@@ -6,7 +6,9 @@ import FormPageLayout from '../../components/ui/FormPageLayout'
 import SubmitButton from '../../components/ui/SubmitButton'
 import CancelButton from '../../components/ui/CancelButton'
 import Loader from '../../components/ui/Loader'
+import { SEXO, str } from '../../constants'
 
+// Caso de Uso: CU05 — Gestionar postulantes
 // Página de formulario para crear o editar un postulante
 // Rutas: "/postulantes/nuevo" (crear) y "/postulantes/:id/editar" (editar)
 // Acceso: Usuarios autenticados
@@ -116,8 +118,8 @@ export default function PostulanteFormPage () {
             <label className='form-label'>Sexo</label>
             <select name='sexo' className='form-select' value={form.sexo} onChange={handleChange}>
               <option value=''>Seleccionar...</option>
-              <option value='Masculino'>Masculino</option>
-              <option value='Femenino'>Femenino</option>
+              <option value={str(SEXO.MASCULINO)}>Masculino</option>
+              <option value={str(SEXO.FEMENINO)}>Femenino</option>
             </select>
           </div>
           <div className='col-md-4'>

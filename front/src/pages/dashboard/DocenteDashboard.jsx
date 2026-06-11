@@ -1,9 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { toast } from 'sonner'
 import useReportes from '../../hooks/useReportes'
 import StatCard from '../../components/ui/StatCard'
 import ProgressBar from '../../components/ui/ProgressBar'
+import ExportButtons from '../../components/ui/ExportButtons'
 
+// Casos de Uso: CU13 (Visualizar dashboard), CU14 (Generar reportes)
 export default function DocenteDashboard () {
   const { getReporteDocenteMisGrupos, loading } = useReportes()
   const [data, setData] = useState(null)
@@ -22,6 +24,16 @@ export default function DocenteDashboard () {
   const stats = data?.stats || {}
   const grupos = data?.grupos || []
 
+  const exportColumns = useMemo(() => [
+    { key: 'codigo', label: 'Código' },
+    { key: 'nombre', label: 'Nombre' },
+    { label: 'Materia', render: (row) => row.materia?.nombre || '-' },
+    { key: 'cupo', label: 'Cupo' },
+    { label: 'Estudiantes', render: (row) => row.postulacion_grupos?.length || 0 },
+    { label: 'Exámenes', render: (row) => row.examenes?.length || 0 },
+    { label: 'Ocupación', render: (row) => row.cupo > 0 ? Math.round(((row.postulacion_grupos?.length || 0) / row.cupo) * 100) + '%' : '0%' }
+  ], [])
+
   return (
     <div>
       <div className='row g-3 mb-4'>
@@ -32,9 +44,12 @@ export default function DocenteDashboard () {
 
       <div className='d-flex justify-content-between align-items-center mb-2'>
         <strong>Grupos Asignados</strong>
-        <button className='btn btn-sm btn-outline-secondary' onClick={() => window.print()}>
-          <i className='bi bi-printer' />
-        </button>
+        <div className='d-flex gap-2'>
+          <ExportButtons columns={exportColumns} data={grupos} title='Docente-Grupos' />
+          <button className='btn btn-sm btn-outline-secondary' onClick={() => window.print()}>
+            <i className='bi bi-printer' />
+          </button>
+        </div>
       </div>
       <div className='table-responsive'>
         <table className='table table-hover table-striped align-middle'>

@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 
 // Controlador CRUD de postulantes — administra los perfiles de postulante
 // con sus datos personales y postulaciones asociadas.
+// Caso de Uso: CU05 — Gestionar postulantes
 class PostulanteController extends Controller
 {
     // Lista postulantes paginados (15 por página) con filtro opcional de búsqueda por CI/nombre/apellido.
@@ -39,7 +40,21 @@ class PostulanteController extends Controller
             $query->whereHas('persona', function ($q) use ($search) {
                 $q->where('ci', 'ilike', "%{$search}%")
                   ->orWhere('nombre', 'ilike', "%{$search}%")
-                  ->orWhere('apellido', 'ilike', "%{$search}%");
+                  ->orWhere('apellido', 'ilike', "%{$search}%")
+                  ->orWhereRaw("CONCAT(nombre, ' ', apellido) ILIKE ?", ["%{$search}%"]);
+            });
+        }
+
+        if ($request->filled('aprobado')) {
+            $aprobado = $request->boolean('aprobado');
+            $query->whereHas('postulacions', function ($q) use ($aprobado) {
+                $q->where('aprobado', $aprobado);
+            });
+        }
+
+        if ($request->filled('estado_postulacion')) {
+            $query->whereHas('postulacions', function ($q) {
+                $q->where('estado', request('estado_postulacion'));
             });
         }
 
@@ -54,6 +69,7 @@ class PostulanteController extends Controller
             if ($post) {
                 $post->load('carreraRel');
                 $p->setRelation('postulacion', $post);
+                $p->setAttribute('promedio_general', $post->promedio_general);
             }
             return $p;
         });
@@ -101,7 +117,7 @@ class PostulanteController extends Controller
     public function show($id, Request $request): JsonResponse
     {
         $user = $request->user();
-        $postulante = Postulante::with(['persona', 'postulacions'])->find($id);
+        $postulante = Postulante::with(['persona', 'postulacion.postulacionGrupos.grupo.materia', 'postulacion.postulacionGrupos.grupo.turno'])->find($id);
 
         if (!$postulante) {
             return response()->json(['message' => 'Postulante no encontrado.'], 404);

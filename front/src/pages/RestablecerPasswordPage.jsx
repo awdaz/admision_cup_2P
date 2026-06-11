@@ -3,9 +3,12 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import cliente from '../api/cliente'
 import Alert from '../components/ui/Alert'
 
-// Página para restablecer la contraseña usando un token de recuperación
-// Ruta: "/reset-password" — Acceso: Público (con token válido)
-// Permite al usuario ingresar email, token y nueva contraseña para cambiar su clave
+// Caso de Uso: CU03 — Recuperar Contraseña
+
+// Caso de Uso: CU03 — Recuperar Contraseña
+// Página para restablecer la contraseña usando un código de 6 dígitos
+// Ruta: "/restablecer-password" — Acceso: Público
+// Permite al usuario ingresar email, código y nueva contraseña
 export default function RestablecerPasswordPage () {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
@@ -14,8 +17,8 @@ export default function RestablecerPasswordPage () {
 
   // Correo electrónico del usuario
   const [email, setEmail] = useState(initialEmail)
-  // Token de recuperación recibido por correo
-  const [token, setToken] = useState('')
+  // Código de 6 dígitos recibido por correo
+  const [code, setCode] = useState('')
   // Nueva contraseña ingresada
   const [password, setPassword] = useState('')
   // Confirmación de la nueva contraseña
@@ -27,7 +30,7 @@ export default function RestablecerPasswordPage () {
   // Mensaje de éxito al restablecer la contraseña
   const [success, setSuccess] = useState('')
 
-  // Envía email + token + nueva contraseña al backend; redirige al login tras 2 segundos
+  // Envía email + código + nueva contraseña al backend; redirige al login tras 2 segundos
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
@@ -40,7 +43,7 @@ export default function RestablecerPasswordPage () {
 
     setLoading(true)
     try {
-      await cliente.post('/reset-password', { email, token, password })
+      await cliente.post('/reset-password', { email, code, password })
       setSuccess('Contraseña restablecida correctamente.')
       setTimeout(() => navigate('/login'), 2000)
     } catch (err) {
@@ -57,7 +60,7 @@ export default function RestablecerPasswordPage () {
           <div className='text-center mb-4'>
             <i className='bi bi-key' style={{ fontSize: '3rem', color: 'var(--primary)' }} />
             <h3 className='mt-2'>Restablecer Contraseña</h3>
-            <p className='text-muted'>Ingrese su nueva contraseña</p>
+            <p className='text-muted'>Ingrese el código recibido y su nueva contraseña</p>
           </div>
 
           <Alert type='danger' message={error} />
@@ -70,8 +73,18 @@ export default function RestablecerPasswordPage () {
             </div>
 
             <div className='mb-3'>
-              <label className='form-label'>Token de Recuperación</label>
-              <input type='text' className='form-control' value={token} onChange={(e) => setToken(e.target.value)} required placeholder='Ingrese el token recibido' />
+              <label className='form-label'>Código de Recuperación</label>
+              <input
+                type='text'
+                className='form-control'
+                value={code}
+                onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                required
+                maxLength={6}
+                placeholder='Ingrese el código de 6 dígitos'
+                inputMode='numeric'
+                autoComplete='one-time-code'
+              />
             </div>
 
             <div className='mb-3'>
@@ -97,8 +110,11 @@ export default function RestablecerPasswordPage () {
           </form>
 
           <div className='text-center mt-3'>
+            <Link to='/recuperar-password' className='text-decoration-none me-3'>
+              <i className='bi bi-arrow-left me-1' />Solicitar nuevo código
+            </Link>
             <Link to='/login' className='text-decoration-none'>
-              <i className='bi bi-arrow-left me-1' />Volver al inicio de sesión
+              Volver al inicio
             </Link>
           </div>
         </div>

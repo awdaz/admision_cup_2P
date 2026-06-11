@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 import cliente from '../../api/cliente'
 import { toast } from 'sonner'
@@ -6,19 +6,13 @@ import Loader from '../../components/ui/Loader'
 import SubmitButton from '../../components/ui/SubmitButton'
 import CancelButton from '../../components/ui/CancelButton'
 
-// Página de gestión de requisitos de un postulante
-// Ruta: "/postulantes/:id/requisitos" — Acceso: Usuarios autenticados
-// Permite marcar/desmarcar requisitos como cumplidos y guardar los cambios
 export default function RequisitosPage () {
   const { id } = useParams()
-  // Lista de requisitos con su estado de cumplido
   const [requisitos, setRequisitos] = useState([])
-  // Indica si los requisitos están cargando
   const [loading, setLoading] = useState(true)
-  // Indica si se están guardando los cambios
   const [saving, setSaving] = useState(false)
+  const [verificado, setVerificado] = useState(false)
 
-  // Al montar, carga la lista de requisitos desde GET /postulantes/:id/requisitos
   useEffect(() => {
     (async () => {
       try {
@@ -33,7 +27,10 @@ export default function RequisitosPage () {
     })()
   }, [id])
 
-  // Alterna el estado cumplido de un requisito en la posición dada
+  const cumplidos = useMemo(() => requisitos.filter((r) => r.cumplido).length, [requisitos])
+  const total = requisitos.length
+  const todosCumplidos = total > 0 && cumplidos === total
+
   const toggleRequisito = (index) => {
     setRequisitos((prev) =>
       prev.map((r, i) => (i === index ? { ...r, cumplido: !r.cumplido } : r))
@@ -43,8 +40,9 @@ export default function RequisitosPage () {
   const handleSave = async () => {
     setSaving(true)
     try {
-      await cliente.put(`/postulantes/${id}/requisitos`, { requisitos })
-      toast.success('Requisitos actualizados correctamente')
+      const res = await cliente.put(`/postulantes/${id}/requisitos`, { requisitos })
+      setVerificado(todosCumplidos)
+      toast.success(res?.message || 'Requisitos actualizados correctamente')
     } catch (err) {
       toast.error(err.message)
     } finally {
@@ -62,8 +60,13 @@ export default function RequisitosPage () {
         </div>
 
         <div className='card shadow-sm'>
-          <div className='card-header'>
+          <div className='card-header d-flex justify-content-between align-items-center'>
             <strong>Requisitos del Postulante</strong>
+            {total > 0 && (
+              <span className={`badge ${todosCumplidos ? 'bg-success' : 'bg-warning text-dark'}`}>
+                {cumplidos}/{total} cumplidos
+              </span>
+            )}
           </div>
           <div className='card-body'>
             {requisitos.length === 0
@@ -71,28 +74,36 @@ export default function RequisitosPage () {
                 <p className='text-muted mb-0'>No hay requisitos configurados</p>
                 )
               : (
-                <div className='list-group list-group-flush'>
-                  {requisitos.map((req, idx) => (
-                    <div
-                      key={idx}
-                      className='list-group-item d-flex align-items-center gap-3'
-                      style={{ cursor: 'pointer' }}
-                      onClick={() => toggleRequisito(idx)}
-                    >
-                      <input
-                        type='checkbox'
-                        className='form-check-input'
-                        checked={!!req.cumplido}
-                        onChange={() => toggleRequisito(idx)}
-                        id={`req-${idx}`}
-                      />
-                      <label className='form-check-label flex-grow-1' htmlFor={`req-${idx}`}>
-                        {req.nombre || req.requisito_nombre || `Requisito ${idx + 1}`}
-                      </label>
-                      <i className={`bi ${req.cumplido ? 'bi-check-circle-fill text-success' : 'bi-circle text-muted'}`} />
+                <>
+                  <div className='list-group list-group-flush'>
+                    {requisitos.map((req, idx) => (
+                      <div
+                        key={req.requisito_id || idx}
+                        className='list-group-item d-flex align-items-center gap-3'
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => toggleRequisito(idx)}
+                      >
+                        <input
+                          type='checkbox'
+                          className='form-check-input'
+                          checked={!!req.cumplido}
+                          onChange={() => toggleRequisito(idx)}
+                          id={`req-${idx}`}
+                        />
+                        <label className='form-check-label flex-grow-1' htmlFor={`req-${idx}`}>
+                          {req.nombre || req.requisito_nombre || `Requisito ${idx + 1}`}
+                        </label>
+                        <i className={`bi ${req.cumplido ? 'bi-check-circle-fill text-success' : 'bi-circle text-muted'}`} />
+                      </div>
+                    ))}
+                  </div>
+                  {(todosCumplidos || verificado) && (
+                    <div className='alert alert-success mt-3 mb-0 d-flex align-items-center gap-2'>
+                      <i className='bi bi-check-circle-fill' />
+                      <span>Todos los requisitos cumplidos. El postulante ya puede postular.</span>
                     </div>
-                  ))}
-                </div>
+                  )}
+                </>
                 )}
           </div>
           {requisitos.length > 0 && (

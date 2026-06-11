@@ -9,11 +9,13 @@ import HeaderBar from '../../components/ui/HeaderBar'
 import FilterSelect from '../../components/ui/FilterSelect'
 import BadgeStatus from '../../components/ui/BadgeStatus'
 import Pagination from '../../components/ui/Pagination'
+import { ROLES, ACTIVO, str } from '../../constants'
 
+// Caso de Uso: CU17 — Gestionar usuario
 const roles = [
-  { id: 'admin', nombre: 'Administrador' },
-  { id: 'postulante', nombre: 'Postulante' },
-  { id: 'docente', nombre: 'Docente' }
+  { id: str(ROLES.ADMIN), nombre: 'Administrador' },
+  { id: str(ROLES.POSTULANTE), nombre: 'Postulante' },
+  { id: str(ROLES.DOCENTE), nombre: 'Docente' }
 ]
 
 export default function UserListPage () {
@@ -62,7 +64,7 @@ export default function UserListPage () {
       key: 'activo',
       label: 'Estado',
       render: (row) => (
-        <BadgeStatus value={row.activo ? 'Activo' : 'Inactivo'} colors={{ Activo: 'success', Inactivo: 'danger' }} />
+        <BadgeStatus value={row.activo ? str(ACTIVO.ACTIVO) : str(ACTIVO.INACTIVO)} colors={{ [str(ACTIVO.ACTIVO)]: 'success', [str(ACTIVO.INACTIVO)]: 'danger' }} />
       )
     }
   ]

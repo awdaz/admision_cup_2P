@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Mail\PasswordResetCode;
 use App\Models\Persona;
 use App\Models\Postulante;
 use App\Models\User;
@@ -10,11 +11,13 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 // Controlador de autenticación — gestiona el inicio/cierre de sesión,
 // registro de postulantes y recuperación de contraseñas del sistema CUP-FICCT.
+// Casos de Uso: CU01 (Iniciar Sesión), CU02 (Cerrar Sesión), CU03 (Recuperar Contraseña), CU04 (Auto-Registro de postulante)
 class AuthController extends Controller
 {
     // Autentica al usuario con username y password, devuelve token Sanctum.
@@ -129,45 +132,54 @@ class AuthController extends Controller
         }
     }
 
-    // Genera un token para restablecer contraseña y lo almacena en la tabla password_reset_tokens.
-    // Parámetros: email (string, debe existir en 'usuario').
-    // Retorna: mensaje informativo y el token generado (modo simulación, sin envío de correo).
+    // Genera un código de 6 dígitos para restablecer contraseña y lo envía al correo del usuario.
+    // Parámetros: username (string, debe existir en 'usuario').
+    // Busca el email del usuario por su username, envía el código a ese email.
+    // Retorna: mensaje informativo y el email para el siguiente paso.
     public function forgotPassword(Request $request): JsonResponse
     {
         $request->validate([
-            'email' => 'required|email|exists:usuario,email',
+            'username' => 'required|string|exists:usuario,username',
         ]);
 
-        $token = Str::random(60);
+        $user = User::where('username', $request->username)->firstOrFail();
+
+        $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
         DB::table('password_reset_tokens')->updateOrInsert(
-            ['email' => $request->email],
-            ['email' => $request->email, 'token' => Hash::make($token), 'created_at' => now()]
+            ['email' => $user->email],
+            ['email' => $user->email, 'token' => Hash::make($code), 'created_at' => now()]
         );
 
+        Mail::to($user->email)->send(new PasswordResetCode($code));
+
         return response()->json([
-            'message' => 'Si el correo está registrado, recibirá un enlace para restablecer su contraseña.',
-            'token' => $token,
-            '_dev_note' => 'Modo simulación — token devuelto para pruebas sin servidor de correo.',
+            'message' => 'Hemos enviado un código de 6 dígitos a tu correo electrónico.',
+            'email' => $user->email,
         ]);
     }
 
-    // Restablece la contraseña validando el token almacenado en password_reset_tokens.
-    // Parámetros: email, token (string), password (string, min:6).
-    // Retorna: mensaje de éxito o error 400 si el token es inválido/expirado.
-    // Tras restablecer, elimina el registro del token usado.
+    // Restablece la contraseña validando el código de 6 dígitos almacenado en password_reset_tokens.
+    // Parámetros: email, code (string de 6 dígitos), password (string, min:6).
+    // Retorna: mensaje de éxito o error 400 si el código es inválido/expirado.
+    // Tras restablecer, elimina el registro del código usado.
     public function resetPassword(Request $request): JsonResponse
     {
         $request->validate([
             'email' => 'required|email|exists:usuario,email',
-            'token' => 'required|string',
+            'code' => 'required|string|size:6',
             'password' => 'required|string|min:6',
         ]);
 
         $record = DB::table('password_reset_tokens')->where('email', $request->email)->first();
 
-        if (!$record || !Hash::check($request->token, $record->token)) {
-            return response()->json(['message' => 'Token inválido o expirado.'], 400);
+        if (!$record || !Hash::check($request->code, $record->token)) {
+            return response()->json(['message' => 'Código inválido o expirado.'], 400);
+        }
+
+        if ($record->created_at && now()->diffInMinutes($record->created_at) > 60) {
+            DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+            return response()->json(['message' => 'El código ha expirado. Solicita uno nuevo.'], 400);
         }
 
         $user = User::where('email', $request->email)->first();

@@ -17,7 +17,7 @@ export default function SearchBar ({ value: externalValue, onChange, onSearch, p
         className='form-control'
         placeholder={placeholder}
         value={value}
-        onChange={(e) => setValue(e.target.value)}
+        onChange={(e) => setValue(e)}
       />
       <button className='btn btn-outline-secondary' type='submit'>
         <i className='bi bi-search' />

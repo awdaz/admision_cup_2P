@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 
 // Controlador de docentes — gestiona el CRUD de docentes y su contratación
 // en el sistema CUP-FICCT.
+// Caso de Uso: CU15 — Gestionar docentes
 class DocenteController extends Controller
 {
     // Lista docentes paginados (15 por página) con filtro opcional de búsqueda y estado contratado.

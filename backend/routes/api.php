@@ -27,6 +27,11 @@ Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
 // ============================================================
+// Rutas públicas — webhooks / callbacks
+// ============================================================
+Route::post('/pagos/libelula/callback', [PagoController::class, 'libelulaCallback']);
+
+// ============================================================
 // Rutas protegidas — cualquier usuario autenticado via Sanctum
 // ============================================================
 Route::middleware('auth:sanctum')->group(function () {
@@ -50,9 +55,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/postulaciones/{postulacion}', [PostulacionController::class, 'show']);
     Route::put('/postulaciones/{postulacion}/cancelar', [PostulacionController::class, 'cancelar']);
 
-    // --- Pagos (lectura: admin y postulante propio) ---
+    // --- Pagos (lectura: admin y postulante propio; creación: admin y postulante) ---
     Route::get('/pagos', [PagoController::class, 'index']);
+    Route::post('/pagos', [PagoController::class, 'store']);
     Route::get('/pagos/{pago}', [PagoController::class, 'show']);
+    Route::post('/pagos/libelula/checkout', [PagoController::class, 'libelulaCheckout']);
 
     // --- Docentes (lectura: todos los autenticados) ---
     Route::get('/docentes', [DocenteController::class, 'index']);
@@ -85,6 +92,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/reportes/admision', [ReporteController::class, 'admision']);
     Route::get('/reportes/docente/mis-grupos', [ReporteController::class, 'docenteMisGrupos']);
     Route::get('/reportes/postulante/mis-notas', [ReporteController::class, 'postulanteMisNotas']);
+    Route::get('/reportes/promedios-globales', [ReporteController::class, 'promediosGlobales']);
+    Route::get('/reportes/estadisticas-materias', [ReporteController::class, 'estadisticasMaterias']);
+    Route::get('/reportes/grupos-ranking-aprobados', [ReporteController::class, 'gruposRankingAprobados']);
 
     // --- Catálogos / Maestras (accesible por todos los roles) ---
     Route::get('/carreras', [CatalogoController::class, 'carreras']);
@@ -109,8 +119,7 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     // --- Requisitos (escritura) ---
     Route::put('/postulantes/{postulante}/requisitos', [RequisitoController::class, 'update']);
 
-    // --- Pagos (escritura: registrar y confirmar) ---
-    Route::post('/pagos', [PagoController::class, 'store']);
+    // --- Pagos (confirmar: solo admin) ---
     Route::put('/pagos/{pago}/confirmar', [PagoController::class, 'confirmar']);
 
     // --- Docentes (escritura: CRUD + contratar + disponibilidad) ---
@@ -141,6 +150,7 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     // --- Admisión (procesar admisión, generar grupos, consultar cupos) ---
     Route::post('/admisiones/{admision}/procesar', [AdmisionProcesoController::class, 'procesar']);
     Route::post('/admisiones/{admision}/generar-grupos', [AdmisionProcesoController::class, 'generarGrupos']);
+    Route::post('/admisiones/{admision}/asignar-grupos', [AdmisionProcesoController::class, 'asignarGrupos']);
     Route::get('/admisiones/{admision}/cupos', [AdmisionProcesoController::class, 'cupos']);
     Route::get('/admisiones/{admision}/postulantes-cupo', [AdmisionProcesoController::class, 'listarPostulantesCupo']);
 

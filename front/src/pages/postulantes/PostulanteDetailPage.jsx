@@ -8,7 +8,9 @@ import Alert from '../../components/ui/Alert'
 import BadgeStatus from '../../components/ui/BadgeStatus'
 import FormCard from '../../components/ui/FormCard'
 import NuevaPostulacionModal from '../../components/postulantes/NuevaPostulacionModal'
+import { SEXO, ESTADOS, str } from '../../constants'
 
+// Caso de Uso: CU05 — Gestionar postulantes
 // Página de detalle de un postulante
 // Ruta: "/postulantes/:id" — Acceso: Usuarios autenticados
 // Muestra información personal, postulación, requisitos y pagos del postulante
@@ -101,8 +103,8 @@ export default function PostulanteDetailPage () {
           <button className='btn btn-outline-warning' onClick={() => setShowModal(true)}>
             <i className='bi bi-file-earmark-plus me-1' />Postular
           </button>
-          <button className='btn btn-outline-success' onClick={() => navigate(`/pagos/nuevo?postulante_id=${id}`)}>
-            <i className='bi bi-credit-card me-1' />Registrar Pago
+          <button className='btn btn-outline-success' onClick={() => navigate('/pagos')}>
+            <i className='bi bi-credit-card me-1' />Ver Pagos
           </button>
         </div>
       </div>
@@ -115,7 +117,7 @@ export default function PostulanteDetailPage () {
                 <tr><td className='text-muted' style={{ width: '140px' }}>CI</td><td>{postulante?.ci}</td></tr>
                 <tr><td className='text-muted'>Nombre</td><td>{postulante?.nombre} {postulante?.apellido}</td></tr>
                 <tr><td className='text-muted'>Fecha Nac.</td><td>{postulante?.fecha_nac || '-'}</td></tr>
-                <tr><td className='text-muted'>Sexo</td><td>{postulante?.sexo === 'Masculino' ? 'Masculino' : postulante?.sexo === 'Femenino' ? 'Femenino' : postulante?.sexo === 'M' ? 'Masculino' : postulante?.sexo === 'F' ? 'Femenino' : postulante?.sexo || '-'}</td></tr>
+                <tr><td className='text-muted'>Sexo</td><td>{postulante?.sexo === str(SEXO.MASCULINO) ? 'Masculino' : postulante?.sexo === str(SEXO.FEMENINO) ? 'Femenino' : postulante?.sexo === str(SEXO.M) ? 'Masculino' : postulante?.sexo === str(SEXO.F) ? 'Femenino' : postulante?.sexo || '-'}</td></tr>
                 <tr><td className='text-muted'>Email</td><td>{postulante?.email}</td></tr>
                 <tr><td className='text-muted'>Teléfono</td><td>{postulante?.telefono || '-'}</td></tr>
                 <tr><td className='text-muted'>Dirección</td><td>{postulante?.direccion || '-'}</td></tr>
@@ -130,15 +132,32 @@ export default function PostulanteDetailPage () {
           <FormCard title='Postulación' className='h-100'>
             {postulante?.postulacion
               ? (
-                <table className='table table-hover table-striped align-middle table-sm table-borderless'>
-                  <tbody>
-                    <tr><td className='text-muted' style={{ width: '140px' }}>Carrera</td><td>{postulante?.postulacion?.carrera_nombre || '-'}</td></tr>
-                    <tr><td className='text-muted'>Turno</td><td>{postulante?.postulacion?.turno_nombre || '-'}</td></tr>
-                    <tr><td className='text-muted'>Semestre</td><td>{postulante?.postulacion?.semestre_nombre || '-'}</td></tr>
-                    <tr><td className='text-muted'>Estado</td><td><BadgeStatus value={postulante?.postulacion?.estado} /></td></tr>
-                    <tr><td className='text-muted'>Fecha</td><td>{postulante?.postulacion?.fecha || postulante?.postulacion?.created_at || '-'}</td></tr>
-                  </tbody>
-                </table>
+                <>
+                  <table className='table table-hover table-striped align-middle table-sm table-borderless'>
+                    <tbody>
+                      <tr><td className='text-muted' style={{ width: '140px' }}>Carrera</td><td>{postulante?.postulacion?.carrera_nombre || '-'}</td></tr>
+                      <tr><td className='text-muted'>Turno</td><td>{postulante?.postulacion?.turno_nombre || '-'}</td></tr>
+                      <tr><td className='text-muted'>Semestre</td><td>{postulante?.postulacion?.semestre_nombre || '-'}</td></tr>
+                      <tr><td className='text-muted'>Estado</td><td><BadgeStatus value={postulante?.postulacion?.estado} /></td></tr>
+                      <tr><td className='text-muted'>Fecha</td><td>{postulante?.postulacion?.fecha || postulante?.postulacion?.created_at || '-'}</td></tr>
+                      <tr><td className='text-muted'>Prom. Gral.</td><td><strong>{postulante?.postulacion?.promedio_general ?? '-'}</strong></td></tr>
+                      <tr><td className='text-muted'>Aprobado</td><td>{postulante?.postulacion?.aprobado === null || postulante?.postulacion?.aprobado === undefined ? '-' : postulante.postulacion.aprobado ? <BadgeStatus value='Sí' colors={{ Sí: 'success' }} /> : <BadgeStatus value='No' colors={{ No: 'danger' }} />}</td></tr>
+                    </tbody>
+                  </table>
+                  {postulante?.postulacion?.postulacion_grupos?.length > 0 && (
+                    <div className='mt-3'>
+                      <h6 className='text-muted mb-2'>Grupos Asignados</h6>
+                      <div className='d-flex flex-wrap gap-2'>
+                        {postulante.postulacion.postulacion_grupos.map((pg) => (
+                          <span key={pg.id} className='badge bg-info fs-6 px-3 py-2'>
+                            {pg.grupo?.materia?.nombre}: {pg.grupo?.codigo}
+                            {pg.grupo?.turno ? ` (${pg.grupo.turno.nombre})` : ''}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
                 )
               : (
                 <p className='text-muted mb-0'>Sin postulación registrada</p>
@@ -176,7 +195,7 @@ export default function PostulanteDetailPage () {
                         <strong>Bs. {pago.monto}</strong>
                         <small className='d-block text-muted'>{pago.metodo_pago} - {pago.fecha || pago.created_at}</small>
                       </div>
-                      <BadgeStatus value={pago.estado} colors={{ rechazado: 'warning' }} />
+                      <BadgeStatus value={pago.estado} colors={{ [str(ESTADOS.PAGO.RECHAZADO)]: 'warning' }} />
                     </li>
                   ))}
                 </ul>

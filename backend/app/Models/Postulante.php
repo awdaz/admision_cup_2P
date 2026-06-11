@@ -60,6 +60,11 @@ class Postulante extends Model
         return $this->hasMany(Postulacion::class, 'postulante_id');
     }
 
+    public function postulacion()
+    {
+        return $this->hasOne(Postulacion::class, 'postulante_id')->latestOfMany();
+    }
+
     public function pagos()
     {
         return $this->hasMany(Pago::class, 'postulante_id');

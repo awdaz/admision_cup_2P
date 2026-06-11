@@ -23,7 +23,6 @@ import EstudiantesPage from '../pages/estudiantes/EstudiantesPage'
 import MisNotasPage from '../pages/estudiantes/MisNotasPage'
 import RequisitosPage from '../pages/requisitos/RequisitosPage'
 import PagoListPage from '../pages/pagos/PagoListPage'
-import PagoFormPage from '../pages/pagos/PagoFormPage'
 import UserListPage from '../pages/usuarios/UserListPage'
 import UserFormPage from '../pages/usuarios/UserFormPage'
 import AdmisionListPage from '../pages/admisiones/AdmisionListPage'
@@ -86,9 +85,8 @@ export default function AppRouter () {
           <Route path='/mis-notas' element={<MisNotasPage />} />
           <Route path='/admisiones' element={<AdmisionListPage />} />
 
-          {/* CRUD de pagos */}
+          {/* Pagos */}
           <Route path='/pagos' element={<PagoListPage />} />
-          <Route path='/pagos/nuevo' element={<PagoFormPage />} />
 
           {/* CRUD de usuarios del sistema */}
           <Route path='/usuarios' element={<UserListPage />} />

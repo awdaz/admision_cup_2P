@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 
 // Controlador de postulaciones — gestiona las solicitudes de inscripción
 // de postulantes a carreras en el sistema CUP-FICCT.
+// Caso de Uso: CU06 — Realizar postulación
 class PostulacionController extends Controller
 {
     // Lista postulaciones paginadas (15 por página) con filtros opcionales (estado, admision_id, postulante_id).
@@ -97,7 +98,7 @@ class PostulacionController extends Controller
             ], 422);
         }
 
-        $admisionId = $request->admision_id;
+        $admisionId = $request->admision_id ?? \App\Models\Admision::where('estado', 'activo')->value('id');
         $postulacionExistente = $postulante->postulacions()
             ->when($admisionId, fn($q) => $q->where('admision_id', $admisionId))
             ->first();
@@ -116,6 +117,7 @@ class PostulacionController extends Controller
                 'fecha' => now()->toDateString(),
                 'hora' => now()->toTimeString(),
                 'postulante_id' => $postulante->id,
+                'carrera_id' => $request->primera_opcion_id,
                 'primera_opcion_id' => $request->primera_opcion_id,
                 'segunda_opcion_id' => $request->segunda_opcion_id,
                 'turno_id' => $request->turno_id,
@@ -158,6 +160,7 @@ class PostulacionController extends Controller
             'admision',
             'pagos',
             'postulacionGrupos.grupo.materia',
+            'postulacionGrupos.grupo.turno',
             'rindes.examen',
         ])->find($id);
 

@@ -8,7 +8,9 @@ import FormPageLayout from '../../components/ui/FormPageLayout'
 import SubmitButton from '../../components/ui/SubmitButton'
 import CancelButton from '../../components/ui/CancelButton'
 import FormCard from '../../components/ui/FormCard'
+import { METODOS_PAGO, str } from '../../constants'
 
+// Caso de Uso: CU07 — Realizar pago
 // Página de formulario para registrar un nuevo pago
 // Ruta: /pagos/nuevo (con ?postulante_id opcional)
 // Acceso: Administradores y personal de cobros
@@ -26,7 +28,7 @@ export default function PagoFormPage () {
   const [form, setForm] = useState({
     postulante_id: preselectedId || '',
     monto: '',
-    metodo_pago: 'efectivo'
+    metodo_pago: str(METODOS_PAGO.PASARELA)
   })
   const [submitting, setSubmitting] = useState(false) // Estado de envío del formulario
   const [pageLoading, setPageLoading] = useState(true) // Estado de carga inicial
@@ -169,16 +171,7 @@ export default function PagoFormPage () {
                 min='0'
               />
             </div>
-            <div className='col-md-6'>
-              <label className='form-label'>Método de Pago</label>
-              <select name='metodo_pago' className='form-select' value={form.metodo_pago} onChange={handleChange} required>
-                <option value='efectivo'>Efectivo</option>
-                <option value='transferencia'>Transferencia</option>
-                <option value='tarjeta'>Tarjeta</option>
-                <option value='qr'>QR</option>
-                <option value='pasarela'>Pasarela</option>
-              </select>
-            </div>
+            <input type='hidden' name='metodo_pago' value={str(METODOS_PAGO.PASARELA)} />
           </div>
 
           <div className='mt-4 d-flex gap-2'>

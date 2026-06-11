@@ -31,11 +31,26 @@ export default function useReportes () {
     return exec(() => cliente.get('/reportes/postulante/mis-notas'))
   }, [exec])
 
+  const getPromediosGlobales = useCallback(() => {
+    return exec(() => cliente.get('/reportes/promedios-globales'))
+  }, [exec])
+
+  const getEstadisticasMaterias = useCallback(() => {
+    return exec(() => cliente.get('/reportes/estadisticas-materias'))
+  }, [exec])
+
+  const getGruposRankingAprobados = useCallback(() => {
+    return exec(() => cliente.get('/reportes/grupos-ranking-aprobados'))
+  }, [exec])
+
   return {
     loading,
     error,
     getReporteAdmision,
     getReporteDocenteMisGrupos,
-    getReportePostulanteMisNotas
+    getReportePostulanteMisNotas,
+    getPromediosGlobales,
+    getEstadisticasMaterias,
+    getGruposRankingAprobados
   }
 }

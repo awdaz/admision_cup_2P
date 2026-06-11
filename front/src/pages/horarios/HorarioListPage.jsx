@@ -4,35 +4,45 @@ import { toast } from 'sonner'
 import { confirmDialog } from '../../utils/confirmDialog'
 import useHorarios from '../../hooks/useHorarios'
 import useGrupos from '../../hooks/useGrupos'
+import useCatalogos from '../../hooks/useCatalogos'
 import HeaderBar from '../../components/ui/HeaderBar'
 import FilterSelect from '../../components/ui/FilterSelect'
+import { DIAS_SEMANA, str } from '../../constants'
 
-// Días de la semana disponibles para horarios
-const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+const DIAS = DIAS_SEMANA.map(str)
 
 export default function HorarioListPage () {
   const navigate = useNavigate()
   const { getHorarios, deleteHorario, loading } = useHorarios()
   const { getGrupos } = useGrupos()
-  const [horarios, setHorarios] = useState([]) // Lista de horarios desde la API
-  const [grupos, setGrupos] = useState([]) // Lista de grupos para el filtro
-  const [filtroGrupo, setFiltroGrupo] = useState('') // Filtro por grupo
-  const [filtroDia, setFiltroDia] = useState('') // Filtro por día de la semana
+  const { getMaterias } = useCatalogos()
+  const [horarios, setHorarios] = useState([])
+  const [grupos, setGrupos] = useState([])
+  const [materias, setMaterias] = useState([])
+  const [filtroMateria, setFiltroMateria] = useState('')
+  const [filtroGrupo, setFiltroGrupo] = useState('')
+  const [filtroDia, setFiltroDia] = useState('')
 
-  // Carga la lista de grupos para el selector de filtro al montar
   useEffect(() => {
     (async () => {
-      const d = await getGrupos(1)
+      const d = await getGrupos(1, { per_page: 500 })
       if (d) setGrupos(d.data || d.grupos || [])
     })()
   }, [getGrupos])
 
-  // Carga los horarios aplicando los filtros seleccionados
+  useEffect(() => {
+    (async () => {
+      const d = await getMaterias()
+      if (d) setMaterias(Array.isArray(d) ? d : [])
+    })()
+  }, [getMaterias])
+
   const load = useCallback(async () => {
     try {
       const params = {}
       if (filtroGrupo) params.grupo_id = filtroGrupo
       if (filtroDia) params.dia = filtroDia
+      if (filtroMateria) params.materia_id = filtroMateria
       const data = await getHorarios(params)
       if (data) {
         setHorarios(Array.isArray(data) ? data : data.data || data.horarios || [])
@@ -40,7 +50,7 @@ export default function HorarioListPage () {
     } catch (err) {
       toast.error(err.message)
     }
-  }, [getHorarios, filtroGrupo, filtroDia])
+  }, [getHorarios, filtroGrupo, filtroDia, filtroMateria])
 
   // Recarga al cambiar filtros
   useEffect(() => {
@@ -62,9 +72,12 @@ export default function HorarioListPage () {
     <div>
       <HeaderBar createLabel='Nuevo Horario' onCreate={() => navigate('/horarios/nuevo')} />
 
-      {/* Filtros de búsqueda: grupo y día de la semana */}
+      {/* Filtros: materia, grupo y día */}
       <div className='d-flex flex-wrap gap-2 mb-3'>
-        <div style={{ flex: '0 1 clamp(200px, 30%, 400px)' }}>
+        <div style={{ flex: '0 1 clamp(140px, 20%, 250px)' }}>
+          <FilterSelect value={filtroMateria} onChange={(e) => { setFiltroMateria(e.target.value); setFiltroGrupo('') }} options={materias} mapOption={(m) => m.nombre} />
+        </div>
+        <div style={{ flex: '0 1 clamp(200px, 25%, 350px)' }}>
           <FilterSelect value={filtroGrupo} onChange={(e) => setFiltroGrupo(e.target.value)} options={grupos} mapOption={(g) => `${g.codigo} - ${g.materia?.nombre}`} />
         </div>
         <div style={{ flex: '0 1 clamp(120px, 15%, 200px)' }}>

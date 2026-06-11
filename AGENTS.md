@@ -12,7 +12,8 @@ Sistema web para la gestión del proceso de admisión de la carrera de Ingenier�
 | Auth     | Laravel Sanctum          |
 | UI       | Bootstrap 5 + sonner     |
 | Estado   | Zustand 5                |
-| Routng   | react-router-dom v7      |
+| Routing  | react-router-dom v7      |
+| Linter   | standard (JS)            |
 
 ## Arquitectura
 
@@ -32,23 +33,23 @@ Sistema web para la gestión del proceso de admisión de la carrera de Ingenier�
 
 ```
 /proyecto-cup/
-├── backend/       → Laravel API
-├── front/         → React SPA
+├── backend/       → Laravel API (controladores, modelos, rutas)
+├── front/         → React SPA (componentes, páginas, hooks)
 ├── db/            → SQL, Docker, diagramas
-├── *.md           → documentos del proyecto
-│   ├── AGENTS.md            → Este archivo (visión general)
-│   ├── COMANDOS_PROYECTO.md → Comandos útiles
-│   ├── front/AGENTS.md      → Frontend (componentes, hooks, páginas)
-│   ├── backend/AGENTS.md    → Backend (controladores, rutas)
-│   └── db/AGENTS.md         → Base de datos (esquema, triggers)
+├── AGENTS.md      → Este archivo
+├── COMANDOS_PROYECTO.md
+├── front/AGENTS.md
+├── backend/AGENTS.md
+└── db/AGENTS.md
 ```
 
 ## Convenciones generales
 
-- Laravel serializa relaciones como `snake_case` en JSON.
-- Errores frecuentes: camelCase en JS para atributos que Laravel devuelve como snake_case.
-- Optional chaining (`?.`) obligatorio en frontend al acceder propiedades, funciones opcionales, o elementos de array por índice (`obj?.prop`, `arr?.[i]`, `fn?.()`).
-- Comandos disponibles en `COMANDOS_PROYECTO.md`.
+- **Symbols**: todos los magic strings (estados, roles, sexo, días, etc.) reemplazados por constantes `Symbol()` en `front/src/constants/index.js`. Usar `str(sym)` para obtener el string value cuando se requiere (API, HTML options, BadgeStatus).
+- **Filtros responsivos**: usar `d-flex flex-wrap gap-2` + `flex: [grow] [shrink] clamp(min, preferido, max)` en todos los filtros de listados. Sin Bootstrap grid columns.
+- **Optional chaining** (`?.`) obligatorio al acceder propiedades, funciones opcionales, o elementos de array por índice.
+- **Laravel serializa** relaciones como `snake_case` en JSON.
+- **Comandos** en `COMANDOS_PROYECTO.md`.
 
 ## Postulante vs Estudiante
 
@@ -59,7 +60,4 @@ El sistema distingue dos estados de una misma persona:
 | **Postulante** | Persona registrada que aún no ha sido admitida. Su rol en BD es `postulante`. |
 | **Estudiante** | Postulante cuyo estado de postulación cambió a `admitido`. Sigue teniendo rol `postulante` en BD, pero a nivel UI se muestra como "Estudiante". |
 
-La tabla `postulante` en BD contiene ambos perfiles. El cambio de "Postulante" a "Estudiante" es semántico según el estado de admisión. En componentes de UI:
-- Las listas de personas aplicando se etiquetan como **Postulante**.
-- Las personas ya asignadas a grupos (con notas, horarios, etc.) se etiquetan como **Estudiante**.
-- El rol `tipo: 'postulante'` en la API se mantiene igual para ambos casos.
+La tabla `postulante` en BD contiene ambos perfiles. El cambio es semántico según el estado de admisión.

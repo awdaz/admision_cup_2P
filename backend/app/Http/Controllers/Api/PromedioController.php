@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+// Caso de Uso: CU10 — Calcular promedio
 class PromedioController extends Controller
 {
     public function show($postulacionId): JsonResponse

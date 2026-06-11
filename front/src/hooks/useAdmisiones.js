@@ -40,6 +40,10 @@ export default function useAdmisiones () {
     return exec(() => cliente.get(`/admisiones/${admisionId}/postulantes-cupo`))
   }, [exec])
 
+  const asignarGrupos = useCallback((admisionId) => {
+    return exec(() => cliente.post(`/admisiones/${admisionId}/asignar-grupos`))
+  }, [exec])
+
   return {
     loading,
     error,
@@ -47,6 +51,7 @@ export default function useAdmisiones () {
     procesarAdmision,
     generarGrupos,
     getCupos,
-    getPostulantesCupo
+    getPostulantesCupo,
+    asignarGrupos
   }
 }

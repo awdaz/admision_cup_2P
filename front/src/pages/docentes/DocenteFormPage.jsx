@@ -6,7 +6,9 @@ import Loader from '../../components/ui/Loader'
 import FormPageLayout from '../../components/ui/FormPageLayout'
 import SubmitButton from '../../components/ui/SubmitButton'
 import CancelButton from '../../components/ui/CancelButton'
+import { SEXO, str } from '../../constants'
 
+// Caso de Uso: CU15 — Gestionar docentes
 // Página de formulario para crear o editar un docente
 // Ruta: /docentes/nuevo | /docentes/:id/editar
 // Acceso: Administradores
@@ -122,9 +124,9 @@ export default function DocenteFormPage () {
             <label className='form-label'>Sexo</label>
             <select name='sexo' className='form-select' value={form.sexo} onChange={handleChange}>
               <option value=''>Seleccionar...</option>
-              <option value='Masculino'>Masculino</option>
-              <option value='Femenino'>Femenino</option>
-              <option value='Otro'>Otro</option>
+              <option value={str(SEXO.MASCULINO)}>Masculino</option>
+              <option value={str(SEXO.FEMENINO)}>Femenino</option>
+              <option value={str(SEXO.OTRO)}>Otro</option>
             </select>
           </div>
           <div className='col-md-4'>

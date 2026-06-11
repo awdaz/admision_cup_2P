@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Postulante;
 use App\Models\PostulanteRequisito;
+use App\Models\Requisito;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -23,6 +24,22 @@ class RequisitoController extends Controller
 
         if (!$postulante) {
             return response()->json(['message' => 'Postulante no encontrado.'], 404);
+        }
+
+        $existentes = PostulanteRequisito::where('postulante_id', $postulanteId)->pluck('requisito_id');
+
+        $catalogo = Requisito::all();
+
+        if ($existentes->count() !== $catalogo->count()) {
+            foreach ($catalogo as $req) {
+                if (!$existentes->contains($req->id)) {
+                    PostulanteRequisito::create([
+                        'postulante_id' => $postulanteId,
+                        'requisito_id' => $req->id,
+                        'cumplido' => false,
+                    ]);
+                }
+            }
         }
 
         $requisitos = PostulanteRequisito::with('requisito')
